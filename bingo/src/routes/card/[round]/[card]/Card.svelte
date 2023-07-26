@@ -58,3 +58,8 @@
         {/each}
     </table>
 </div>
+<style>
+    th{
+        text-align: center;
+    }
+</style>
