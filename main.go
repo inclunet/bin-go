@@ -16,7 +16,7 @@ func main() {
 	r.HandleFunc("/api/card/{round}/{card}", b.GetBingoCard)
 	r.HandleFunc("/api/card/{round}/{card}/{number}", b.CheckNumber)
 	http.Handle("/app/", http.FileServer(http.Dir("./bingo/build")))
-	err := http.ListenAndServe(":80", r)
+	err := http.ListenAndServe(":8080", r)
 
 	if err != nil {
 		panic(err)
