@@ -13,3 +13,8 @@
 
 <button aria-pressed={number.Checked} on:click={checkNumber}>{number.Number}</button
 >
+<style>
+button[aria-pressed="true"]{
+    background-color: red;
+}
+</style>
