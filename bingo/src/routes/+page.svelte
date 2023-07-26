@@ -14,5 +14,5 @@ async function new75Card() {
 <h1>Bem-Vindo ao Inclubingo</h1>
 <p>Vamos Jogar Escolha a quantidade de bolinhas que serão sorteadas:</p>
 <ul>
-    <li><button on:click={new75Card}>Bingo com 75 bolinhas</button></li>
+    <li><button on:click={new75Card} class="btn btn-success">Bingo com 75 bolinhas</button></li>
 </ul>
