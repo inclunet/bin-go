@@ -16,3 +16,12 @@ async function new75Card() {
 <ul>
     <li><button on:click={new75Card} class="btn btn-primary">Bingo com 75 bolinhas</button></li>
 </ul>
+<style>
+    h1, p{
+        text-align: center;
+    }
+    button{
+        display: block;
+        margin: 0 auto;
+    }
+</style>

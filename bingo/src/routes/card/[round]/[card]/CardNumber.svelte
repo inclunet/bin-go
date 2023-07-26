@@ -18,8 +18,6 @@
         color: white;
         border-color: black;
     }
-    button:active{
-    }
     button{
         margin: 0.5em;
         width: 60px;

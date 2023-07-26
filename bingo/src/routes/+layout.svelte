@@ -1,9 +1,27 @@
 <header>
-<h1>Inclubingo</h1>
+    <h1>Inclubingo</h1>
 </header>
 <main>
-<slot></slot>
+    <slot></slot>
 </main>
 <footer>
-<p>Jogo de Bingo acessível e inclusivo para pessoas com deficiência.</p>
+    <p>Jogo de Bingo acessível e inclusivo para pessoas com deficiência.</p>
 </footer>
+
+<style>
+    h1, p{
+        text-align: center;
+    }
+    h1{
+        width: 100%;
+        padding-top: 70px;
+        padding-bottom: 30px;
+        margin-bottom: 50px;
+        font-size: 5em;
+        background-color: #6495ED;
+        color: white;
+    }
+    p{
+        margin-top: 30px;
+    }
+</style>

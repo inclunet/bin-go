@@ -9,3 +9,8 @@
     <h2>Cartela de Bingo #{data.Card} rodada #{data.Round}</h2>
     <Card bind:card={data} />
 </div>
+<style>
+    div{
+        text-align: center;
+    }
+</style>

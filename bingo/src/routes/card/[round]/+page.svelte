@@ -17,3 +17,12 @@
     </strong>
 </p>
 <button on:click={startNewGame} class="btn btn-primary">Começar a rodada</button>
+<style>
+    h1, p{
+        text-align: center;
+    }
+    button{
+        display: block;
+        margin: 0 auto;
+    }
+</style>

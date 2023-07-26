@@ -38,7 +38,7 @@
         <li>Bolas sorteadas: {card.Checked}</li>
     </ul>
     <table summary="Cartela">
-        <tr>
+        <tr id="tr_first">
             <th scope="col">B</th>
             <th scope="col">I</th>
             <th scope="col">N</th>
@@ -59,7 +59,16 @@
     </table>
 </div>
 <style>
+    table{
+        margin: 0 auto;
+    }
     th{
         text-align: center;
+    }
+    table, li{
+        margin-top: 40px;
+    }
+    li{
+        font-size: 1.5em;
     }
 </style>
