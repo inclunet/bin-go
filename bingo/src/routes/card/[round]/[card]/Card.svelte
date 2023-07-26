@@ -6,7 +6,7 @@
     export let card = { Card: 0, Round: 0, Checked: 0, Numbers: [[]] };
 
     async function getCard() {
-        const url = "http://localhost/api/card/" + card.Round + "/" + card.Card;
+        const url = "http://localhost:8080/api/card/" + card.Round + "/" + card.Card;
         const response = await fetch(url);
         const loadingCard = await response.json();
         if (card.Card > 0) {
@@ -19,7 +19,7 @@
 
     async function sendNumber(event = {}) {
         const url =
-            "http://localhost/api/card/" +
+            "http://localhost:8080/api/card/" +
             card.Round +
             "/" +
             card.Card +

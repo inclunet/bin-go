@@ -3,7 +3,7 @@
 
 async function new75Card() {
     let card = {Round: 0};
-    const url = "http://localhost/api/card/0/75";
+    const url = "http://localhost:8080/api/card/0/75";
         const response = await fetch(url);
         card = await response.json();
         goto("/card/" + card.Round);
