@@ -48,8 +48,7 @@
         {#each card.Numbers as row}
             <tr>
                 {#each row as number}
-                    <td
-                        ><CardNumber
+                    <td><CardNumber
                             bind:number
                             on:checkNumber={sendNumber}
                         /></td

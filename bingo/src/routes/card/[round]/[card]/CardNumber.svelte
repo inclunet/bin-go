@@ -11,10 +11,21 @@
     }
 </script>
 
-<button aria-pressed={number.Checked} on:click={checkNumber}>{number.Number}</button
->
+<button aria-pressed={number.Checked} on:click={checkNumber} class="btn active">{number.Number}</button>
 <style>
-button[aria-pressed="true"]{
-    background-color: red;
-}
+    button[aria-pressed="true"]{
+        background-color: #008000;
+        color: white;
+        border-color: black;
+    }
+    button:active{
+    }
+    button{
+        margin: 0.5em;
+        width: 60px;
+        height: 60px;
+        color: black;
+        font-weight: 900;
+        font-size: 1.6em;
+    }
 </style>

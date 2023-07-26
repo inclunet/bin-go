@@ -16,4 +16,4 @@
         http://localhost/card/{data.Round}/0
     </strong>
 </p>
-<button on:click={startNewGame}>Começar a rodada</button>
+<button on:click={startNewGame} class="btn btn-primary">Começar a rodada</button>
