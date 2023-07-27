@@ -17,7 +17,7 @@
         padding-top: 70px;
         padding-bottom: 30px;
         margin-bottom: 50px;
-        font-size: 5em;
+        font-size: 4.4em;
         background-color: #6495ED;
         color: white;
     }
@@ -26,5 +26,10 @@
         padding: 0 10px 0 10px;
         font-size: 1.8em;
         line-height: 1.7em;
+    }
+    @media(max-width: 370px){
+        h1{
+            font-size: 3.5em;
+        }
     }
 </style>

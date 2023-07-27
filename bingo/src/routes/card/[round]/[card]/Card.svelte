@@ -61,6 +61,10 @@
 <style>
     table{
         margin: 0 auto;
+        display: inline-block;
+        border: 3px solid black;
+        /* padding: 0.2em; */
+        border-radius: 10px;
     }
     th{
         text-align: center;
@@ -71,10 +75,5 @@
     li{
         font-size: 1.5em;
     }
-    table{
-        display: inline-block;
-        border: 3px solid black;
-        padding: 1em;
-        border-radius: 10px;
-    }
+
 </style>
