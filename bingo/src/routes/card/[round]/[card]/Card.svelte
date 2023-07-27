@@ -71,4 +71,10 @@
     li{
         font-size: 1.5em;
     }
+    table{
+        display: inline-block;
+        border: 3px solid black;
+        padding: 1em;
+        border-radius: 10px;
+    }
 </style>
