@@ -36,13 +36,9 @@
 </ul>
 
 <style>
-    h1,
-    p {
+    h1, p{
         text-align: center;
     }
-<<<<<<< HEAD
-    button {
-=======
     h1{
         font-size: 3em;
         margin-bottom: 50px;
@@ -52,7 +48,6 @@
         padding: 0;
     }
     button{
->>>>>>> 729458b896fb212df4fb58389e727998936e44f4
         display: block;
         margin: 0 auto;
         font-size: 1.8em;
