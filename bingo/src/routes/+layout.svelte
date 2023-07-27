@@ -17,11 +17,19 @@
         padding-top: 70px;
         padding-bottom: 30px;
         margin-bottom: 50px;
-        font-size: 5em;
-        background-color: #6495ED;
+        font-size: 4.4em;
+        background-color: #6aa5ff;
         color: white;
     }
     p{
         margin-top: 30px;
+        padding: 0 10px 0 10px;
+        font-size: 1.8em;
+        line-height: 1.7em;
+    }
+    @media(max-width: 370px){
+        h1{
+            font-size: 3.5em;
+        }
     }
 </style>

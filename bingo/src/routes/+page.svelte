@@ -40,8 +40,29 @@
     p {
         text-align: center;
     }
+<<<<<<< HEAD
     button {
+=======
+    h1{
+        font-size: 3em;
+        margin-bottom: 50px;
+    }
+    ul{
+        margin: 0;
+        padding: 0;
+    }
+    button{
+>>>>>>> 729458b896fb212df4fb58389e727998936e44f4
         display: block;
         margin: 0 auto;
+        font-size: 1.8em;
+        margin-bottom: 50px;
+        padding: 20px;
+    }
+    p{
+        font-size: 1.8em;
+        line-height: 1.7em;
+        padding: 0 20px 0 20px;
+        margin-bottom: 50px;
     }
 </style>

@@ -50,7 +50,7 @@ func (b *Bingo) GetRound(w http.ResponseWriter, r *http.Request) {
 
 func (b *Bingo) GetCardQR(w http.ResponseWriter, r *http.Request) {
 	qr, _ := qr.Encode(GetQueryString(r, "url", ""), qr.L, qr.Auto)
-	qrCode, _ := barcode.Scale(qr, 200, 200)
+	qrCode, _ := barcode.Scale(qr, 300, 300)
 	png.Encode(w, qrCode)
 }
 
