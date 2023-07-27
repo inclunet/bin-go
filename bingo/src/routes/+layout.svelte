@@ -18,7 +18,7 @@
         padding-bottom: 30px;
         margin-bottom: 50px;
         font-size: 4.4em;
-        background-color: #6495ED;
+        background-color: #6aa5ff;
         color: white;
     }
     p{
