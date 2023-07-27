@@ -2,11 +2,27 @@
     import { onMount } from "svelte";
     import CardNumber from "./CardNumber.svelte";
     import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
 
     export let card = { Card: 0, Round: 0, Checked: 0, Numbers: [[]] };
 
+    function getEndpointUrl(call = "") {
+        if ($page.url.port == "5173") {
+            return (
+                $page.url.protocol +
+                "//" +
+                $page.url.hostname +
+                ":8080/api" +
+                call
+            );
+        } else {
+            return $page.url.protocol + "//" + $page.url.host + "/api" + call;
+        }
+    }
+
     async function getCard() {
-        const url = "http://localhost:8080/api/card/" + card.Round + "/" + card.Card;
+        const url = getEndpointUrl("/card/" + card.Round + "/" + card.Card);
+        console.log(url);
         const response = await fetch(url);
         const loadingCard = await response.json();
         if (card.Card > 0) {
@@ -18,14 +34,16 @@
     }
 
     async function sendNumber(event = {}) {
-        const url =
-            "http://localhost:8080/api/card/" +
-            card.Round +
-            "/" +
-            card.Card +
-            "/" +
-            event.detail.Number;
-        const response = await fetch(url);
+        const response = await fetch(
+            getEndpointUrl(
+                "/card/" +
+                    card.Round +
+                    "/" +
+                    card.Card +
+                    "/" +
+                    event.detail.Number
+            )
+        );
         const result = await response.json();
         getCard();
     }
@@ -48,7 +66,8 @@
         {#each card.Numbers as row}
             <tr>
                 {#each row as number}
-                    <td><CardNumber
+                    <td
+                        ><CardNumber
                             bind:number
                             on:checkNumber={sendNumber}
                         /></td
@@ -58,17 +77,19 @@
         {/each}
     </table>
 </div>
+
 <style>
-    table{
+    table {
         margin: 0 auto;
     }
-    th{
+    th {
         text-align: center;
     }
-    table, li{
+    table,
+    li {
         margin-top: 40px;
     }
-    li{
+    li {
         font-size: 1.5em;
     }
 </style>
