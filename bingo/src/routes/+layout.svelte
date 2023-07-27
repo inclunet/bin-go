@@ -14,9 +14,9 @@
     }
     h1{
         width: 100%;
-        padding-top: 70px;
+        padding-top: 30px;
         padding-bottom: 30px;
-        margin-bottom: 50px;
+        margin-bottom: 30px;
         font-size: 4.4em;
         background-color: #6aa5ff;
         color: white;
