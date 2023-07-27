@@ -36,9 +36,11 @@
 </ul>
 
 <style>
-    h1, p{
+    h1,
+    p {
         text-align: center;
     }
+
     h1{
         font-size: 3em;
         margin-bottom: 50px;
