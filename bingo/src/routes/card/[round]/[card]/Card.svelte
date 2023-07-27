@@ -91,7 +91,7 @@
     }
     table,
     li {
-        margin-top: 40px;
+        margin-top: 20px;
     }
     li {
         font-size: 1.5em;
