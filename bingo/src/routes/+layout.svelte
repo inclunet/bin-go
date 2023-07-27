@@ -23,5 +23,8 @@
     }
     p{
         margin-top: 30px;
+        padding: 0 10px 0 10px;
+        font-size: 1.8em;
+        line-height: 1.7em;
     }
 </style>
