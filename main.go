@@ -15,7 +15,10 @@ func main() {
 	r.HandleFunc("/api/card/{round}/0", b.AddBingoCard)
 	r.HandleFunc("/api/card/{round}/{card}", b.GetBingoCard)
 	r.HandleFunc("/api/card/{round}/{card}/{number}", b.CheckNumber)
-	http.Handle("/app/", http.FileServer(http.Dir("./bingo/build")))
+	// r.HandleFunc("/api/card/{round}/{card}/{number}/uncheck", b.uncheckNumbers)
+	r.HandleFunc("/qr/{round}/{card}", b.GetCardQR)
+	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "./bingo/build/index.html") })
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./bingo/build/")))
 	err := http.ListenAndServe(":8080", r)
 
 	if err != nil {

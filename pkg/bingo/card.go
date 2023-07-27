@@ -95,8 +95,33 @@ func (c *Card) GetEmptyBingoCard() [][5]Number {
 	return bingoCard
 }
 
+func (c *Card) IsChecked(drawedNumber int) bool {
+	for _, line := range c.Numbers {
+		for _, cardNumber := range line {
+			if cardNumber.Number == drawedNumber && cardNumber.Checked {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (c *Card) ShortNumbers(numbers []Number) []Number {
 	sort.Slice(numbers, func(i, j int) bool { return numbers[i].Number < numbers[j].Number })
 
 	return numbers
+}
+
+func (c *Card) uncheckNumber(number int) *Card {
+	for l, line := range c.Numbers {
+		for col, column := range line {
+			if column.Number == number && column.Checked == true {
+				c.Numbers[l][col].Checked = false
+				c.Checked--
+			}
+		}
+	}
+
+	return c
 }

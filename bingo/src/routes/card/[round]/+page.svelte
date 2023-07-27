@@ -1,5 +1,6 @@
 <script>
     import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
 
     export let data = { Round: 0, Card: 0 };
 
@@ -13,9 +14,10 @@
     Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
     link:
     <strong>
-        http://localhost/card/{data.Round}/0
+        <a href="{$page.url}/0">{$page.url}/0</a>
     </strong>
 </p>
+<img src="http://localhost:8080/qr/1/1?url={$page.url}/0" alt="QR-Code" />
 <button on:click={startNewGame} class="btn btn-primary">Começar a rodada</button>
 <style>
     h1, p{
