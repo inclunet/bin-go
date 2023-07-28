@@ -18,8 +18,8 @@
         padding-bottom: 30px;
         margin-bottom: 30px;
         font-size: 4.4em;
-        background-color: #6aa5ff;
-        color: white;
+        background-color: #2b7ef4;
+        color: #000;
     }
     p{
         margin-top: 30px;
