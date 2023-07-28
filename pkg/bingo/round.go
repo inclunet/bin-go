@@ -18,7 +18,7 @@ func (r *Round) AddCard() *Card {
 	return &card
 }
 
-func (r *Round) GetBingoCard(card int) *Card {
+func (r *Round) GetCard(card int) *Card {
 	return &r.Cards[card]
 }
 

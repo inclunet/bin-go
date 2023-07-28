@@ -12,16 +12,15 @@ import (
 )
 
 type Bingo struct {
-	Rounds    Rounds
-	RoundList []Round
+	Rounds Rounds
 }
 
 func (b *Bingo) AddRound(w http.ResponseWriter, r *http.Request) {
 	Repply(w, b.Rounds.AddRound(GetUrlIntParam(r, "type")))
 }
 
-func (b *Bingo) CheckNumber(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.TogleNumber(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1, GetUrlIntParam(r, "number")))
+func (b *Bingo) ToggleNumber(w http.ResponseWriter, r *http.Request) {
+	Repply(w, b.Rounds.ToggleNumber(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1, GetUrlIntParam(r, "number")))
 }
 
 func (b *Bingo) AddBingoCard(w http.ResponseWriter, r *http.Request) {

@@ -26,14 +26,14 @@ func (r *Rounds) CheckNumber(round, card, number int) *Card {
 }
 
 func (r *Rounds) GetCard(round, card int) *Card {
-	return r.Rounds[round].GetBingoCard(card)
+	return r.GetRound(round).GetCard(card)
 }
 
 func (r *Rounds) GetRound(round int) *Round {
 	return &r.Rounds[round]
 }
 
-func (r *Rounds) TogleNumber(round, card, number int) *Card {
+func (r *Rounds) ToggleNumber(round, card, number int) *Card {
 	if r.GetCard(round, card).IsChecked(number) && card == 0 {
 		return r.UncheckNumber(round, card, number)
 	}
@@ -43,7 +43,7 @@ func (r *Rounds) TogleNumber(round, card, number int) *Card {
 
 func (r *Rounds) UncheckNumber(round, card, number int) *Card {
 	if r.GetCard(round, 0).IsChecked(number) && card == 0 {
-		return r.GetRound(round).UncheckNumber(number).GetBingoCard(card)
+		return r.GetRound(round).UncheckNumber(number).GetCard(card)
 	}
 
 	return r.GetCard(round, card)

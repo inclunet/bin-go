@@ -21,7 +21,7 @@ type Card struct {
 func (c *Card) CheckNumber(number int) *Card {
 	for l, line := range c.Numbers {
 		for col, column := range line {
-			if column.Number == number && column.Checked == false {
+			if column.Number == number && !column.Checked {
 				c.Numbers[l][col].Checked = true
 				c.Checked++
 			}
@@ -116,7 +116,7 @@ func (c *Card) ShortNumbers(numbers []Number) []Number {
 func (c *Card) uncheckNumber(number int) *Card {
 	for l, line := range c.Numbers {
 		for col, column := range line {
-			if column.Number == number && column.Checked == true {
+			if column.Number == number && column.Checked {
 				c.Numbers[l][col].Checked = false
 				c.Checked--
 			}
