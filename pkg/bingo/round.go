@@ -6,7 +6,7 @@ type Round struct {
 	Type  int
 }
 
-func (r *Round) AddCard() Card {
+func (r *Round) AddCard() *Card {
 	card := Card{
 		Card:  len(r.Cards) + 1,
 		Round: r.Round,
@@ -15,14 +15,14 @@ func (r *Round) AddCard() Card {
 
 	card.Draw()
 	r.Cards = append(r.Cards, card)
-	return card
+	return &card
 }
 
-func (r *Round) GetBingoCard(card int) Card {
-	return r.Cards[card-1]
+func (r *Round) GetBingoCard(card int) *Card {
+	return &r.Cards[card]
 }
 
-func (r *Round) uncheckNumber(number int) *Round {
+func (r *Round) UncheckNumber(number int) *Round {
 	for i := range r.Cards {
 		r.Cards[i].uncheckNumber(number)
 	}
