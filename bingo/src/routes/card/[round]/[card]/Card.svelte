@@ -33,17 +33,13 @@
         }
     }
 
-    async function sendNumber(event = {}) {
-        const response = await fetch(
-            getEndpointUrl(
-                "/card/" +
-                    card.Round +
-                    "/" +
-                    card.Card +
-                    "/" +
-                    event.detail.Number
-            )
+    async function sendNumber(
+        event = { detail: { Checked: false, Number: 0 } }
+    ) {
+        let url = getEndpointUrl(
+            "/card/" + card.Round + "/" + card.Card + "/" + event.detail.Number
         );
+        const response = await fetch(url);
         const result = await response.json();
         getCard();
     }
