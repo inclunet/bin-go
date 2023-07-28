@@ -31,6 +31,8 @@
             goto("/card/" + card.Round + "/" + loadingCard.Card);
             getCard();
         }
+
+        setTimeout(getCard, 2000);
     }
 
     async function sendNumber(
