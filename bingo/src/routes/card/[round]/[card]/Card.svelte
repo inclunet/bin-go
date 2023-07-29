@@ -4,7 +4,13 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     let audio;
-    export let card = { Card: 0, Round: 0, Checked: 0, Numbers: [[]] };
+    export let card = {
+        AutoPlay: false,
+        Card: 0,
+        Round: 0,
+        Checked: 0,
+        Numbers: [[]],
+    };
 
     function getEndpointUrl(call = "") {
         if ($page.url.port == "5173") {
@@ -22,11 +28,13 @@
 
     async function getCard() {
         const url = getEndpointUrl("/card/" + card.Round + "/" + card.Card);
-        console.log(url);
         const response = await fetch(url);
         const loadingCard = await response.json();
         if (card.Card > 0) {
             card = loadingCard;
+            if (card.Bingo) {
+                audio.play();
+            }
             setTimeout(getCard, 2000);
         } else {
             goto("/card/" + card.Round + "/" + loadingCard.Card);
@@ -42,9 +50,24 @@
         );
         const response = await fetch(url);
         const result = await response.json();
-        if (result.Bingo) {
-            audio.play();
-        }
+        getCard();
+    }
+
+    async function toggleAutoplay() {
+        let url = getEndpointUrl(
+            "/card/" + card.Round + "/" + card.Card + "/autoplay"
+        );
+        const response = await fetch(url);
+        const result = await response.json();
+        getCard();
+    }
+
+    async function drawNumber(
+        event = { detail: { Checked: false, Number: 0 } }
+    ) {
+        let url = getEndpointUrl("/card/" + card.Round + "/1/0");
+        const response = await fetch(url);
+        const result = await response.json();
         getCard();
     }
 
@@ -54,12 +77,28 @@
 <div>
     <ul>
         <div id="container_botao_jogo_utomatico">
-            <button class="auto_play btn">AutoPlay</button>
+            {#if card.Card == 1}
+                <button class="auto_play btn" on:click={drawNumber}
+                    >Sortear</button
+                >
+            {:else}
+                <button
+                    class="auto_play btn"
+                    aria-pressed={card.AutoPlay}
+                    on:click={toggleAutoplay}
+                >
+                    {#if card.AutoPlay}
+                        Automático
+                    {:else}
+                        Manual
+                    {/if}
+                </button>
+            {/if}
             <li>Bolas sorteadas: {card.Checked}</li>
         </div>
         <div id="container_ultima_bola">
             <li id="texto_ultima_bola">Última bola</li>
-            <li id="ultima_bola">35</li>
+            <li id="ultima_bola" aria-live="polite">{card.LastNumber}</li>
         </div>
     </ul>
     <table summary="Cartela">
@@ -101,20 +140,20 @@
     /* li {
         margin-top: 10px;
     } */
-    ul{
+    ul {
         margin: 0;
         padding: 0;
     }
     li {
         font-size: 1.5em;
     }
-    #container_botao_jogo_utomatico{
+    #container_botao_jogo_utomatico {
         width: 320px;
         display: flex;
         margin: 0 auto;
         justify-content: space-between;
     }
-    .auto_play{
+    .auto_play {
         color: black;
         background-color: #2b7ef4;
         font-weight: bold;
@@ -123,7 +162,7 @@
 
         font-size: 1.3em;
     }
-    #container_ultima_bola{
+    #container_ultima_bola {
         width: 200px;
         display: flex;
         margin: 0 auto;
@@ -131,10 +170,10 @@
         padding: 0;
         justify-content: space-between;
     }
-    #texto_ultima_bola{
+    #texto_ultima_bola {
         line-height: 50px;
     }
-    #ultima_bola{
+    #ultima_bola {
         display: block;
         background-color: #008000;
         width: 55px;
