@@ -3,7 +3,7 @@
     import CardNumber from "./CardNumber.svelte";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-
+    let audio;
     export let card = { Card: 0, Round: 0, Checked: 0, Numbers: [[]] };
 
     function getEndpointUrl(call = "") {
@@ -27,12 +27,11 @@
         const loadingCard = await response.json();
         if (card.Card > 0) {
             card = loadingCard;
+            setTimeout(getCard, 2000);
         } else {
             goto("/card/" + card.Round + "/" + loadingCard.Card);
             getCard();
         }
-
-        setTimeout(getCard, 2000);
     }
 
     async function sendNumber(
@@ -43,6 +42,9 @@
         );
         const response = await fetch(url);
         const result = await response.json();
+        if (result.Bingo) {
+            audio.play();
+        }
         getCard();
     }
 
@@ -75,6 +77,7 @@
         {/each}
     </table>
 </div>
+<audio src="/sms.mp3" bind:this={audio} />
 
 <style>
     table {
