@@ -14,9 +14,9 @@
     }
     h1{
         width: 100%;
-        padding-top: 30px;
-        padding-bottom: 30px;
-        margin-bottom: 30px;
+        padding-top: 10px;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
         font-size: 4.4em;
         background-color: #2b7ef4;
         color: #000;
@@ -27,9 +27,9 @@
         font-size: 1.8em;
         line-height: 1.7em;
     }
-    @media(max-width: 370px){
+    @media(max-width: 450px){
         h1{
-            font-size: 3.5em;
+            font-size: 2.5em;
         }
     }
 </style>

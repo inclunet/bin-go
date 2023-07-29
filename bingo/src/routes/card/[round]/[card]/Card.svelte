@@ -53,7 +53,14 @@
 
 <div>
     <ul>
-        <li>Bolas sorteadas: {card.Checked}</li>
+        <div id="container_botao_jogo_utomatico">
+            <button class="auto_play btn">AutoPlay</button>
+            <li>Bolas sorteadas: {card.Checked}</li>
+        </div>
+        <div id="container_ultima_bola">
+            <li id="texto_ultima_bola">Última bola</li>
+            <li id="ultima_bola">35</li>
+        </div>
     </ul>
     <table summary="Cartela">
         <tr id="tr_first">
@@ -91,10 +98,51 @@
         text-align: center;
     }
     table,
-    li {
+    /* li {
         margin-top: 10px;
+    } */
+    ul{
+        margin: 0;
+        padding: 0;
     }
     li {
         font-size: 1.5em;
+    }
+    #container_botao_jogo_utomatico{
+        width: 320px;
+        display: flex;
+        margin: 0 auto;
+        justify-content: space-between;
+    }
+    .auto_play{
+        color: black;
+        background-color: #2b7ef4;
+        font-weight: bold;
+        height: 45px;
+        padding: 0 10px 0 10px;
+
+        font-size: 1.3em;
+    }
+    #container_ultima_bola{
+        width: 200px;
+        display: flex;
+        margin: 0 auto;
+        margin-bottom: 10px;
+        padding: 0;
+        justify-content: space-between;
+    }
+    #texto_ultima_bola{
+        line-height: 50px;
+    }
+    #ultima_bola{
+        display: block;
+        background-color: #008000;
+        width: 55px;
+        height: 55px;
+        /* line-height: 50px; */
+        font-size: 2.3em;
+        text-align: center;
+        font-weight: bold;
+        border-radius: 55px;
     }
 </style>
