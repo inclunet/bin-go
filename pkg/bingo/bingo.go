@@ -19,6 +19,10 @@ func (b *Bingo) AddRound(w http.ResponseWriter, r *http.Request) {
 	Repply(w, b.Rounds.AddRound(GetUrlIntParam(r, "type")))
 }
 
+func (b *Bingo) Draw(w http.ResponseWriter, r *http.Request) {
+	Repply(w, b.Rounds.Draw(GetUrlIntParam(r, "round")-1))
+}
+
 func (b *Bingo) ToggleNumber(w http.ResponseWriter, r *http.Request) {
 	Repply(w, b.Rounds.ToggleNumber(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1, GetUrlIntParam(r, "number")))
 }
@@ -39,6 +43,10 @@ func (b *Bingo) GetCardQR(w http.ResponseWriter, r *http.Request) {
 	qr, _ := qr.Encode(GetQueryString(r, "url", ""), qr.L, qr.Auto)
 	qrCode, _ := barcode.Scale(qr, 300, 300)
 	png.Encode(w, qrCode)
+}
+
+func (b *Bingo) ToggleAutoplay(w http.ResponseWriter, r *http.Request) {
+	Repply(w, b.Rounds.ToggleAutoplay(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1))
 }
 
 func (b *Bingo) UncheckNumbers(w http.ResponseWriter, r *http.Request) {

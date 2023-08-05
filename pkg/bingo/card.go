@@ -4,6 +4,13 @@ import (
 	"sort"
 )
 
+type BingoTypes struct {
+	Diagonal   bool
+	FullCard   bool
+	Horizontal bool
+	Vertical   bool
+}
+
 type Number struct {
 	Checked bool
 	Column  int
@@ -11,11 +18,29 @@ type Number struct {
 }
 
 type Card struct {
-	Round   int
-	Card    int
-	Checked int
-	Type    int
-	Numbers [][5]Number
+	DisallowBingoTypes BingoTypes
+	AutoPlay           bool
+	Bingo              bool
+	Round              int
+	Card               int
+	Checked            int
+	LastNumber         int
+	Type               int
+	Numbers            [][5]Number
+}
+
+func (c *Card) CheckDrawedNumbers(card Card) *Card {
+	if c.AutoPlay && card.Checked > 0 {
+		for _, line := range card.Numbers {
+			for _, number := range line {
+				if number.Checked {
+					c.CheckNumber(number.Number)
+				}
+			}
+		}
+	}
+
+	return c
 }
 
 func (c *Card) CheckNumber(number int) *Card {
@@ -24,6 +49,7 @@ func (c *Card) CheckNumber(number int) *Card {
 			if column.Number == number && !column.Checked {
 				c.Numbers[l][col].Checked = true
 				c.Checked++
+				c.Bingo = c.IsBingo()
 			}
 		}
 	}
@@ -31,7 +57,28 @@ func (c *Card) CheckNumber(number int) *Card {
 	return c
 }
 
-func (c *Card) Draw() {
+func (c *Card) Draw() *Card {
+	if c.Checked >= c.Type {
+		return c
+	}
+
+	newNumber := GetRandomNumber(1, c.Type)
+
+	for _, line := range c.Numbers {
+		for _, number := range line {
+			if number.Number == newNumber && number.Checked {
+				return c.Draw()
+			}
+		}
+	}
+
+	c.CheckNumber(newNumber)
+	c.LastNumber = newNumber
+
+	return c
+}
+
+func (c *Card) DrawCard() {
 	c.Numbers = c.GetEmptyBingoCard()
 
 	for col := 1; col <= 5; col++ {
@@ -95,6 +142,119 @@ func (c *Card) GetEmptyBingoCard() [][5]Number {
 	return bingoCard
 }
 
+func (c *Card) IsBingo() bool {
+	if c.Card == 1 {
+		return false
+	}
+
+	if c.IsHorizontalCardBingo() {
+		return true
+	}
+
+	if c.IsVerticalCardBingo() {
+		return true
+	}
+
+	if c.IsDiagonalCardBingo() {
+		return true
+	}
+	if c.IsFullCardBingo() {
+		return true
+	}
+
+	return false
+}
+
+func (c *Card) IsDiagonalCardBingo() bool {
+	if c.DisallowBingoTypes.Diagonal {
+		return false
+	}
+
+	var checkedL int
+	var checkedR int
+
+	left := 0
+	right := 4
+
+	for l, line := range c.Numbers {
+		if l <= 4 {
+			if number := line[left]; number.Checked {
+				checkedL++
+			}
+
+			if Number := line[right]; Number.Checked {
+				checkedR++
+			}
+
+			left++
+			right--
+		}
+	}
+
+	if checkedL == 5 || checkedR == 5 {
+		c.DisallowBingoTypes.Diagonal = true
+		return true
+	}
+
+	return false
+}
+
+func (c *Card) IsFullCardBingo() bool {
+	if !c.DisallowBingoTypes.FullCard {
+		return c.Checked >= 24
+	}
+
+	return false
+}
+
+func (c *Card) IsHorizontalCardBingo() bool {
+	if c.DisallowBingoTypes.Horizontal {
+		return false
+	}
+
+	for _, line := range c.Numbers {
+		var checked int
+
+		for _, number := range line {
+			if number.Checked {
+				checked++
+			}
+		}
+
+		if checked == 5 {
+			c.DisallowBingoTypes.Horizontal = true
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *Card) IsVerticalCardBingo() bool {
+	if c.DisallowBingoTypes.Vertical {
+		return false
+	}
+
+	var checked [5]int
+
+	for _, line := range c.Numbers {
+		for col, number := range line {
+			if number.Checked {
+				checked[col]++
+			}
+		}
+	}
+
+	for _, number := range checked {
+		if number == 5 {
+			c.DisallowBingoTypes.Vertical = true
+			return true
+		}
+	}
+
+	return false
+}
+
 func (c *Card) IsChecked(drawedNumber int) bool {
 	for _, line := range c.Numbers {
 		for _, cardNumber := range line {
@@ -111,6 +271,16 @@ func (c *Card) ShortNumbers(numbers []Number) []Number {
 	sort.Slice(numbers, func(i, j int) bool { return numbers[i].Number < numbers[j].Number })
 
 	return numbers
+}
+
+func (c *Card) ToggleAutoplay() *Card {
+	if c.AutoPlay {
+		c.AutoPlay = false
+	} else {
+		c.AutoPlay = true
+	}
+
+	return c
 }
 
 func (c *Card) uncheckNumber(number int) *Card {

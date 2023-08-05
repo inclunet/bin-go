@@ -6,6 +6,7 @@ type Rounds struct {
 }
 
 func (r *Rounds) AddCard(round int) *Card {
+	r.Total++
 	return r.Rounds[round].AddCard()
 }
 
@@ -13,16 +14,21 @@ func (r *Rounds) AddRound(roundType int) *Card {
 	id := len(r.Rounds) + 1
 	round := NewRound(id, roundType)
 	card := round.AddCard()
+	card.AutoPlay = true
 	r.Rounds = append(r.Rounds, round)
 	return card
 }
 
 func (r *Rounds) CheckNumber(round, card, number int) *Card {
-	if r.Rounds[round].Cards[0].IsChecked(number) || card == 0 {
-		return r.Rounds[round].Cards[card].CheckNumber(number)
+	if r.GetCard(round, 0).IsChecked(number) || card == 0 {
+		return r.GetCard(round, card).CheckNumber(number)
 	}
 
-	return &r.Rounds[round].Cards[card]
+	return r.GetCard(round, card)
+}
+
+func (r *Rounds) Draw(round int) *Card {
+	return r.GetRound(round).Draw()
 }
 
 func (r *Rounds) GetCard(round, card int) *Card {
@@ -31,6 +37,10 @@ func (r *Rounds) GetCard(round, card int) *Card {
 
 func (r *Rounds) GetRound(round int) *Round {
 	return &r.Rounds[round]
+}
+
+func (r *Rounds) ToggleAutoplay(round, card int) *Card {
+	return r.GetRound(round).ToggleAutoplay(card)
 }
 
 func (r *Rounds) ToggleNumber(round, card, number int) *Card {
