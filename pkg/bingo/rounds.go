@@ -7,7 +7,7 @@ type Rounds struct {
 
 func (r *Rounds) AddCard(round int) *Card {
 	r.Total++
-	return r.Rounds[round].AddCard()
+	return r.GetRound(round).AddCard()
 }
 
 func (r *Rounds) AddRound(roundType int) *Card {

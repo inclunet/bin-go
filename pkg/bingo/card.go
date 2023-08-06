@@ -295,3 +295,11 @@ func (c *Card) uncheckNumber(number int) *Card {
 
 	return c
 }
+
+func NewCard(round, card, cardType int) (newCard *Card) {
+	newCard.Card = card
+	newCard.Round = round
+	newCard.Type = cardType
+	newCard.DrawCard()
+	return newCard
+}

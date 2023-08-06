@@ -7,15 +7,15 @@ type Round struct {
 }
 
 func (r *Round) AddCard() *Card {
-	card := Card{
-		Card:  len(r.Cards) + 1,
-		Round: r.Round,
-		Type:  r.Type,
+	card := NewCard(r.Round, len(r.Cards)+1, r.Type)
+
+	if r.GetCard(0).Checked == 0 {
+		card.ToggleAutoplay()
 	}
 
-	card.DrawCard()
-	r.Cards = append(r.Cards, card)
-	return &card
+	r.Cards = append(r.Cards, *card)
+
+	return card
 }
 
 func (r *Round) CheckNumber(card, number int) *Card {

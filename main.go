@@ -14,6 +14,8 @@ func main() {
 	r.HandleFunc("/api/card/{round}", b.GetRound)
 	r.HandleFunc("/api/card/{round}/0", b.AddBingoCard)
 	r.HandleFunc("/api/card/{round}/{card}", b.GetBingoCard)
+	r.HandleFunc("/api/card/{round}/{card}/autoplay", b.ToggleAutoplay)
+	r.HandleFunc("/api/card/{round}/1/0", b.Draw)
 	r.HandleFunc("/api/card/{round}/{card}/{number}", b.ToggleNumber)
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardQR)
 	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "./bingo/build/index.html") })
