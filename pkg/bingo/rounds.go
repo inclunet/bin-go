@@ -10,13 +10,13 @@ func (r *Rounds) AddCard(round int) *Card {
 	return r.GetRound(round).AddCard()
 }
 
-func (r *Rounds) AddRound(roundType int) *Card {
-	id := len(r.Rounds) + 1
-	round := NewRound(id, roundType)
-	card := round.AddCard()
-	card.AutoPlay = true
+func (r *Rounds) AddRound(oldRound, roundType int) *Card {
+	round := NewRound(len(r.Rounds)+1, roundType)
+	if oldRound > 0 {
+		r.GetRound(oldRound).SetNextRound(round.Round)
+	}
 	r.Rounds = append(r.Rounds, round)
-	return card
+	return round.GetCard(0)
 }
 
 func (r *Rounds) CheckNumber(round, card, number int) *Card {

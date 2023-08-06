@@ -16,7 +16,7 @@ type Bingo struct {
 }
 
 func (b *Bingo) AddRound(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.AddRound(GetUrlIntParam(r, "type")))
+	Repply(w, b.Rounds.AddRound(GetUrlIntParam(r, "round"), GetUrlIntParam(r, "type")))
 }
 
 func (b *Bingo) Draw(w http.ResponseWriter, r *http.Request) {

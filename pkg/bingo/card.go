@@ -25,6 +25,7 @@ type Card struct {
 	Card               int
 	Checked            int
 	LastNumber         int
+	NextRound          int
 	Type               int
 	Numbers            [][5]Number
 }
@@ -265,6 +266,14 @@ func (c *Card) IsChecked(drawedNumber int) bool {
 	}
 
 	return false
+}
+
+func (c *Card) SetNextRound(round int) *Card {
+	if c.NextRound == 0 && c.Round != round {
+		c.NextRound = round
+	}
+
+	return c
 }
 
 func (c *Card) ShortNumbers(numbers []Number) []Number {

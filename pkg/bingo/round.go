@@ -46,6 +46,14 @@ func (r *Round) GetCard(card int) *Card {
 	return &r.Cards[card]
 }
 
+func (r *Round) SetNextRound(round int) *Round {
+	for card := range r.Cards {
+		r.GetCard(card).SetNextRound(round)
+	}
+
+	return r
+}
+
 func (r *Round) ToggleAutoplay(card int) *Card {
 	return r.GetCard(card).ToggleAutoplay().CheckDrawedNumbers(*r.GetCard(0))
 }
@@ -58,6 +66,9 @@ func (r *Round) UncheckNumber(number int) *Round {
 	return r
 }
 
-func NewRound(id int, bingoType int) Round {
-	return Round{Round: id, Type: bingoType}
+func NewRound(round, roundType int) (newRound Round) {
+	newRound.Round = round
+	newRound.Type = roundType
+	newRound.AddCard()
+	return newRound
 }

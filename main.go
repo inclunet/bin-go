@@ -10,7 +10,7 @@ import (
 func main() {
 	b := bingo.NewBingo()
 	r := mux.NewRouter()
-	r.HandleFunc("/api/card/0/{type}", b.AddRound)
+	r.HandleFunc("/api/card/{round}/new/{type}", b.AddRound)
 	r.HandleFunc("/api/card/{round}", b.GetRound)
 	r.HandleFunc("/api/card/{round}/0", b.AddBingoCard)
 	r.HandleFunc("/api/card/{round}/{card}", b.GetBingoCard)
