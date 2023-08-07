@@ -6,9 +6,11 @@
     let audio;
     export let card = {
         AutoPlay: false,
+        Bingo: false,
         Card: 0,
         Round: 0,
         Checked: 0,
+        NextRound: 0,
         Numbers: [[]],
     };
 
@@ -32,6 +34,9 @@
         const loadingCard = await response.json();
         if (card.Card > 0) {
             card = loadingCard;
+            if (card.NextRound > 0) {
+                goto("/card/" + card.NextRound + "/0");
+            }
             if (card.Bingo) {
                 audio.play();
             }
@@ -40,6 +45,13 @@
             goto("/card/" + card.Round + "/" + loadingCard.Card);
             getCard();
         }
+    }
+
+    async function new75Card() {
+        const url = getEndpointUrl("/card/" + card.Round + "/new/75");
+        const response = await fetch(url);
+        card = await response.json();
+        goto("/card/" + card.Round);
     }
 
     async function sendNumber(
@@ -78,6 +90,7 @@
     <ul>
         <div id="container_botao_jogo_utomatico">
             {#if card.Card == 1}
+                <button on:click={new75Card}>Nova Rodada</button>
                 <button class="auto_play btn" on:click={drawNumber}
                     >Sortear</button
                 >

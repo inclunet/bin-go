@@ -18,7 +18,7 @@
 
     async function new75Card() {
         let card = { Round: 0 };
-        const url = getEndpointUrl("/card/0/75");
+        const url = getEndpointUrl("/card/0/new/75");
         const response = await fetch(url);
         card = await response.json();
         goto("/card/" + card.Round);
