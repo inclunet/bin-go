@@ -1,5 +1,7 @@
 package bingo
 
+import "fmt"
+
 type Rounds struct {
 	Total  int
 	Rounds []Round
@@ -12,10 +14,13 @@ func (r *Rounds) AddCard(round int) *Card {
 
 func (r *Rounds) AddRound(oldRound, roundType int) *Card {
 	round := NewRound(len(r.Rounds)+1, roundType)
-	if oldRound > 0 {
+	fmt.Println(oldRound)
+	if oldRound >= 0 {
 		r.GetRound(oldRound).SetNextRound(round.Round)
 	}
+
 	r.Rounds = append(r.Rounds, round)
+
 	return round.GetCard(0)
 }
 

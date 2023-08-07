@@ -8,14 +8,13 @@ type Round struct {
 
 func (r *Round) AddCard() *Card {
 	card := NewCard(r.Round, len(r.Cards)+1, r.Type)
+	r.Cards = append(r.Cards, card)
 
 	if r.GetCard(0).Checked == 0 {
-		card.ToggleAutoplay()
+		r.GetCard(card.Card - 1).ToggleAutoplay()
 	}
 
-	r.Cards = append(r.Cards, *card)
-
-	return card
+	return r.GetCard(card.Card - 1)
 }
 
 func (r *Round) CheckNumber(card, number int) *Card {
@@ -42,8 +41,12 @@ func (r Round) Draw() *Card {
 	return r.CheckNumberForAll(r.GetCard(0).Draw().LastNumber).GetCard(0)
 }
 
-func (r *Round) GetCard(card int) *Card {
+func (r *Round) GetCard(card int) (defaultCard *Card) {
+	//if card < len(r.Cards) {
 	return &r.Cards[card]
+	//}
+
+	//return defaultCard
 }
 
 func (r *Round) SetNextRound(round int) *Round {
@@ -69,6 +72,8 @@ func (r *Round) UncheckNumber(number int) *Round {
 func NewRound(round, roundType int) (newRound Round) {
 	newRound.Round = round
 	newRound.Type = roundType
+
 	newRound.AddCard()
+
 	return newRound
 }
