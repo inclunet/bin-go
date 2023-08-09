@@ -1,9 +1,6 @@
+import { card } from "../../bingo";
+
 export function load({ params }) {
-    return {
-        Card: params.card,
-        Checked: 0,
-        Name: "",
-        Round: params.round,
-        Numbers: [],
-    };
-}
+    card.Card = params.card;
+    card.Round = params.round;
+    }

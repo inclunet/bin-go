@@ -1,35 +1,14 @@
 <script>
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-
-    function getEndpointUrl(call = "") {
-        if ($page.url.port == "5173") {
-            return (
-                $page.url.protocol +
-                "//" +
-                $page.url.hostname +
-                ":8080/api" +
-                call
-            );
-        } else {
-            return $page.url.protocol + "//" + $page.url.host + "/api" + call;
-        }
-    }
-
-    async function new75Card() {
-        let card = { Round: 0 };
-        const url = getEndpointUrl("/card/0/new/75");
-        const response = await fetch(url);
-        card = await response.json();
-        goto("/card/" + card.Round);
-    }
-</script>
+    import { newGame } from "./bingo";
+    </script>
 
 <h1>Bem-Vindo ao Inclubingo</h1>
 <p>Vamos Jogar Escolha a quantidade de bolinhas que serão sorteadas:</p>
 <ul>
     <li>
-        <button on:click={new75Card} class="btn btn-primary"
+        <button on:click={newGame} class="btn btn-primary"
             >Bingo com 75 bolinhas</button
         >
     </li>
@@ -41,22 +20,22 @@
         text-align: center;
     }
 
-    h1{
+    h1 {
         font-size: 3em;
         margin-bottom: 50px;
     }
-    ul{
+    ul {
         margin: 0;
         padding: 0;
     }
-    button{
+    button {
         display: block;
         margin: 0 auto;
         font-size: 1.8em;
         margin-bottom: 50px;
         padding: 20px;
     }
-    p{
+    p {
         font-size: 1.8em;
         line-height: 1.7em;
         padding: 0 20px 0 20px;
