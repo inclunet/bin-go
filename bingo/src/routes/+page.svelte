@@ -1,21 +1,19 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { newGame } from "./bingo";
-    </script>
+    import NewRound from "$lib/NewRound.svelte";
+    export let data;
+    export let card = data;
+</script>
 
 <h1>Bem-Vindo ao Inclubingo</h1>
 <p>Vamos Jogar Escolha a quantidade de bolinhas que serão sorteadas:</p>
 <ul>
     <li>
-        <button on:click={newGame} class="btn btn-primary"
-            >Bingo com 75 bolinhas</button
-        >
+        <NewRound bind:card />
     </li>
 </ul>
 
 <style>
-    h1,
+    /* h1,
     p {
         text-align: center;
     }
@@ -40,5 +38,5 @@
         line-height: 1.7em;
         padding: 0 20px 0 20px;
         margin-bottom: 50px;
-    }
+    } */
 </style>

@@ -1,7 +1,15 @@
 <script>
+    import CardHeader from "$lib/CardHeader.svelte";
     import Number from "./Number.svelte";
-    import CardHeader from "./CardHeader.svelte";
-    export let card;
+    export let card = {
+        Autoplay: false,
+        Card: 0,
+        Bingo: false,
+        Checked: 0,
+        LastNumber: 0,
+        Round: 0,
+        Numbers: [[{ Checked: false, Number: 0 }]],
+    };
 </script>
 
 <div>

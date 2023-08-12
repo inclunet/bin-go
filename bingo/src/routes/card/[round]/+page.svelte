@@ -1,7 +1,19 @@
 <script>
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-    import { card, startNewGame } from "../../bingo.js";
+    import Card from "$lib/Card.svelte";
+    import StartRound from "$lib/StartRound.svelte";
+    import { getCard } from "$lib/bingo.js";
+    import { onMount } from "svelte";
+
+    export let data;
+    export let card = data;
+
+    async function updateCard() {
+        card = await getCard("/card/" + card.Round + "/1");
+    }
+
+    onMount(updateCard);
 </script>
 
 <h1>Rodada #{card.Round}</h1>
@@ -9,14 +21,13 @@
     Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
     link:
     <strong>
-        <a href="{$page.url}/0" id="link_jogo">{$page.url}/0</a>
+        <a href="{$page.url}/new" id="link_jogo">{$page.url}/new</a>
     </strong>
 </p>
 <div id="qr_code">
-    <img src="http://localhost:8080/qr/1/1?url={$page.url}/0" alt="QR-Code" />
+    <img src="/qr/{card.Round}/{card.Card}?url={$page.url}/new" alt="QR-Code" />
 </div>
-<button on:click={startNewGame} class="btn btn-primary">Começar a rodada</button
->
+<StartRound bind:card />
 
 <style>
     h1,

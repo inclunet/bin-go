@@ -1,23 +1,30 @@
 <script>
     import { onMount } from "svelte";
-    import { getCard, playAudio, redirectToNextRound } from "../../../bingo.js";
     import { goto } from "$app/navigation";
-    import Card from "./Card.svelte";
+    import Card from "$lib/Card.svelte";
+    import { getCard } from "../../../../lib/bingo";
 
     export let data;
     let card = data;
 
-    export async function updateCard() {
-        let response = await getCard("/card/" + card.Round + "/" + card.Card);
-        if (card.Card == 0) {
-            card = response;
-            goto("/card/" + card.Round + "/" + card.Card);
-        } else {
-            card = response;
-            redirectToNextRound();
-            playAudio();
-            setTimeout(updateCard, 2000);
+    function redirectToNextRound() {
+        if (card.Round == 0) {
+            window.location.href = "/";
         }
+
+        if (card.Card == 0) {
+            window.location.href = "/card/" + card.Round + "/new";
+        }
+
+        if (card.NextRound > 0) {
+            window.location.href = "/card/" + card.NextRound + "/new";
+        }
+    }
+
+    async function updateCard() {
+        redirectToNextRound();
+        card = await getCard("/card/" + card.Round + "/" + card.Card);
+        setTimeout(updateCard, 2000);
     }
 
     onMount(updateCard);

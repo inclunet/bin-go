@@ -1,5 +1,5 @@
 <script>
-    import { sendCheckNumber } from "../../../bingo";
+    import { getCard } from "./bingo";
     export let card = { Card: 0, Round: 0 };
     export let number = { Checked: false, Number: 0 };
 
@@ -10,7 +10,9 @@
             } else {
                 number.Checked = true;
             }
-            card = await sendCheckNumber(number.Number);
+            card = await getCard(
+                "/card/" + card.Round + "/" + card.Card + "/" + number.Number
+            );
         }
     }
 </script>

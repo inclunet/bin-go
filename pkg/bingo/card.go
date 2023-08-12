@@ -19,7 +19,7 @@ type Number struct {
 
 type Card struct {
 	DisallowBingoTypes BingoTypes
-	AutoPlay           bool
+	Autoplay           bool
 	Bingo              bool
 	Round              int
 	Card               int
@@ -31,7 +31,7 @@ type Card struct {
 }
 
 func (c *Card) CheckDrawedNumbers(card Card) *Card {
-	if c.AutoPlay && card.Checked > 0 {
+	if c.Autoplay && card.Checked > 0 {
 		for _, line := range card.Numbers {
 			for _, number := range line {
 				if number.Checked {
@@ -283,10 +283,10 @@ func (c *Card) ShortNumbers(numbers []Number) []Number {
 }
 
 func (c *Card) ToggleAutoplay() *Card {
-	if c.AutoPlay {
-		c.AutoPlay = false
+	if c.Autoplay {
+		c.Autoplay = false
 	} else {
-		c.AutoPlay = true
+		c.Autoplay = true
 	}
 
 	return c
