@@ -1,48 +1,57 @@
 <script>
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
+    import Card from "$lib/Card.svelte";
+    import StartRound from "$lib/StartRound.svelte";
+    import { getCard } from "$lib/bingo.js";
+    import { onMount } from "svelte";
 
-    export let data = { Round: 0, Card: 0 };
+    export let data;
+    export let card = data;
 
-    function startNewGame() {
-        goto("/card/" + data.Round + "/1");
+    async function updateCard() {
+        card = await getCard("/card/" + card.Round + "/1");
     }
+
+    onMount(updateCard);
 </script>
 
-<h1>Rodada #{data.Round}</h1>
+<h1>Rodada #{card.Round}</h1>
 <p>
     Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
     link:
     <strong>
-        <a href="{$page.url}/0" id="link_jogo">{$page.url}/0</a>
+        <a href="{$page.url}/new" id="link_jogo">{$page.url}/new</a>
     </strong>
 </p>
 <div id="qr_code">
-    <img src="http://localhost:8080/qr/1/1?url={$page.url}/0" alt="QR-Code" />
+    <img src="/qr/{card.Round}/{card.Card}?url={$page.url}/new" alt="QR-Code" />
 </div>
-<button on:click={startNewGame} class="btn btn-primary">Começar a rodada</button>
+<StartRound bind:card />
+
 <style>
-    h1, p{
+    h1,
+    p {
         text-align: center;
     }
-    h1{
+    h1 {
         font-size: 3em;
     }
-    p{
+    p {
         font-size: 1.8em;
         line-height: 1.7em;
         padding: 0 20px 0 20px;
     }
-    a#link_jogo{
+    a#link_jogo {
         word-break: break-word;
     }
-    button{
+    button {
         display: block;
         margin: 0 auto;
         font-size: 1.8em;
         padding: 20px;
     }
-    #qr_code{
+    #qr_code {
         display: flex;
         justify-content: center;
         margin: 0 auto;

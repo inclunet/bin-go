@@ -29,7 +29,7 @@ func (r *Round) CheckNumberForAll(number int) *Round {
 	for i, card := range r.Cards {
 		r.Cards[i].LastNumber = number
 
-		if card.AutoPlay {
+		if card.Autoplay {
 			r.Cards[i].CheckNumber(number)
 		}
 	}

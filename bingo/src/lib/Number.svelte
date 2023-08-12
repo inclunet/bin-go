@@ -1,34 +1,45 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-
-    const dispatch = createEventDispatcher();
-    export let data = { Round: 0 };
+    import { getCard } from "./bingo";
+    export let card = { Card: 0, Round: 0 };
     export let number = { Checked: false, Number: 0 };
 
     async function checkNumber() {
-        number.Checked = true;
-        dispatch("checkNumber", number);
+        if (!number.Checked || card.Card == 1) {
+            if (number.Checked) {
+                number.Checked = false;
+            } else {
+                number.Checked = true;
+            }
+            card = await getCard(
+                "/card/" + card.Round + "/" + card.Card + "/" + number.Number
+            );
+        }
     }
 </script>
 
 {#if number.Number != 0}
-<button aria-pressed={number.Checked} on:click={checkNumber} class="btn active">
-    {number.Number}
-</button>
+    <button
+        aria-pressed={number.Checked}
+        on:click={checkNumber}
+        class="btn active"
+    >
+        {number.Number}
+    </button>
 {:else}
-<img src="/favicon.png" alt="Logo da Inclunet">
+    <img src="/favicon.png" alt="Inclunet" />
 {/if}
+
 <style>
-    img{
+    img {
         width: 100px;
         height: 100px;
     }
-    button[aria-pressed="true"]{
+    button[aria-pressed="true"] {
         background-color: #008000;
         color: white;
         border-color: black;
     }
-    button{
+    button {
         margin: 1em;
         width: 70px;
         height: 70px;
@@ -36,12 +47,12 @@
         font-weight: 900;
         font-size: 1.8em;
     }
-    @media(max-width: 680px){
-        img{
+    @media (max-width: 680px) {
+        img {
             width: 80px;
             height: 80px;
         }
-        button{
+        button {
             margin: 0.6em;
             width: 55px;
             height: 55px;
@@ -49,30 +60,30 @@
             font-size: 1.6em;
         }
     }
-    @media(max-width: 470px){
-        img{
+    @media (max-width: 470px) {
+        img {
             width: 75px;
             height: 75px;
         }
-        button{
+        button {
             margin: 0.5em;
             width: 50px;
             height: 50px;
             font-size: 1.5em;
         }
     }
-    @media(max-width: 400px){
-        button{
+    @media (max-width: 400px) {
+        button {
             margin: 0.3em;
             font-size: 1.3em;
         }
     }
-    @media(max-width: 350px){
-        img{
+    @media (max-width: 350px) {
+        img {
             width: 70px;
             height: 70px;
         }
-        button{
+        button {
             margin: 0.2em;
             width: 45px;
             height: 45px;
