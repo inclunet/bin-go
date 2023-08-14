@@ -17,8 +17,22 @@
 
 {#if card.Card > 1}
     {#if card.Autoplay}
-        <button on:click={toggleAutoplay}> Automático </button>
+        <button class="btn btn-success" on:click={toggleAutoplay}> <strong>Automático</strong> </button>
     {:else}
-        <button on:click={toggleAutoplay}> Manual </button>
+        <button class="btn btn-warning" on:click={toggleAutoplay}> Manual </button>
     {/if}
 {/if}
+
+<style>
+    button{
+        padding: 10px;
+        font-size: 1.3em;
+        color: #000;
+    }
+    @media(max-width: 450px){
+        button{
+            padding: 7px;
+            font-size: 1em;
+        }
+    }
+</style>

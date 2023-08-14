@@ -30,13 +30,11 @@
     onMount(updateCard);
 </script>
 
-<div>
+<div class="container-fluid text-center d-flex align-items-center flex-column">
     <h2>Cartela de Bingo #{card.Card} rodada #{card.Round}</h2>
     <Card bind:card />
 </div>
 
 <style>
-    div {
-        text-align: center;
-    }
+
 </style>

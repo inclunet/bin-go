@@ -16,5 +16,19 @@
 </script>
 
 {#if card.Card == 1 && card.Checked < card.Type}
-    <button on:click={drawNumber}>Sortear</button>
+    <button class="btn btn-primary" on:click={drawNumber}><strong>Sortear</strong></button>
 {/if}
+
+<style>
+    button{
+        padding: 10px;
+        font-size: 1.3em;
+        color: #000;
+    }
+    @media(max-width: 450px){
+        button{
+            padding: 7px;
+            font-size: 1em;
+        }
+    }
+</style>

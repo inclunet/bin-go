@@ -12,7 +12,7 @@
     };
 </script>
 
-<div>
+<div class="container-fluid d-flex align-items-center flex-column">
     <CardHeader bind:card />
     <table summary="Cartela">
         <tr id="tr_first">

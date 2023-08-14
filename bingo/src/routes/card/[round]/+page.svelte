@@ -15,47 +15,58 @@
 
     onMount(updateCard);
 </script>
-
-<h1>Rodada #{card.Round}</h1>
-<p>
-    Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
-    link:
-    <strong>
-        <a href="{$page.url}/new" id="link_jogo">{$page.url}/new</a>
-    </strong>
-</p>
-<div id="qr_code">
-    <img src="/qr/{card.Round}/{card.Card}?url={$page.url}/new" alt="QR-Code" />
+<div class="container-fluid d-flex align-items-center flex-column">
+    <h2 class="text-center">Rodada #{card.Round}</h2>
+    <p class="text-center">
+        Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
+        link:
+        <strong>
+            <a href="{$page.url}/new" id="link_jogo">{$page.url}/new</a>
+        </strong>
+    </p>
+    <div id="qr_code" class="d-flex justify-content-center">
+        <img src="/qr/{card.Round}/{card.Card}?url={$page.url}/new" alt="QR-Code" />
+    </div>
+    <StartRound bind:card />
 </div>
-<StartRound bind:card />
 
 <style>
-    h1,
-    p {
-        text-align: center;
+    *{
+        margin: 0;
+        padding: 0;
     }
-    h1 {
-        font-size: 3em;
+
+    h2{
+        margin-top: 50px;
+        font-size: 2.5em;
     }
-    p {
-        font-size: 1.8em;
-        line-height: 1.7em;
-        padding: 0 20px 0 20px;
+    p{
+        margin-top: 25px;
+        padding: 0 10px 0 10px;
+        font-size: 1.6em;
     }
+
+
     a#link_jogo {
         word-break: break-word;
     }
-    button {
-        display: block;
-        margin: 0 auto;
-        font-size: 1.8em;
-        padding: 20px;
-    }
+
     #qr_code {
-        display: flex;
-        justify-content: center;
         margin: 0 auto;
         margin-top: 40px;
         margin-bottom: 40px;
+    }
+
+    @media(max-width: 450px){
+        h2{
+            margin: 0;
+            padding: 10px 0 10px 0;
+            font-size: 1.5em;
+        }
+        p{
+            margin: 0;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
     }
 </style>

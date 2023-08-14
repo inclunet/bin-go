@@ -9,4 +9,18 @@
     }
 </script>
 
-<button on:click={startGame}>Jogar!</button>
+<button class="btn btn-primary" on:click={startGame}><strong>Jogar!</strong></button>
+
+<style>
+    button{
+        padding: 10px;
+        font-size: 1.3em;
+        color: #000;
+    }
+    @media(max-width: 450px){
+        button{
+            padding: 7px;
+            font-size: 1em;
+        }
+    }
+</style>
