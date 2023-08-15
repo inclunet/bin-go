@@ -19,6 +19,7 @@
     }
     @media(max-width: 450px){
         button{
+            height: 48px;
             padding: 7px;
             font-size: 1em;
         }
