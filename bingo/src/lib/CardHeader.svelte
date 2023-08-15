@@ -36,7 +36,7 @@
     @media(max-width: 450px){
         p{
             margin: 0;
-            margin-bottom: 20px;
+            margin: 5px 0 7px 0px;
             font-size: 1em;
         }
     }
