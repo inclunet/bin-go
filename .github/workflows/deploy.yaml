@@ -16,11 +16,10 @@ jobs:
       - name: Build
         run: go build -v -o accessbot main.go
       - name: setup-node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
       - name: Install dependencies
-
         run: npm install
       - name: Build
         run: npm run build
