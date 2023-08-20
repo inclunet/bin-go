@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -8,6 +9,15 @@ import (
 )
 
 func main() {
+	var port string
+	var host string
+	var dir string
+
+	flag.StringVar(&port, "port", "80", "Port to listen on")
+	flag.StringVar(&host, "host", "", "Host to listen on")
+	flag.StringVar(&dir, "dir", ".", "Directory to serve")
+	flag.Parse()
+
 	b := bingo.NewBingo()
 	r := mux.NewRouter()
 	r.HandleFunc("/api/card/{round}/new/{type}", b.AddRound)
@@ -18,9 +28,9 @@ func main() {
 	r.HandleFunc("/api/card/{round}/1/0", b.Draw)
 	r.HandleFunc("/api/card/{round}/{card}/{number}", b.ToggleNumber)
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardQR)
-	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "./bingo/build/index.html") })
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./bingo/build/")))
-	err := http.ListenAndServe(":8080", r)
+	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"/index.html") })
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(dir)))
+	err := http.ListenAndServe(host+":"+port, r)
 
 	if err != nil {
 		panic(err)
