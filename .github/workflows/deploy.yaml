@@ -15,7 +15,7 @@ jobs:
         run: go test -v ./...
       - name: Build
         run: go build -v -o accessbot main.go
-        - name: setup-node
+      - name: setup-node
         uses: actions/setup-node@v2
         with:
           node-version: '16'
