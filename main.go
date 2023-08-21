@@ -15,7 +15,7 @@ func main() {
 
 	flag.StringVar(&port, "port", "80", "Port to listen on")
 	flag.StringVar(&host, "host", "", "Host to listen on")
-	flag.StringVar(&dir, "dir", ".", "Directory to serve")
+	flag.StringVar(&dir, "dir", "./", "Directory to serve")
 	flag.Parse()
 
 	b := bingo.NewBingo()
@@ -28,7 +28,7 @@ func main() {
 	r.HandleFunc("/api/card/{round}/1/0", b.Draw)
 	r.HandleFunc("/api/card/{round}/{card}/{number}", b.ToggleNumber)
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardQR)
-	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"/index.html") })
+	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"index.html") })
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(dir)))
 	err := http.ListenAndServe(host+":"+port, r)
 
