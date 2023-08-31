@@ -104,8 +104,10 @@
     <div>
         <p>
             O IncluBingo está comprometido em fornecer uma experiência de jogo
-            segura e responsável para todos os seus usuários. Respeite todas as
-            leis e regulamentos locais ao usar nosso site.
+            acessível, segura e responsável para todos os seus usuários. por
+            favor Respeite os nossos
+            <a href="/terms">Termos de uso</a>
+            e as leis Brasileiras ou regulamentos locais ao usar nosso site.
         </p>
     </div>
 </div>
