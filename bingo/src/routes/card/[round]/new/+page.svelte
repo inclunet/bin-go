@@ -3,8 +3,8 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import Play from "$lib/Play.svelte";
 
-export let data;
-export let card = data;
+    export let data;
+    export let card = data;
 </script>
 
 <PageTitle title="Nova Cartela de Bingo" />
@@ -16,24 +16,23 @@ export let card = data;
     <Play bind:card />
 </div>
 
-
 <style>
-    h2{
+    h2 {
         margin-top: 50px;
         font-size: 2.5em;
     }
-    p{
+    p {
         margin-top: 25px;
         padding: 0 10px 0 10px;
         font-size: 1.6em;
     }
-    @media(max-width: 450px){
-        h2{
+    @media (max-width: 450px) {
+        h2 {
             margin: 0;
             padding: 10px 0 10px 0;
             font-size: 1.5em;
         }
-        p{
+        p {
             margin: 0;
             margin-bottom: 20px;
             font-size: 1em;
