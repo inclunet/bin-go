@@ -1,10 +1,14 @@
 <script>
     import Adds from "$lib/Adds.svelte";
+    import PageTitle from "$lib/PageTitle.svelte";
     import Play from "$lib/Play.svelte";
 
 export let data;
 export let card = data;
 </script>
+
+<PageTitle title="Nova Cartela de Bingo" />
+
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2>Rodada #{card.Round}</h2>
     <p>Para jogar clique no botão "Jogar" a baixo</p>

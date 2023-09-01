@@ -1,8 +1,11 @@
 <script>
     import NewRound from "$lib/NewRound.svelte";
+    import PageTitle from "$lib/PageTitle.svelte";
     export let data;
     export let card = data;
 </script>
+
+<PageTitle title="Nova Rodada" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
     

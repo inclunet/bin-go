@@ -3,6 +3,7 @@
     import { goto } from "$app/navigation";
     import Card from "$lib/Card.svelte";
     import { getCard } from "../../../../lib/bingo";
+    import PageTitle from "$lib/PageTitle.svelte";
 
     export let data;
     let card = data;
@@ -29,6 +30,8 @@
 
     onMount(updateCard);
 </script>
+
+<PageTitle title="Cartela de Bingo" />
 
 <div class="container-fluid text-center d-flex align-items-center flex-column">
     <h2>Cartela de Bingo #{card.Card} rodada #{card.Round}</h2>

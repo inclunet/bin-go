@@ -1,3 +1,9 @@
+<script>
+    import PageTitle from "$lib/PageTitle.svelte";
+
+</script>
+<PageTitle title="Termos de Uso" />
+
 <h2>Termos de Uso do IncluBingo</h2>
 
 <p>Bem-vindo ao IncluBingo! Antes de começar a usar nossos serviços, leia atentamente os seguintes Termos de Uso. Ao acessar ou utilizar o site IncluBingo, você concorda em cumprir e estar vinculado a estes termos. Se você não concorda com esses termos, por favor, não utilize o nosso site.</p>
