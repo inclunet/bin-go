@@ -26,13 +26,13 @@
         {number.Number}
     </button>
 {:else}
-    <img src="/favicon.png" alt="Inclunet" />
+    <img src="/img/favicon.png" alt="Logotipo Inclunet" />
 {/if}
 
 <style>
     img {
-        width: 100px;
-        height: 100px;
+        width: 90px;
+        height: 90px;
     }
     button[aria-pressed="true"] {
         background-color: #008000;
@@ -40,12 +40,12 @@
         border-color: black;
     }
     button {
-        margin: 1em;
-        width: 70px;
-        height: 70px;
+        margin: 10px;
+        width: 62px;
+        height: 62px;
         color: black;
         font-weight: 900;
-        font-size: 1.8em;
+        font-size: 1.6em;
     }
     @media (max-width: 680px) {
         img {
@@ -91,3 +91,5 @@
         }
     }
 </style>
+
+<!-- commit -m "Adjusting layout" -->
