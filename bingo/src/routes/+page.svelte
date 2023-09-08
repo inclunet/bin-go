@@ -8,5 +8,3 @@
         <a href="/terms" class="btn btn-warning btn-lg">Termos de uso</a>
     </div>
 <LandingPage />
-
-<!-- commit -m "Including css style" -->

@@ -53,5 +53,3 @@
         }
     }
 </style>
-
-<!-- commit -m "Adjusting font size and including logo" -->

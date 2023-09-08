@@ -91,5 +91,3 @@
         }
     }
 </style>
-
-<!-- commit -m "Adjusting layout" -->

@@ -2,9 +2,13 @@
     <header class="my-5">
         <h2>Seja muito bem-vindo ao <strong>IncluBingo</strong> o jogo de bingo <strong>Acessível</strong> e <strong>Inclusivo!</strong> 
         </h2>
-        <a href="/card/new" class="btn button-color mt-4 text-black">
-            <h3 class="p-2">Diversão Inclusiva ao Seu Alcance. <strong>Jogue Agora!</strong></h3>
-        </a>
+        
+            <h3 class="pt-2">Diversão Inclusiva ao Seu Alcance 
+                <a href="/card/new" class="btn button-color text-black">
+                    <strong>Jogue Agora!</strong>
+                </a>
+            </h3>
+        
         <p class="mt-4">Explore a emoção de um bingo acessível para todos no IncluBingo.</p>
         <p>
             Como um serviço criado para unir pessoas com diferentes capacidades,
@@ -145,7 +149,10 @@
             inclusiva no IncluBingo. A diversão está apenas a um clique de
             distância.
         </p>
-        <a href="/card/new" class="btn button-color btn-lg text-black"><strong>Jogue Agora e Faça Parte da Diversão Inclusiva!</strong></a>
+        <h3>
+            <a href="/card/new" class="btn button-color btn-sm text-black"><strong>Jogue Agora</strong></a> 
+            e Faça Parte da Diversão Inclusiva!
+        </h3>
     </section>
 
     <section class="mt-4">
@@ -197,7 +204,7 @@
             line-height: 40px;
             text-align: center;
         }
-        header h3{
+         h3{
             line-height: 40px;
         }
         header p{
@@ -218,5 +225,3 @@
         }
     }
 </style>
-
-<!-- commit -m "Including css style" -->
