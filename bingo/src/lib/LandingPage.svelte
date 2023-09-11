@@ -149,10 +149,12 @@
             inclusiva no IncluBingo. A diversão está apenas a um clique de
             distância.
         </p>
+
         <h3>
             <a href="/card/new" class="btn button-color btn-sm text-black"><strong>Jogue Agora</strong></a> 
             e Faça Parte da Diversão Inclusiva!
         </h3>
+
     </section>
 
     <section class="mt-4">
@@ -204,8 +206,7 @@
             line-height: 40px;
             text-align: center;
         }
-         h3{
-
+        h3{
             line-height: 40px;
         }
         header p{
@@ -227,5 +228,4 @@
     }
 
 </style>
-
 

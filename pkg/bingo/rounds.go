@@ -25,11 +25,7 @@ func (r *Rounds) AddRound(oldRound, roundType int) *Card {
 }
 
 func (r *Rounds) CheckNumber(round, card, number int) *Card {
-	if r.GetCard(round, 0).IsChecked(number) || card == 0 {
-		return r.GetCard(round, card).CheckNumber(number)
-	}
-
-	return r.GetCard(round, card)
+	return r.GetRound(round).CheckNumber(card, number)
 }
 
 func (r *Rounds) Draw(round int) *Card {
