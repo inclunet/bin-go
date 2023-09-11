@@ -16,7 +16,7 @@
         </p>
     </header>
 
-    <section class="mt-4">
+    <section class="mt-4 main-features">
         <h4>Principais Recursos</h4>
 
         <div class="row">
@@ -24,7 +24,10 @@
             <div class="col-sm-6 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Marcação Automática</h5>
+                        <h5 class="card-title">
+                            <img src="/img/check-box.png" alt="" width="30" class="main-features-img">
+                            Marcação Automática
+                        </h5>
                         <p>
                             Desfrute do jogo sem a preocupação de marcar os números
                             sorteados. Nosso jogo pode cuidar disso para você, permitindo
@@ -39,7 +42,10 @@
             <div class="col-sm-6 mb-3">     
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Avisos Visuais e Sonoros</h5>
+                        <h5 class="card-title">
+                            <img src="/img/sons.png" alt="" width="30" class="main-features-img">
+                            Avisos Visuais e Sonoros
+                        </h5>
                         <p class="card-text">
                             Com alertas visuais e sonoros, todos podem comemorar quando
                             alguém completa um bingo. A vitória é compartilhada e celebrada
@@ -52,12 +58,15 @@
             <div class="col-sm-6 mb-3">
                <div class="card">
                    <div class="card-body">
-                       <h5 class="card-title">Acessilidade Aprimorada</h5>
-                       <p class="card-text">
+                        <h5 class="card-title">
+                            <img src="/img/acessibilidade.jpeg" alt="" width="30" class="main-features-img">
+                            Acessilidade Aprimorada
+                        </h5>
+                        <p class="card-text">
                            Com informações visuais e auditivas, o IncluBingo oferece
                            igualdade de oportunidades. Jogadores cegos podem participar
                            plenamente, tornando a diversão verdadeiramente inclusiva.
-                       </p>
+                        </p>
                    </div>
                </div>            
             </div> 
@@ -65,13 +74,16 @@
             <div class="col-sm-6 mb-3">
                <div class="card">
                    <div class="card-body">
-                       <h5 class="card-title">Escolha a Velocidade do Jogo</h5>
-                       <p class="card-text">
+                        <h5 class="card-title">
+                            <img src="/img/velocidade.png" alt="" width="30" class="main-features-img">
+                            Escolha a Velocidade do Jogo
+                        </h5>
+                        <p class="card-text">
                            É possível iniciar rodadas de 75 ou 90 bolinhas, permitindo
                            escolher um ritmo de jogo mais interessante para você e seus
                            amigos. Personalize sua experiência de jogo de acordo com suas
                            preferências.
-                       </p>
+                        </p>
                    </div>
                </div>            
             </div> 
@@ -79,7 +91,10 @@
             <div class="col-sm-6 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Ofereça Prêmios para Rodadas Intermediárias!</h5>
+                        <h5 class="card-title">
+                            <img src="/img/premio.png" alt="" width="30" class="main-features-img">
+                            Ofereça Prêmios para Rodadas Intermediárias!
+                        </h5>
                         <p class="card-text">
                             Com as rodadas intermediárias você pode prmiar quem Completa
                             linhas horizontais, verticais ou diagonais. O IncluBingo eleva a
@@ -92,7 +107,10 @@
             <div class="col-sm-6 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">QR-Code para Sorteio</h5>
+                        <h5 class="card-title">
+                            <img src="/img/qrcode.png" alt="" width="30" class="main-features-img">
+                            QR-Code para Sorteio
+                        </h5>
                         <p class="card-text">
                             Utilize nosso QR-Code para sortear novas cartelas de forma
                             rápida e eficiente. A tecnologia moderna torna o jogo ainda mais
@@ -105,7 +123,10 @@
             <div class="col-sm-6 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Compartilhamento Simplificado</h5>
+                        <h5 class="card-title">
+                            <img src="/img/share.png" alt="" width="30" class="main-features-img">
+                            Compartilhamento Simplificado
+                        </h5>
                         <p class="card-text">
                             Compartilhe suas cartelas com um único clique em redes sociais
                             como WhatsApp e outras. Convide amigos e familiares para se
@@ -118,7 +139,10 @@
             <div class="col-sm-6 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">O Jogo não Para!</h5>
+                        <h5 class="card-title">
+                            <img src="/img/jogo2.png" alt="" width="30" class="main-features-img">
+                            O Jogo não Para!
+                        </h5>
                         <p class="card-text">
                             É possível jogar sem interrupções! Ative a função de
                             redirecionamento automático para uma experiência de jogo fluida.
@@ -130,7 +154,10 @@
             <div class="col-sm-12 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Configuração Personalizada</h5>
+                        <h5 class="card-title">
+                            <img src="/img/configuracao2.png" alt="" width="30" class="main-features-img">
+                            Configuração Personalizada
+                        </h5>
                         <p class="card-text">
                             Defina a quantidade de rodadas intermediárias válidas para cada
                             partida. Adapte o jogo de acordo com o seu grupo e preferências.
@@ -178,6 +205,10 @@
     
     .card-title{
         margin: 10px 0px 20px 0px;
+        line-height: 40px;
+    }
+    .main-features-img{
+        margin: 0 10px 0 10px;
     }
     .card-text{
         text-align: justify;
@@ -218,6 +249,10 @@
         .card{
             border-radius: 10px;
             box-shadow: 5px 5px 5px #e2e2e2;
+        }
+        
+        .main-features-img{
+            margin-left:10px;
         }
         p{
             line-height: 37px;
