@@ -7,8 +7,8 @@
                 <a href="/card/new" class="btn button-color text-black">
                     <strong>Jogue Agora!</strong>
                 </a>
-            </h3>
-        
+            </h3>       
+
         <p class="mt-4">Explore a emoção de um bingo acessível para todos no IncluBingo.</p>
         <p>
             Como um serviço criado para unir pessoas com diferentes capacidades,
@@ -149,10 +149,12 @@
             inclusiva no IncluBingo. A diversão está apenas a um clique de
             distância.
         </p>
+
         <h3>
             <a href="/card/new" class="btn button-color btn-sm text-black"><strong>Jogue Agora</strong></a> 
             e Faça Parte da Diversão Inclusiva!
         </h3>
+
     </section>
 
     <section class="mt-4">
@@ -204,6 +206,7 @@
             line-height: 40px;
             text-align: center;
         }
+
          h3{
             line-height: 40px;
         }
@@ -224,4 +227,5 @@
             text-align: justify;
         }
     }
+
 </style>

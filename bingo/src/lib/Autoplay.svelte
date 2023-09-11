@@ -15,7 +15,7 @@
     }
 </script>
 
-{#if card.Card > 1}
+{#if card.Card > 1 && !card.Bingo}
     {#if card.Autoplay}
         <button class="btn btn-success" on:click={toggleAutoplay}> <strong>Automático</strong> </button>
     {:else}
