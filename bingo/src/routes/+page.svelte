@@ -4,7 +4,7 @@
 </script>
 
 <PageTitle title="Início" />
-    <div class="d-flex justify-content-end m-3 me-5">
+    <div class="m-3 me-5">
         <a href="/terms" class="btn btn-warning btn-lg">Termos de uso</a>
     </div>
 
