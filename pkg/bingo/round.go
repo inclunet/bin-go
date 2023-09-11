@@ -18,6 +18,10 @@ func (r *Round) AddCard() *Card {
 }
 
 func (r *Round) CheckNumber(card, number int) *Card {
+	if !r.GetCard(0).IsChecked(number) && card > 0 {
+		return r.GetCard(card)
+	}
+
 	if card == 0 {
 		return r.CheckNumberForAll(number).GetCard(card)
 	}
