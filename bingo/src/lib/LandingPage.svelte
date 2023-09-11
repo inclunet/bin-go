@@ -7,7 +7,7 @@
                 <a href="/card/new" class="btn button-color text-black">
                     <strong>Jogue Agora!</strong>
                 </a>
-            </h3>       
+            </h3>      
 
         <p class="mt-4">Explore a emoção de um bingo acessível para todos no IncluBingo.</p>
         <p>
@@ -206,8 +206,7 @@
             line-height: 40px;
             text-align: center;
         }
-
-         h3{
+        h3{
             line-height: 40px;
         }
         header p{
@@ -229,3 +228,4 @@
     }
 
 </style>
+
