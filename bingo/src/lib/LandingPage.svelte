@@ -25,7 +25,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <img src="/img/check-box.png" alt="" width="30" class="main-features-img">
+                            <img src="/img/check-box.png" alt="Ícone de Marcação Automática" width="30" class="main-features-img">
                             Marcação Automática
                         </h5>
                         <p>
@@ -43,7 +43,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <img src="/img/sons.png" alt="" width="30" class="main-features-img">
+                            <img src="/img/sons.png" alt="Ícone de Avisos Visuais e Sonoros" width="30" class="main-features-img">
                             Avisos Visuais e Sonoros
                         </h5>
                         <p class="card-text">
@@ -59,7 +59,7 @@
                <div class="card">
                    <div class="card-body">
                         <h5 class="card-title">
-                            <img src="/img/acessibilidade.jpeg" alt="" width="30" class="main-features-img">
+                            <img src="/img/acessibilidade.jpeg" alt="Ícone de Acessilidade Aprimorada" width="30" class="main-features-img">
                             Acessilidade Aprimorada
                         </h5>
                         <p class="card-text">
@@ -75,7 +75,7 @@
                <div class="card">
                    <div class="card-body">
                         <h5 class="card-title">
-                            <img src="/img/velocidade.png" alt="" width="30" class="main-features-img">
+                            <img src="/img/velocidade.png" alt="Ícone de Escolha a Velocidade do Jogo" width="30" class="main-features-img">
                             Escolha a Velocidade do Jogo
                         </h5>
                         <p class="card-text">
@@ -92,7 +92,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <img src="/img/premio.png" alt="" width="30" class="main-features-img">
+                            <img src="/img/premio.png" alt="Íconde de Oferecimento de Prêmio" width="30" class="main-features-img">
                             Ofereça Prêmios para Rodadas Intermediárias!
                         </h5>
                         <p class="card-text">
@@ -108,7 +108,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <img src="/img/qrcode.png" alt="" width="30" class="main-features-img">
+                            <img src="/img/qrcode.png" alt="Ícone de QR-code" width="30" class="main-features-img">
                             QR-Code para Sorteio
                         </h5>
                         <p class="card-text">
@@ -124,7 +124,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <img src="/img/share.png" alt="" width="30" class="main-features-img">
+                            <img src="/img/share.png" alt="Ícone de Compartilhamento Simplificado" width="30" class="main-features-img">
                             Compartilhamento Simplificado
                         </h5>
                         <p class="card-text">
