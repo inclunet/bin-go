@@ -2,6 +2,7 @@
     import Autoplay from "./Autoplay.svelte";
     import Draw from "./Draw.svelte";
     import NewRound from "./NewRound.svelte";
+    import Bingo from "./Bingo.svelte";
 
     export let card = {
         Autoplay: false,
@@ -15,6 +16,7 @@
 <div class="container d-flex align-items-center flex-column">
     <div class="d-flex flex-row align-items-baseline justify-content-around" id="auto_play">
         <Autoplay bind:card={card} />
+        <Bingo bind:card={card} />
         <NewRound bind:card={card} />
         <Draw bind:card />
         <p>{card.Checked} Bolas Sorteadas</p>
