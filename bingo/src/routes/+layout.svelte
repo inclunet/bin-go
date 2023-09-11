@@ -11,6 +11,24 @@
             Jogo de Bingo acessível e inclusivo para pessoas com deficiência.
         </strong>
     </p>
+    <section>
+        <section>
+            <a href="/"><img src="/img/logo.png" alt="Logotipo da Inclunet"></a>
+        </section>
+        <section>
+            <ul>
+                <li>SOBRE A INCLUNET</li>
+                <li>DÚVIDAS FREQUENTES</li>
+                <li>SUGIRA UMA FUNCIONALIDADE</li>
+            </ul>
+        </section>
+        <section>BLOG DA INCLUNET</section>
+        <section class="">
+            <a href="https://"><img src="/img/facebook.png" alt=""></a>
+            <a href="https://"><img src="" alt=""></a>
+            <a href="https://"><img src="/img/linkedin.png" alt="" class="social-media"></a>
+        </section>
+    </section>
 </footer>
 
 <style>
@@ -38,6 +56,11 @@
         min-height: 30vh;
         background-color: #982a35;
         margin-top: 45px;
+    }
+    .social-media{
+        width: 36px;
+        height: 36px;
+        background-color: #fff;
     }
     
     @media(max-width: 450px){
