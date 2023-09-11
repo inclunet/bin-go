@@ -67,6 +67,7 @@
         header{
             padding: 0 10px 5px 10px;
             justify-content: space-between;
+
         }
         header img{
             width: 80%;
