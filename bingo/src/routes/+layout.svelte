@@ -18,7 +18,7 @@
         </section>
         <section class="section-useful-links-footer">
             <ul class="list-group">
-                <li><a href="#" class="useful-links list-group-item list-group-item-action">SOBRE A INCLUNET</a></li>
+                <li><a href="https://inclunet.com.br/quem-somos/" class="useful-links list-group-item list-group-item-action">SOBRE A INCLUNET</a></li>
                 <li><a href="#" class="useful-links list-group-item list-group-item-action">DÚVIDAS FREQUENTES</a></li>
                 <li><a href="#" class="useful-links list-group-item list-group-item-action">SUGIRA UMA FUNCIONALIDADE</a></li>
             </ul>
