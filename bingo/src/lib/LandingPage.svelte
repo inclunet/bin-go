@@ -44,7 +44,7 @@
                     <div class="card-body">
                         <h3 class="card-title">
                             <img src="/img/sons.png" alt="Avisos Visuais e Sonoros" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>Avisos Visuais e Sonoros
+                            <span aria-hidden="true">Avisos Visuais e Sonoros</span>
                         </h3>
                         <p class="card-text">
                             Com alertas visuais e sonoros, todos podem comemorar quando
@@ -60,7 +60,7 @@
                    <div class="card-body">
                         <h3 class="card-title">
                             <img src="/img/acessibilidade.jpeg" alt="Acessilidade Aprimorada" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>Acessilidade Aprimorada
+                            <span aria-hidden="true">Acessilidade Aprimorada</span>
                         </h3>
                         <p class="card-text">
                            Com informações visuais e auditivas, o IncluBingo oferece
@@ -76,7 +76,7 @@
                    <div class="card-body">
                         <h3 class="card-title">
                             <img src="/img/velocidade.png" alt="Escolha a Velocidade do Jogo" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>Escolha a Velocidade do Jogo
+                            <span aria-hidden="true">Escolha a Velocidade do Jogo</span>
                         </h3>
                         <p class="card-text">
                            É possível iniciar rodadas de 75 ou 90 bolinhas, permitindo
@@ -92,8 +92,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title">
-                            <img src="/img/premio.png" alt="Íconde de Oferecimento de Prêmio" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>Ofereça Prêmios para Rodadas Intermediárias!
+                            <img src="/img/premio.png" alt="Ofereça Prêmios para Rodadas Intermediárias" width="30" class="main-features-img">
+                            <span aria-hidden="true">Ofereça Prêmios para Rodadas Intermediárias!</span>
                         </h3>
                         <p class="card-text">
                             Com as rodadas intermediárias você pode prmiar quem Completa
@@ -109,7 +109,7 @@
                     <div class="card-body">
                         <h3 class="card-title">
                             <img src="/img/qrcode.png" alt="QR-code" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>QR-Code para Sorteio
+                            <span aria-hidden="true">QR-Code para Sorteio</span>
                         </h3>
                         <p class="card-text">
                             Utilize nosso QR-Code para sortear novas cartelas de forma
@@ -125,7 +125,7 @@
                     <div class="card-body">
                         <h3 class="card-title">
                             <img src="/img/share.png" alt="Compartilhamento Simplificado" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>Compartilhamento Simplificado
+                            <span aria-hidden="true">Compartilhamento Simplificado</span>
                         </h3>
                         <p class="card-text">
                             Compartilhe suas cartelas com um único clique em redes sociais
@@ -140,8 +140,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title">
-                            <img src="/img/jogo2.png" alt="" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>O Jogo não Para!
+                            <img src="/img/jogo2.png" alt="O Jogo não Para" width="30" class="main-features-img">
+                            <span aria-hidden="true">O Jogo não Para!</span>
                         </h3>
                         <p class="card-text">
                             É possível jogar sem interrupções! Ative a função de
@@ -155,8 +155,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title">
-                            <img src="/img/configuracao2.png" alt="" width="30" class="main-features-img">
-                            <span aria-hidden="true"></span>Configuração Personalizada
+                            <img src="/img/configuracao2.png" alt="Configuração Personalizada" width="30" class="main-features-img">
+                            <span aria-hidden="true">Configuração Personalizada</span>
                         </h3>
                         <p class="card-text">
                             Defina a quantidade de rodadas intermediárias válidas para cada
