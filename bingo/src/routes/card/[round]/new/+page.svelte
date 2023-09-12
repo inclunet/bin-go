@@ -11,20 +11,19 @@
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2>Rodada #{card.Round}</h2>
-    <p>Para jogar clique no botão "Jogar" a baixo</p>
+    <p class="text-center my-3">Para jogar clique no botão "Jogar" a baixo</p>
     <Adds />
     <Play bind:card />
 </div>
 
 <style>
     h2 {
-        margin-top: 50px;
-        font-size: 2.5em;
+        margin-top: 40px;
+        font-size: 2em;
     }
     p {
-        margin-top: 25px;
         padding: 0 10px 0 10px;
-        font-size: 1.6em;
+        font-size: 1.2em;
     }
     @media (max-width: 450px) {
         h2 {
@@ -35,7 +34,6 @@
         p {
             margin: 0;
             margin-bottom: 20px;
-            font-size: 1em;
         }
     }
 </style>
