@@ -1,5 +1,5 @@
 <header class="d-flex flex-row">
-    <a href="/"><img src="/img/logo.png" alt="Logotipo da Inclunet"></a>
+    <a href="/"><img src="/img/logo.png" alt="Inclunet"></a>
     <h1 class="text-center ">Inclubingo</h1>
 </header>
 <main class="content">
@@ -14,11 +14,11 @@
     <hr>
     <section class="content-footer">
         <section class="section-logo-footer">
-            <a href="/"><img src="/img/logo.png" alt="Logotipo da Inclunet" class="logo-footer"></a>
+            <a href="/"><img src="/img/logo.png" alt="Inclunet" class="logo-footer"></a>
         </section>
         <section class="section-useful-links-footer">
             <ul class="list-group">
-                <li><a href="#" class="useful-links list-group-item list-group-item-action">SOBRE A INCLUNET</a></li>
+                <li><a href="https://inclunet.com.br/quem-somos/" class="useful-links list-group-item list-group-item-action">SOBRE A INCLUNET</a></li>
                 <li><a href="#" class="useful-links list-group-item list-group-item-action">DÚVIDAS FREQUENTES</a></li>
                 <li><a href="#" class="useful-links list-group-item list-group-item-action">SUGIRA UMA FUNCIONALIDADE</a></li>
             </ul>
@@ -34,6 +34,7 @@
                 <li class="mx-3"><a href="https://www.youtube.com/@Inclunet" target="_blank"><img src="/img/youtube.png" alt="YouTube" class="social-media-img list-group-item list-group-item-action"></a></li>
                 <li class="mx-3"><a href="https://www.instagram.com/inclunet/" target="_blank"><img src="/img/instagram.png" alt="Instagram" class="social-media-img list-group-item list-group-item-action"></a></li>
                 <li class="mx-3"><a href="https://www.linkedin.com/company/inclunet/" target="_blank"><img src="/img/linkedin.png" alt="Linkedin" class="social-media-img list-group-item list-group-item-action"></a></li>
+                <li class="mx-3"><a href="https://www.twitter.com/inclunet" target="_blank"><img src="/img/twitter.png" alt="Twitter" class="social-media-img list-group-item list-group-item-action"></a></li>
             </ul>
         </section>
     </section>
