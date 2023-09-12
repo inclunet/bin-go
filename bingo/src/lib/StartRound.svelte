@@ -6,7 +6,7 @@
     }
 </script>
 
-<button on:click={startRound} class="btn text-black"><strong>Começar a Rodada</strong></button>
+<button on:click={startRound} class="btn"><strong>Começar a Rodada</strong></button>
 
 <style>
     :root{
@@ -19,7 +19,7 @@
         font-size: 1.3em;
         background-color: var(--primary-button-color);
     }
-    button:hover{
+    .btn:hover{
         color: #fff;
         background-color: var(--secondary-button-color);
     }

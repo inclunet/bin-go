@@ -6,14 +6,39 @@
     })
 
 </script>
-<div>
+<section class="container">
 <h2>Anúncios</h2>
-    <p>Os Anúncios oiiiii patrocinam o desenvolvimento e a manutenção deste jogo de Bingo acessível.</p>
-<!-- Transição do Bingo -->
-<ins class="adsbygoogle"
-     style="display:block"
+    <p>
+        <em>
+            Os Anúncios patrocinam o desenvolvimento e a manutenção 
+            deste jogo de Bingo acessível.
+        </em>
+    </p>
+    
+    <!-- Transição do Bingo -->
+    <ins class="adsbygoogle d-flex mb-4"
      data-ad-client="ca-pub-6710397565046630"
      data-ad-slot="7204703685"
      data-ad-format="auto"
      data-full-width-responsive="true"></ins>
-    </div>
+</section>
+
+<style>
+    h2{
+        font-size: 1.6em;
+    }
+    p{
+        background-color: #f8f8b4;
+        font-size: 1.2em;
+        text-align: center;
+        padding: 15px;
+        border: 1px solid #f5f539;
+        border-radius: 10px;
+    }
+    @media(max-width: 573px){
+        p{
+            text-align: justify;
+            line-height: 37px;
+        }
+    }
+</style>
