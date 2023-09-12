@@ -8,8 +8,8 @@
 <PageTitle title="Nova Rodada" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
-    <h2 class="text-center">Bem-Vindo ao Inclubingo</h2>
-    <p class="text-center">
+    <h2 class="text-center">Bem-vindo ao <strong>Inclubingo</strong></h2>
+    <p class="text-center my-3">
         Vamos Jogar! Escolha a quantidade de bolinhas que serão sorteadas:
     </p>
     <NewRound bind:card />
@@ -17,13 +17,12 @@
 
 <style>
     h2 {
-        margin-top: 50px;
-        font-size: 2.5em;
+        margin-top: 40px;
+        font-size: 2em;
     }
     p {
-        margin-top: 25px;
         padding: 0 10px 0 10px;
-        font-size: 1.6em;
+        font-size: 1.2em;
     }
     @media (max-width: 450px) {
         h2 {
@@ -34,7 +33,6 @@
         p {
             margin: 0;
             margin-bottom: 20px;
-            font-size: 1em;
         }
     }
 </style>
