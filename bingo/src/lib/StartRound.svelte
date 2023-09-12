@@ -6,13 +6,16 @@
     }
 </script>
 
-<button on:click={startRound} class="btn btn-primary"><strong>Começar a Rodada</strong></button>
+<button on:click={startRound} class="btn button-color text-black"><strong>Começar a Rodada</strong></button>
 
 <style>
+    :root{
+        --primary-button-color: #2b7ef4;
+    }
     button{
         padding: 10px;
         font-size: 1.3em;
-        color: #000;
+        background-color: var(--primary-button-color);
     }
     @media(max-width: 450px){
         button{

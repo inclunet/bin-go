@@ -21,6 +21,7 @@
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2 class="text-center">Rodada #{card.Round}</h2>
+    
     <p class="text-center">
         Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
         link:
@@ -28,7 +29,7 @@
             <a href="{$page.url}/new" id="link_jogo">{$page.url}/new</a>
         </strong>
     </p>
-    <div id="qr_code" class="d-flex justify-content-center">
+    <div id="qr_code" class="d-flex ">
         <img
             src="/qr/{card.Round}/{card.Card}?url={$page.url}/new"
             alt="QR-Code"
@@ -38,19 +39,13 @@
 </div>
 
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-    }
-
     h2 {
-        margin-top: 50px;
-        font-size: 2.5em;
+        margin-top: 40px;
+        font-size: 2em;
     }
     p {
-        margin-top: 25px;
         padding: 0 10px 0 10px;
-        font-size: 1.6em;
+        font-size: 1.2em;
     }
 
     a#link_jogo {
@@ -58,9 +53,11 @@
     }
 
     #qr_code {
-        margin: 0 auto;
-        margin-top: 40px;
-        margin-bottom: 40px;
+        margin: 20px 0px 25px 0px;
+    }
+    img{
+        width: 250px;
+        height: 210px;
     }
 
     @media (max-width: 450px) {
@@ -72,7 +69,6 @@
         p {
             margin: 0;
             margin-bottom: 20px;
-            font-size: 1em;
         }
     }
 </style>
