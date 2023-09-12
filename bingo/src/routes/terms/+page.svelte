@@ -20,7 +20,7 @@
     <div class="col-sm-12">
       <div class="card">
           <div class="card-body">
-              <h5 class="card-title">Uso do Site:</h5>
+              <h3 class="card-title">Uso do Site:</h3>
               <ol>
                 <li >
                   <div class="card-text">
@@ -42,7 +42,7 @@
     <div class="col-sm-12">
       <div class="card">
           <div class="card-body">
-              <h5 class="card-title">Responsabilidade e Limitações:</h5>
+              <h3 class="card-title">Responsabilidade e Limitações:</h3>
               <ol start="2">
                 <li >
                   <div class="card-text">
@@ -61,7 +61,7 @@
     <div class="col-sm-12">
       <div class="card">
           <div class="card-body">
-              <h5 class="card-title">Alterações nos Termos:</h5>
+              <h3 class="card-title">Alterações nos Termos:</h3>
               <ol start="1">
                 <li >
                   <div class="card-text">
@@ -80,7 +80,7 @@
     <div class="col-sm-12">
       <div class="card">
           <div class="card-body">
-              <h5 class="card-title">Lei Aplicável:</h5>
+              <h3 class="card-title">Lei Aplicável:</h3>
               <ol start="1">
                 <li >
                   <div class="card-text">
@@ -124,7 +124,8 @@
   ol{
     padding: 0;
   }
-  h5{
+  h3{
+    font-size: 1.4em;
     margin: 0;
   }
   p, section p{
@@ -144,8 +145,7 @@
       border-radius: 10px;
       box-shadow: 5px 5px 5px #e2e2e2;
     }
-    h5{
-      font-size: 1.4em;
+    h3{
       line-height: 40px;
     }
     p{
