@@ -10,8 +10,6 @@ function stopAudio () {
 </script>
 
 {#if card.Card > 1 && card.Bingo }
-
-
     <audio src="/sms.mp3" autoplay loop ></audio>
-<button on:click={stopAudio}>Bingo!</button>
+    <button class="btn btn-warning btn-lg" on:click={stopAudio}>Bingo!</button>
 {/if}
