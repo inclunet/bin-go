@@ -1,6 +1,40 @@
 <header class="d-flex flex-row">
     <a href="/"><img src="/img/logo.png" alt="Inclunet"></a>
     <h1 class="text-center ">Inclubingo</h1>
+    
+    <nav class="navbar">
+        <button class="navbar-toggler button-menu navbar-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="container-fluid">
+          <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+            <div class="offcanvas-header">
+              <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Inclubingo</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+                  <a class="nav-link active" aria-current="page" href="/">Home</a>
+                </li>
+                <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+                  <a class="nav-link" href="/terms">Termo de uso</a>
+                </li>
+              </ul>
+              <hr>
+              <section class="section-social-medias-footer mt-4">
+                <ul class="list-group flex-row">
+                    <li class="mx-3"><a href="https://www.facebook.com/CanalInclunet" target="_blank"><img src="/img/facebook.png" alt="Facebook" class="social-media-img list-group-item list-group-item-action"></a></li>
+                    <li class="mx-3"><a href="https://www.youtube.com/@Inclunet" target="_blank"><img src="/img/youtube.png" alt="YouTube" class="social-media-img list-group-item list-group-item-action"></a></li>
+                    <li class="mx-3"><a href="https://www.instagram.com/inclunet/" target="_blank"><img src="/img/instagram.png" alt="Instagram" class="social-media-img list-group-item list-group-item-action"></a></li>
+                    <li class="mx-3"><a href="https://www.linkedin.com/company/inclunet/" target="_blank"><img src="/img/linkedin.png" alt="Linkedin" class="social-media-img list-group-item list-group-item-action"></a></li>
+                    <li class="mx-3"><a href="https://www.twitter.com/inclunet" target="_blank"><img src="/img/twitter.png" alt="Twitter" class="social-media-img list-group-item list-group-item-action"></a></li>
+                </ul>
+            </section>
+            </div>
+          </div>
+        </div>
+    </nav>
 </header>
 <main class="content">
     <slot></slot>
@@ -48,15 +82,29 @@
 </footer>
 
 <style>
-   header{
-       background-color: #2b7ef4;
-       padding: 50px 50px 20px 50px;
-       align-items: center;
-   }
+    header{
+        background-color: #2b7ef4;
+        background-image: url("/img/fundo.png");
+        background-repeat: repeat;
+        background-size: 50%;
+        padding: 50px 50px 20px 50px;
+        align-items: center;
+    }
     header h1{
-        width: 100%;
-        font-size: 4.4em;
+        width: 50%;
+        font-size: 6em;
+        margin-left: 15%;
+        background: #2b7ff4ab;
         color: #000;
+        text-shadow: 
+               -1px -1px 3px #FFF, 
+               -1px 1px 3px #FFF,                    
+                1px -1px 0px #FFF,                  
+                1px 0px 0px #FFF;
+        border-radius: 10px;
+    }
+    header .navbar{
+        display: none;
     }
     .content{
         flex: 1 0 auto;
@@ -121,15 +169,31 @@
         header{
             padding: 0 10px 5px 10px;
             justify-content: space-between;
+            background-image: none;
 
         }
+        header a {
+            position: 0;
+            display: flex;
+            justify-content: center;
+        }
         header img{
+            margin: 0;
+            padding: 0;
             width: 80%;
         }
         header h1{
             height: auto;
-            margin-top: 15px;
+            width: 5%;
+            margin: 0;
+            width: 100%;
             font-size: 2.5em;
+        }
+        header .navbar{
+            display: flex;
+        }
+        header .button-menu{
+            background: #1d1d1d;
         }
         p{
             font-size: 1.3em;

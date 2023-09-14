@@ -31,8 +31,8 @@
 
 <style>
     img {
-        width: 90px;
-        height: 90px;
+        width: 75px;
+        height: 75px;
     }
     button[aria-pressed="true"] {
         background-color: #008000;
@@ -40,9 +40,9 @@
         border-color: black;
     }
     button {
-        margin: 10px;
-        width: 62px;
-        height: 62px;
+        margin: 7px;
+        width: 59px;
+        height: 59px;
         color: black;
         font-weight: 900;
         font-size: 1.6em;

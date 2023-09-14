@@ -246,7 +246,7 @@
         h3{
             line-height: 40px;
         }
-        header p{
+        header p:nth-child(n+3):nth-child(-n+4){
             text-align: justify;
         }
         .row{
@@ -263,7 +263,7 @@
         p{
             line-height: 37px;
         }
-        p, section p{
+        section p{
             text-align: justify;
         }
     }
