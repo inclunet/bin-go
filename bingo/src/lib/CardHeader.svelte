@@ -13,13 +13,18 @@
     };
 </script>
 
-<div class="container d-flex align-items-center flex-column">
-    <div class="d-flex flex-row align-items-baseline justify-content-around" id="auto_play">
-        <Autoplay bind:card={card} />
-        <Bingo bind:card={card} />
-        <NewRound bind:card={card} />
-        <Draw bind:card />
-        <p>{card.Checked} Bolas Sorteadas</p>
+<div class="container d-flex flex-column">
+    <div class="d-flex flex-column">
+        <div class="d-flex my-5 justify-content-center">
+            <Autoplay bind:card={card} />
+            <Bingo bind:card={card} />
+            <NewRound bind:card={card} />
+            <Draw bind:card />
+        </div>
+        <div>
+            <p>{card.Checked} Bolas Sorteadas</p>
+            
+        </div>
     </div>
     <div aria-live="polite">
         <p>Última bola sorteada: {card.LastNumber}</p>
@@ -27,12 +32,10 @@
 </div>
 
 <style>
-    #auto_play{
-        width: 100%;
+    .container{
+        padding: 0;
     }
     p{
-        margin-top: 25px;
-        padding: 0 10px 0 10px;
         font-size: 1.6em;
     }
     @media(max-width: 450px){

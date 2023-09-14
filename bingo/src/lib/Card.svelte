@@ -1,5 +1,5 @@
 <script>
-    import CardHeader from "$lib/CardHeader.svelte";
+    
     import Number from "./Number.svelte";
     export let card = {
         Autoplay: false,
@@ -12,8 +12,8 @@
     };
 </script>
 
-<div class="container-fluid d-flex align-items-center flex-column">
-    <CardHeader bind:card />
+<div class="container-fluid d-flex align-items-center text-center flex-column">
+    
     <table summary="Cartela">
         <tr id="tr_first">
             <th scope="col">B</th>
