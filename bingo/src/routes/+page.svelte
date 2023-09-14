@@ -4,9 +4,16 @@
 </script>
 
 <PageTitle title="Início" />
-    <div class="m-3 me-5">
+    <div class="m-3 me-5 term-use">
         <a href="/terms" class="btn btn-warning btn-lg">Termos de uso</a>
     </div>
 
 <LandingPage />
 
+<style>
+    @media(max-width: 450px){
+        .term-use{
+            display: none;
+        }
+    }
+</style>
