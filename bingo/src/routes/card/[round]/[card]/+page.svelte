@@ -5,7 +5,7 @@
     import Card from "$lib/Card.svelte";
     import { getCard } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
-
+    import Adds from "$lib/Adds.svelte";
     export let data;
     let card = data;
 
@@ -43,22 +43,49 @@
     <div class="table-card">
         <Card bind:card />
     </div>
-    <div class="anuncio">Anúncio</div>
+    <div class="anuncio"><Adds/></div>
+</div>
+
+<div class=" container-card-mobile">
+    <div class="info-card">
+        <h2 class="text-center mt-2">Cartela de Bingo #{card.Card} rodada #{card.Round}</h2>
+        <CardHeader bind:card />
+    </div>
+    <div class="">
+        <div class="table-card">
+            <Card bind:card />
+        </div>
+        <div class="container anuncio">
+            <Adds/>
+        </div>
+    </div>
 </div>
 
 <style>
     .container-card{
-        margin-top: 35px;
         display: flex;
+        margin-top: 35px;
         justify-content: space-between;
-    }
-    .info-card{
-        /* border: 1px solid black; */
-    }
-    .table-card{
     }
     .anuncio{
         width: 20%;
-        border: 1px solid black;
+    }
+    .container-card-mobile{
+        display: none;
+    }
+    @media(max-width: 762px){
+        .container-card{
+            display: none;
+        }
+        .container-card-mobile{
+            display: flex;
+            flex-direction: column;
+        }
+        .anuncio{
+            width: 100%;
+            margin-top: 10px
+        }
+    }
+    @media(max-width: 450px){
     }
 </style>
