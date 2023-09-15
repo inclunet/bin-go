@@ -33,7 +33,8 @@
                     </tr>
                 {/each}
             </tbody>
-        {:else}
+        {/if}
+        {#if card.Card == 1 && outerWidth < 940}
             <tbody class="">
                 {#each card.Numbers as row}
                     <tr>
