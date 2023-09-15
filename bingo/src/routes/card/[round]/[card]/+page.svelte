@@ -34,6 +34,27 @@
 
 <PageTitle title="Cartela de Bingo" />
 
+{#if card.Card == 1}
+<div class=" mx-5 container-card flex-column">
+        <div class="info-card-draw">
+            <h2 class="d-flex flex-row justify-content-between">
+                <p>
+                    Cartela de Bingo #{card.Card} 
+                </p>
+                <p>
+                    Rodada #{card.Round}
+                </p>
+            </h2>
+        </div>
+        <div class="d-flex flex-row mt-4">
+            <CardHeader bind:card />
+            <div class="table-card">
+                <Card bind:card />
+            </div>
+        </div>
+    <div class="anuncio-card-draw"><Adds/></div>
+</div>
+{:else}
 <div class=" mx-5 container-card">
     <div class="info-card">
         <h2>Cartela de Bingo #{card.Card}</h2>
@@ -45,6 +66,7 @@
     </div>
     <div class="anuncio"><Adds/></div>
 </div>
+{/if}
 
 <div class=" container-card-mobile">
     <div class="info-card">
@@ -62,10 +84,22 @@
 </div>
 
 <style>
+    .info-card-draw{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .info-card-draw p{
+        margin: 0;
+    }
     .container-card{
         display: flex;
         margin-top: 35px;
         justify-content: space-between;
+    }
+    .anuncio-card-draw{
+        margin-top: 60px;
+        width: 100%;
     }
     .anuncio{
         width: 20%;
