@@ -11,8 +11,28 @@
         LastNumber: 0,
         Round: 0,
     };
+
 </script>
 
+{#if card.Card == 1}
+<div class="container container-header">
+    <div class="d-flex flex-column justify-content-between">
+        <div class="">
+            <Autoplay bind:card={card} />
+            <Bingo bind:card={card} />
+            <NewRound bind:card={card} />
+            <Draw bind:card />
+        </div>
+
+        <div aria-live="polite">
+            <p class="font-card-draw"><strong>{card.Checked}</strong> Bolas Sorteadas</p>
+            <p class="font-card-draw"><strong>{card.LastNumber}</strong> Última bola sorteada</p>
+        </div>
+    </div>
+</div>
+{/if}
+
+{#if card.Card > 1}
 <div class="container container-header">
     <div class="d-flex flex-column">
         <div class="d-flex my-5 justify-content-center">
@@ -30,6 +50,7 @@
         <p>Última bola sorteada: {card.LastNumber}</p>
     </div>
 </div>
+{/if}
 
 <div class="container-mobile">
     <div class="d-flex flex-row container-mobile-header">
@@ -53,6 +74,10 @@
     .container-header{
         display: flex;
         flex-direction: column;
+    }
+    .font-card-draw{
+        margin-top: 30px;
+        font-size: 1.4em;
     }
     p{
         margin: 0;
