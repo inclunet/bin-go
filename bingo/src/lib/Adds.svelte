@@ -16,7 +16,7 @@
     </p>
     
     <!-- Transição do Bingo -->
-    <ins class="adsbygoogle d-flex mb-4 border"
+    <ins class="adsbygoogle"
      data-ad-client="ca-pub-6710397565046630"
      data-ad-slot="7204703685"
      data-ad-format="auto"
@@ -24,6 +24,10 @@
 </section>
 
 <style>
+    section{
+        width: auto;
+
+    }
     h2{
         font-size: 1.6em;
     }
@@ -31,10 +35,11 @@
         background-color: #f8f8b4;
         font-size: 1.2em;
         text-align: justify;
-        padding: 15px;
         border: 1px solid #f5f539;
+        padding: 15px;
         border-radius: 10px;
     }
+
     @media(max-width: 573px){
         p{
             line-height: 37px;

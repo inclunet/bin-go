@@ -34,92 +34,68 @@
 
 <PageTitle title="Cartela de Bingo" />
 
-{#if card.Card == 1}
-<div class=" mx-5 container-card flex-column">
-        <div class="info-card-draw">
-            <h2 class="d-flex flex-row justify-content-between">
-                <p>
-                    Cartela de Bingo #{card.Card} 
-                </p>
-                <p>
-                    Rodada #{card.Round}
-                </p>
-            </h2>
+<div class="container container-card">
+    <div class="mx-3 info-card">
+        <div class="info-card-header">
+            <h2>Cartela de Bingo #{card.Card}</h2>
+            <h3 class="info-card-header-round">Rodada #{card.Round}</h3>
         </div>
-        <div class="d-flex flex-row mt-4">
-            <CardHeader bind:card />
-            <div class="table-card">
-                <Card bind:card />
-            </div>
-        </div>
-    <div class="anuncio-card-draw"><Adds/></div>
-</div>
-{:else}
-<div class=" mx-5 container-card">
-    <div class="info-card">
-        <h2>Cartela de Bingo #{card.Card}</h2>
-        <h3 class="mt-4">Rodada #{card.Round}</h3>
         <CardHeader bind:card />
     </div>
     <div class="table-card">
         <Card bind:card />
     </div>
-    <div class="anuncio"><Adds/></div>
-</div>
-{/if}
-
-<div class=" container-card-mobile">
-    <div class="info-card">
-        <h2 class="text-center mt-2">Cartela de Bingo #{card.Card} rodada #{card.Round}</h2>
-        <CardHeader bind:card />
-    </div>
-    <div class="">
-        <div class="table-card">
-            <Card bind:card />
-        </div>
-        <div class="container anuncio">
-            <Adds/>
-        </div>
+    <div class="anuncio">
+        <Adds/>    
     </div>
 </div>
 
 <style>
-    .info-card-draw{
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    .info-card-draw p{
-        margin: 0;
-    }
-    .container-card{
-        display: flex;
-        margin-top: 35px;
-        justify-content: space-between;
-    }
-    .anuncio-card-draw{
-        margin-top: 60px;
-        width: 100%;
+    .info-card, .table-card{
+        flex-grow: 2;
     }
     .anuncio{
-        width: 20%;
+        flex-grow: 1;
     }
-    .container-card-mobile{
-        display: none;
+    .anuncio{
+        padding: 0;
+        flex-basis: 21%;
     }
-    @media(max-width: 762px){
-        .container-card{
-            display: none;
-        }
-        .container-card-mobile{
-            display: flex;
-            flex-direction: column;
-        }
+    .container-card{
+        margin-top: 35px;
+        padding: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .info-card-header-round{
+        margin-top: 30px;
+    }
+    .table-card{
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    @media(max-width: 767px){
         .anuncio{
-            width: 100%;
-            margin-top: 10px
+            flex-basis: 50%;
+        }
+        .info-card-header{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .info-card-header-round{
+            margin: 0px;
         }
     }
     @media(max-width: 450px){
+        .info-card{
+            width: 90%;
+        }
+        .container-card{
+            margin-top: 17px
+        }
     }
 </style>
