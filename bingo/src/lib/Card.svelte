@@ -10,67 +10,44 @@
         Round: 0,
         Numbers: [[{ Checked: false, Number: 0 }]],
     };
-	$: outerWidth = 0
-	$: innerWidth = 0
+	
 </script>
 
-<svelte:window bind:innerWidth bind:outerWidth />
-
-<div class="container-fluid d-flex align-items-center text-center flex-column">
+<div class="container-fluid d-flex text-center flex-column table-draw">
+<!-- <div class="table-draw"> -->
     
     <table summary="Cartela">
-        
-
-        {#if card.Card == 1 && outerWidth >= 940}
-            <tbody class="d-flex flex-row">
-                {#each card.Numbers as row}
-                    <tr>
-                        {#each row as number}
-                            <tr>
-                                <Number bind:number bind:card />
-                            </tr>
-                        {/each}
-                    </tr>
+        <tr id="tr_first">
+            <th scope="col">B</th>
+            <th scope="col">I</th>
+            <th scope="col">N</th>
+            <th scope="col">G</th>
+            <th scope="col">O</th>
+        </tr>
+        {#each card.Numbers as row}
+            <tr>
+                {#each row as number}
+                    <td>
+                        <Number bind:number bind:card />
+                    </td>
                 {/each}
-            </tbody>
-        {/if}
-        {#if card.Card == 1 && outerWidth < 940}
-            <tbody class="">
-                {#each card.Numbers as row}
-                    <tr>
-                        {#each row as number}
-                            <td>
-                                <Number bind:number bind:card />
-                            </td>
-                        {/each}
-                    </tr>
-                {/each}
-            </tbody>
-        {/if}
-
-        {#if card.Card > 1}
-        <thead>
-            <tr id="tr_first">
-                <th scope="col">B</th>
-                <th scope="col">I</th>
-                <th scope="col">N</th>
-                <th scope="col">G</th>
-                <th scope="col">O</th>
             </tr>
-        </thead>
-            <tbody>
-                {#each card.Numbers as row}
-                    <tr>
-                        {#each row as number}
-                            <td>
-                                <Number bind:number bind:card />
-                            </td>
-                        {/each}
-                    </tr>
-                {/each}
-            </tbody>
-        {/if}
-
+        {/each}
     </table>
 </div>
 <audio src="/sms.mp3" />
+<style>
+    .table-draw{
+        align-items:center;
+    }
+    @media(max-width: 991px){
+        .table-draw{
+            align-items:end;
+        }   
+    }
+    @media(max-width: 767px){
+        .table-draw{
+            align-items:center;
+        }
+    }
+</style>

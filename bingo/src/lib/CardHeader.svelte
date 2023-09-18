@@ -14,97 +14,60 @@
 
 </script>
 
-{#if card.Card == 1}
-<div class="container container-header">
-    <div class="d-flex flex-column justify-content-between">
-        <div class="">
-            <Autoplay bind:card={card} />
-            <Bingo bind:card={card} />
-            <NewRound bind:card={card} />
-            <Draw bind:card />
-        </div>
-
-        <div aria-live="polite">
-            <p class="font-card-draw"><strong>{card.Checked}</strong> Bolas Sorteadas</p>
-            <p class="font-card-draw"><strong>{card.LastNumber}</strong> Última bola sorteada</p>
-        </div>
-    </div>
-</div>
-{/if}
-
-{#if card.Card > 1}
-<div class="container container-header">
-    <div class="d-flex flex-column">
-        <div class="d-flex my-5 justify-content-center">
+<div class="container d-flex flex-column">
+    <div class="container-header">
+        <div class="container-header-inner">
             <Autoplay bind:card={card} />
             <Bingo bind:card={card} />
             <NewRound bind:card={card} />
             <Draw bind:card />
         </div>
         <div>
-            <p>{card.Checked} Bolas Sorteadas</p>
             
         </div>
-    </div>
-    <div aria-live="polite">
-        <p>Última bola sorteada: {card.LastNumber}</p>
-    </div>
-</div>
-{/if}
-
-<div class="container-mobile">
-    <div class="d-flex flex-row container-mobile-header">
-        <div class="">
-            <Autoplay bind:card={card} />
-            <Bingo bind:card={card} />
-            <NewRound bind:card={card} />
-            <Draw bind:card />
-        </div>
         <div aria-live="polite">
-            <p><strong>{card.Checked}</strong> Bolas Sorteadas</p>
-            <p>Última bola sorteada: <strong>{card.LastNumber}</strong></p>
+            <p>{card.Checked} Bolas Sorteadas</p>
+            <p>{card.LastNumber} Última bola sorteada</p>
         </div>
     </div>
 </div>
 
 <style>
-    .container-header{
+    .container{
         padding: 0;
     }
     .container-header{
         display: flex;
-        flex-direction: column;
+        flex-direction: column; 
     }
-    .font-card-draw{
-        margin-top: 30px;
-        font-size: 1.4em;
+    .container-header-inner{
+        display: flex;
+        margin-top: 50px;
+        margin-bottom: 50px;
+        justify-content: center;
     }
     p{
-        margin: 0;
         font-size: 1.6em;
     }
-    .container-mobile{
-        display: none;
-    }
-    @media(max-width: 762px){
+    @media(max-width: 767px){
+        p{
+            margin: 0;
+            padding: 0;
+            font-size: 1.2em;
+        }
         .container-header{
-            display: none;
-        }
-        .container-mobile{
-            display: flex;
             flex-direction: row;
-            justify-content: center;
-        }
-        .container-mobile-header{
-            width: 80%;
             justify-content: space-between;
-            margin-bottom: 10px;
         }
-
+        .container-header-inner{
+            margin: 0;
+        }
     }
     @media(max-width: 450px){
         p{
-            font-size: 1.2em;
+            margin: 0;
+            margin: 5px 0 7px 0px;
+            font-size: 1em;
         }
     }
 </style>
