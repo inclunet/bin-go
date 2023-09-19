@@ -44,8 +44,8 @@
 
 <style>
     img {
-        width: 75px;
-        height: 75px;
+        width: 72px;
+        height: 72px;
     }
     button[aria-pressed="true"] {
         background-color: #008000;
@@ -60,12 +60,12 @@
         font-size: 1.4em;
     }
     .button-card-client {
-        margin: 7px;
-        width: 59px;
-        height: 59px;
+        margin: 6px;
+        width: 54px;
+        height: 54px;
         color: black;
         font-weight: 900;
-        font-size: 1.6em;
+        font-size: 1.5em;
     }
 
     @media(max-width: 1132px){

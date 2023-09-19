@@ -53,11 +53,11 @@
     }
 
     #qr_code {
-        margin: 20px 0px 25px 0px;
+        margin: 10px 0px 15px 0px;
     }
     img{
-        width: 250px;
-        height: 210px;
+        width: 248px;
+        height: 208px;
     }
 
     @media (max-width: 450px) {
