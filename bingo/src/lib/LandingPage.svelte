@@ -96,7 +96,7 @@
                             <span aria-hidden="true">Ofereça Prêmios para Rodadas Intermediárias!</span>
                         </h3>
                         <p class="card-text">
-                            Com as rodadas intermediárias você pode prmiar quem Completa
+                            Com as rodadas intermediárias você pode premiar quem Completa
                             linhas horizontais, verticais ou diagonais. O IncluBingo eleva a
                             diversão a outro nível.
                         </p>
