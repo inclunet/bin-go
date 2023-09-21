@@ -26,8 +26,8 @@
             
         </div>
         <div aria-live="polite">
-            <p>{card.Checked} Bolas Sorteadas</p>
-            <p>{card.LastNumber} Última bola sorteada</p>
+            <p><strong>{card.Checked}</strong> Bolas Sorteadas</p>
+            <p><strong>{card.LastNumber}</strong> Última bola sorteada</p>
         </div>
     </div>
 </div>
