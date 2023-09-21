@@ -18,10 +18,10 @@
                         <a class="nav-link active" aria-current="page" href="/">Início</a>
                         </li>
                         <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
-                        <a class="nav-link" href="/terms">Ir para o jogo</a>
+                        <a class="nav-link" href="/card/new">Ir para o jogo</a>
                         </li>
                         <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
-                            <a class="nav-link" href="/terms">Como Jogar</a>
+                            <a class="nav-link" href="/instructions">Como Jogar</a>
                         </li>
                         <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
                             <a class="nav-link" href="/terms">Termo de uso</a>
