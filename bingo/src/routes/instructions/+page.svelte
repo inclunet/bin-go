@@ -3,21 +3,30 @@
     <h2 class="mt-5">Os Bastidores da Criação e seus criadores</h2>
     <div class="mt-4 creators border rounded bg-light">
         <p class="p-4 m-3 bg-white">O Inclubingo é um jogo de bingo online desenvolvido por Leonardo e Camila, apresentadores do canal <a href="https://www.youtube.com/@Inclunet" target="_blank" role="button">Inclunet no YouTube</a>. Eles tiveram a ideia do jogo depois de uma experiência não muito boa em uma viagem de férias. Eles foram convidados para jogar bingo, mas perceberam que não seria possível para eles jogarem sozinhos. seria necessário pedir ajuda de alguém para marcar os números sorteados, o que os tornaria espectadores passivos do jogo.</p>
-        <img src="/img/leo-camila.jpg" alt="" class="m-3 leo-ca">
+        <img src="/img/leo-camila.jpg" 
+        alt="Leonardo e Camila, ambos sorrindo, 
+            sentados em um sofá marrom. No fundo, 
+            uma cortina divida em duas partes, vermelho e branco" 
+        class="m-3 leo-ca">
     </div>
     
     <p class="my-5">Leonardo começou a pensar em como poderia fazer um jogo de bingo totalmente acessível para pessoas com deficiência visual. Ele queria que o jogo fosse fácil de usar e que oferecesse a mesma experiência de jogo que as pessoas com visão têm.</p>
     
     <div class="mb-4 creators border rounded bg-light">
         <p class="p-4 m-3 bg-white">Em duas semanas, Leonardo desenvolveu o primeiro protótipo do Inclubingo e convidou seu amigo Edson Garcia para ajudar a melhorar o design e assim tornar o jogo inclusivo, permitindo que pessoas com e sem deficiência visual pudessem jogar juntos. O jogo foi um sucesso na festa junina do casal e por isso eles resolveram disponibilizar o jogo online para oferecer a mesma experiência a outras pessoas com deficiência visual.</p>
-        <img src="/img/edson.jpg" alt="" class="m-3 edson">
+        <img src="/img/edson.jpg" 
+            alt="Edson usando camisa branca com stampa, chapéu Pork Pie, 
+            óculos e cordão ponta de flexa" 
+            class="m-3 edson">
     </div>
 </div>
 
 <hr>
 
 <div class="how-play-container">
-    <img src="/img/como-jogar-editado.png" alt="Como Jogar" class="how-play-img">
+    <img src="/img/como-jogar-editado.png" 
+        alt="Cartelas de bingo, confetes e serpentinas de festa, 
+        desenho de explosão no meio com o texto Como Jogar" class="how-play-img">
 </div>
 
 <div class="container content-main">
@@ -26,14 +35,16 @@
         <div class="container-role rounded col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="container-role-img-group">
-                        <img src="/img/bingo-cel-editado.png" class="device" alt="Celular" >
-                        <img src="/img/bingo-notebook.png" class="device" alt="Notebook">
-                    </div>
-                    <div class="container-role-body">
-                        <h3 class="role-title">Para jogar Inclubingo</h3>
-                        <p class="role-text">Você ou a pessoa que fará o sorteio e todos os jogadores precisarão de um dispositivo móvel ou computador com acesso à internet</p>
-                    </div>
+                    <dir class="d-flex screen-devices">
+                        <div class="container-role-img-group">
+                            <img src="/img/telas-bingo-sem-fundo-editada.png" class="device" 
+                            alt="Jogo Inclubingo na tela do Notebook e celular">
+                        </div>
+                        <div class="container-role-body">
+                            <h3 class="role-title">Para jogar Inclubingo</h3>
+                            <p class="role-text">Você ou a pessoa que fará o sorteio e todos os jogadores precisarão de um dispositivo móvel ou computador com acesso à internet</p>
+                        </div>
+                    </dir>
                 </div>
             </div>
         </div>
@@ -42,7 +53,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/link-acesso.png" class="role-img" alt="" >
+                        <img src="/img/link-acesso.png" class="role-img" alt="Barra de endereço com o link do inclubingo" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Para iniciar o jogo</h3>
@@ -56,7 +67,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/anuncio.png" class="role-img" alt="" >
+                        <img src="/img/anuncio.png" class="role-img" alt="Flecha indicando aonde fechar o anuncio" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Se aparecer algum anúncio</h3>
@@ -69,7 +80,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/nova-rodada.png" class="role-img" alt="" >
+                        <img src="/img/nova-rodada.png" class="role-img" alt="Flecha indicando o botão de nova rodada" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Nova Rodada</h3>
@@ -83,7 +94,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/qr-code.png" class="role-img" alt="" >
+                        <img src="/img/qr-code.png" class="role-img" alt="Nessa página contém  o link e qr-code para acessar a rodada" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Página de espera</h3>
@@ -97,7 +108,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/qr-code-play.png" class="role-img" alt="" >
+                        <img src="/img/qr-code-play.png" class="role-img" alt="Flechas indicando o qr-code e o link para nova rodada" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Qr-code e link</h3>
@@ -111,7 +122,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/comecar-rodada.png" class="role-img" alt="" >
+                        <img src="/img/comecar-rodada.png" class="role-img" alt="Flecha indicando o botão para começar a rodada" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Botão Começar Radada</h3>
@@ -125,7 +136,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/tela-sorteio.png" class="role-img" alt="" >
+                        <img src="/img/tela-sorteio.png" class="role-img" alt="Flechas apontando para a cartela de sorteio, a cartela do jogador, o botão de sorteio, o número sorteado e último número que foi sorteado" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Sorteio do primeiro número</h3>
@@ -139,7 +150,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/modo-automatico.png" class="role-img" alt="" >
+                        <img src="/img/modo-automatico.png" class="role-img" alt="Flecha indicando o botão automático" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Modo automático</h3>
@@ -153,7 +164,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/modo-manual.png" class="role-img" alt="" >
+                        <img src="/img/modo-manual.png" class="role-img" alt="Flecha apontando para o botão manual" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Modo manual</h3>
@@ -167,7 +178,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/bingo.png" class="role-img" alt="" >
+                        <img src="/img/bingo.png" class="role-img" alt="Linha diagonal preenchida e botão 'Bingo!' que apareceu em seguida" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Como ganhar a rodada</h3>
@@ -181,7 +192,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group">
-                        <img src="/img/parar-som.png" class="role-img" alt="" >
+                        <img src="/img/parar-som.png" class="role-img" alt="Flecha indicando o botão 'Bingo!' que encerra o som de bingo" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Parar som do bingo</h3>
@@ -195,7 +206,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="container-role-img-group d-flex justify-content-center">
-                        <img src="/img/fim-jogo-editado.png" class="role-img-end" alt="" >
+                        <img src="/img/fim-jogo-editado.png" class="role-img-end" alt="Flecha indicando o botão nova rodada que aparece quando a cartela de sorteio é preenchida" >
                     </div>
                     <div class="container-role-body">
                         <h3 class="role-title">Fim da rodada</h3>
@@ -207,9 +218,9 @@
 
         
     </div>
-    <h2>Características de acessibilidade</h2>
+    <h2 class="mt-4">Características de acessibilidade</h2>
     
-    <h3>O Inclubingo é um jogo acessível para pessoas com deficiência visual. O jogo oferece as seguintes características de acessibilidade:</h3>
+    <h3 class="mt-4">O Inclubingo é um jogo acessível para pessoas com deficiência visual. O jogo oferece as seguintes características de acessibilidade:</h3>
         <div class="row">
 
             <div class="col-sm-6 mb-3">
@@ -287,25 +298,24 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">
-                            <img src="/img/redirecionamento.png" alt="Redirecionamento automático para uma nova cartela" class="me-4">
-                            <span aria-hidden="true">Redirecionamento automático para uma nova cartela:</span>
-                        </h4>
-                        <p>
-                            Quando a rodada termina, o sorteador tem a opção de criar uma nova rodada. Se ele fizer isso, todos os que já estavam jogando serão redirecionados automaticamente para uma nova cartela da próxima rodada.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-sm-12 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">
                             <img src="/img/dica.png" alt="Dicas para jogar" class="me-4">
                             <span aria-hidden="true">Dicas para jogar:</span>
                         </h4>
                         <p>
                             Seja paciente. O jogo pode demorar um pouco para terminar.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            <img src="/img/redirecionamento.png" alt="Redirecionamento automático para uma nova cartela" class="me-4">
+                            <span aria-hidden="true">Redirecionamento automático para uma nova cartela:</span>
+                        </h4>
+                        <p>
+                            Quando a rodada termina, o sorteador tem a opção de criar uma nova rodada. Se ele fizer isso, todos os que já estavam jogando serão redirecionados automaticamente para uma nova cartela da próxima rodada.
                         </p>
                     </div>
                 </div>
@@ -351,8 +361,6 @@
         margin: 100px 0 50px 0;
     }
     .how-play-container{
-        background-color: #000;
-        padding: 100px 0 100px 0;
         margin-top: 100px;
     }
     .how-play-img{
@@ -404,11 +412,11 @@
             margin: 0;
             padding: 0;
         }
-        .device{
-            width: 50%;
-        }
-        .role-img-end{
+        .device, .role-img-end{
             width: 90%;
+        }
+        .screen-devices{
+            flex-direction: column;
         }
     }
     @media(max-width: 800px){
