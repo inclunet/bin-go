@@ -17,10 +17,11 @@
     
     <!-- Transição do Bingo -->
     <ins class="adsbygoogle"
-     data-ad-client="ca-pub-6710397565046630"
-     data-ad-slot="7204703685"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
+    style="display:block;"
+    data-ad-client="ca-pub-6710397565046630"
+    data-ad-slot="7204703685"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
 </section>
 
 <style>
