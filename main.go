@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/legle/bin-go/pkg/bingo"
@@ -17,6 +18,10 @@ func main() {
 	flag.StringVar(&host, "host", "", "Host to listen on")
 	flag.StringVar(&dir, "dir", "./", "Directory to serve")
 	flag.Parse()
+
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		port = envPort
+	}
 
 	b := bingo.NewBingo()
 	r := mux.NewRouter()
