@@ -3,6 +3,7 @@ package bingo
 import (
 	"encoding/json"
 	"image/png"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -36,7 +37,13 @@ func (b *Bingo) GetBingoCard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *Bingo) GetRound(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.GetRound(GetUrlIntParam(r, "round")-1))
+	currentRound, err := b.Rounds.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	Repply(w, currentRound)
 }
 
 func (b *Bingo) GetCardQR(w http.ResponseWriter, r *http.Request) {

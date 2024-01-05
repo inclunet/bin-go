@@ -4,44 +4,93 @@ import "fmt"
 
 type Rounds struct {
 	Total  int
-	Rounds []Round
+	Rounds []*Round
 }
 
 func (r *Rounds) AddCard(round int) *Card {
-	r.Total++
-	return r.GetRound(round).AddCard()
-}
+	currentRound, err := r.GetRound(round)
 
-func (r *Rounds) AddRound(oldRound, roundType int) *Card {
-	round := NewRound(len(r.Rounds)+1, roundType)
-	fmt.Println(oldRound)
-	if oldRound >= 0 {
-		r.GetRound(oldRound).SetNextRound(round.Round)
+	if err != nil {
+		return nil
 	}
 
-	r.Rounds = append(r.Rounds, round)
+	r.Total++
 
-	return round.GetCard(0)
+	return currentRound.AddCard()
+}
+
+func (r *Rounds) AddRound(oldRoundId, roundType int) *Card {
+	currentRound := NewRound(r, roundType)
+
+	mainCard, err := currentRound.GetCard(0)
+
+	if err != nil {
+		return nil
+	}
+
+	oldRound, err := r.GetRound(oldRoundId)
+
+	if err != nil {
+		return mainCard
+	}
+
+	oldRound.SetNextRound(currentRound)
+
+	return mainCard
 }
 
 func (r *Rounds) CheckNumber(round, card, number int) *Card {
-	return r.GetRound(round).CheckNumber(card, number)
+	currentRound, err := r.GetRound(round)
+
+	if err != nil {
+		return nil
+	}
+
+	return currentRound.CheckNumber(card, number)
 }
 
 func (r *Rounds) Draw(round int) *Card {
-	return r.GetRound(round).Draw()
+	currentRound, err := r.GetRound(round)
+
+	if err != nil {
+		return nil
+	}
+
+	return currentRound.Draw()
 }
 
 func (r *Rounds) GetCard(round, card int) *Card {
-	return r.GetRound(round).GetCard(card)
+	currentRound, err := r.GetRound(round)
+
+	if err != nil {
+		return nil
+	}
+
+	currentCard, err := currentRound.GetCard(card)
+
+	if err != nil {
+		return nil
+	}
+
+	return currentCard
 }
 
-func (r *Rounds) GetRound(round int) *Round {
-	return &r.Rounds[round]
+func (r *Rounds) GetRound(round int) (*Round, error) {
+	if round < 0 || round >= len(r.Rounds) || len(r.Rounds) == 0 {
+		return nil, fmt.Errorf("Round %d not found", round)
+	}
+
+	return r.Rounds[round], nil
 }
 
 func (r *Rounds) ToggleAutoplay(round, card int) *Card {
-	return r.GetRound(round).ToggleAutoplay(card)
+	currentRound, err := r.GetRound(round)
+
+	if err != nil {
+		return nil
+	}
+
+	return currentRound.ToggleAutoplay(card)
 }
 
 func (r *Rounds) ToggleNumber(round, card, number int) *Card {
@@ -53,8 +102,22 @@ func (r *Rounds) ToggleNumber(round, card, number int) *Card {
 }
 
 func (r *Rounds) UncheckNumber(round, card, number int) *Card {
-	if r.GetCard(round, 0).IsChecked(number) && card == 0 {
-		return r.GetRound(round).UncheckNumber(number).GetCard(card)
+	currentRound, err := r.GetRound(round)
+
+	if err != nil {
+		return nil
+	}
+
+	mainCard, err := currentRound.GetCard(0)
+
+	if err != nil {
+		return nil
+	}
+
+	if mainCard.IsChecked(number) && card == 0 {
+		currentRound.UncheckNumber(number)
+
+		return mainCard
 	}
 
 	return r.GetCard(round, card)

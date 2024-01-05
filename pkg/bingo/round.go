@@ -1,39 +1,47 @@
 package bingo
 
+import "fmt"
+
 type Round struct {
-	Cards []Card
-	Round int
-	Type  int
+	Cards  []*Card
+	Round  int
+	rounds *Rounds
+	Type   int
 }
 
 func (r *Round) AddCard() *Card {
-	card := NewCard(r.Round, len(r.Cards)+1, r.Type)
-	r.Cards = append(r.Cards, card)
-
-	if r.GetCard(0).Checked == 0 {
-		r.GetCard(card.Card - 1).ToggleAutoplay()
-	}
-
-	return r.GetCard(card.Card - 1)
+	return NewCard(r)
 }
 
 func (r *Round) CheckNumber(card, number int) *Card {
-	if !r.GetCard(0).IsChecked(number) && card > 0 {
-		return r.GetCard(card)
+	currentCard, err := r.GetCard(card)
+
+	if err != nil {
+		return nil
+	}
+
+	mainCard, err := r.GetCard(0)
+
+	if err != nil {
+		return currentCard
+	}
+
+	if !mainCard.IsChecked(number) && card > 0 {
+		return currentCard
 	}
 
 	if card == 0 {
-		return r.CheckNumberForAll(number).GetCard(card)
+		r.CheckNumberForAll(number)
 	}
 
-	return r.GetCard(card).CheckNumber(number)
+	currentCard.CheckNumber(number)
+
+	return currentCard
 }
 
 func (r *Round) CheckNumberForAll(number int) *Round {
 	for i, card := range r.Cards {
-		r.Cards[i].LastNumber = number
-
-		if card.Autoplay {
+		if card.Autoplay && i > 0 {
 			r.Cards[i].CheckNumber(number)
 		}
 	}
@@ -42,27 +50,51 @@ func (r *Round) CheckNumberForAll(number int) *Round {
 }
 
 func (r Round) Draw() *Card {
-	return r.CheckNumberForAll(r.GetCard(0).Draw().LastNumber).GetCard(0)
+	mainCard, err := r.GetCard(0)
+
+	if err != nil {
+		return nil
+	}
+
+	mainCard.Draw()
+
+	return mainCard
 }
 
-func (r *Round) GetCard(card int) (defaultCard *Card) {
-	//if card < len(r.Cards) {
-	return &r.Cards[card]
-	//}
+func (r *Round) GetCard(card int) (*Card, error) {
+	if card < 0 || card >= len(r.Cards) || len(r.Cards) == 0 {
+		return nil, fmt.Errorf("Card %d not found", card)
+	}
 
-	//return defaultCard
+	return r.Cards[card], nil
 }
 
-func (r *Round) SetNextRound(round int) *Round {
+func (r *Round) SetNextRound(round *Round) *Round {
+	if round == nil {
+		return r
+	}
+
+	if round.Round == 0 || round.Round == r.Round {
+		return r
+	}
+
 	for card := range r.Cards {
-		r.GetCard(card).SetNextRound(round)
+		r.Cards[card].SetNextRound(round.Round)
 	}
 
 	return r
 }
 
 func (r *Round) ToggleAutoplay(card int) *Card {
-	return r.GetCard(card).ToggleAutoplay().CheckDrawedNumbers(*r.GetCard(0))
+	currentCard, err := r.GetCard(card)
+
+	if err != nil {
+		return nil
+	}
+
+	currentCard.ToggleAutoplay().CheckDrawedNumbers()
+
+	return currentCard
 }
 
 func (r *Round) UncheckNumber(number int) *Round {
@@ -73,11 +105,12 @@ func (r *Round) UncheckNumber(number int) *Round {
 	return r
 }
 
-func NewRound(round, roundType int) (newRound Round) {
-	newRound.Round = round
-	newRound.Type = roundType
+func NewRound(rounds *Rounds, roundType int) (round *Round) {
+	round.Round = len(rounds.Rounds) + 1
+	round.Type = roundType
+	round.AddCard()
 
-	newRound.AddCard()
+	round.rounds.Rounds = append(rounds.Rounds, round)
 
-	return newRound
+	return round
 }

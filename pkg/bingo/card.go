@@ -2,6 +2,8 @@ package bingo
 
 import (
 	"sort"
+
+	"github.com/gorilla/websocket"
 )
 
 type BingoTypes struct {
@@ -21,8 +23,10 @@ type Card struct {
 	DisallowBingoTypes BingoTypes
 	Autoplay           bool
 	Bingo              bool
+	round              *Round
 	Round              int
 	Card               int
+	conn               *websocket.Conn
 	Checked            int
 	LastNumber         int
 	NextRound          int
@@ -30,13 +34,25 @@ type Card struct {
 	Numbers            [][5]Number
 }
 
-func (c *Card) CheckDrawedNumbers(card Card) *Card {
-	if c.Autoplay && card.Checked > 0 {
-		for _, line := range card.Numbers {
-			for _, number := range line {
-				if number.Checked {
-					c.CheckNumber(number.Number)
-				}
+func (c *Card) CheckDrawedNumbers() *Card {
+	if !c.Autoplay {
+		return c
+	}
+
+	mainCard, err := c.round.GetCard(0)
+
+	if err != nil {
+		return c
+	}
+
+	if mainCard.Checked == 0 {
+		return c
+	}
+
+	for _, line := range mainCard.Numbers {
+		for _, number := range line {
+			if number.Checked {
+				c.CheckNumber(number.Number)
 			}
 		}
 	}
@@ -44,39 +60,39 @@ func (c *Card) CheckDrawedNumbers(card Card) *Card {
 	return c
 }
 
-func (c *Card) CheckNumber(number int) *Card {
+func (c *Card) CheckNumber(number int) bool {
 	for l, line := range c.Numbers {
 		for col, column := range line {
 			if column.Number == number && !column.Checked {
+				c.LastNumber = number
 				c.Numbers[l][col].Checked = true
 				c.Checked++
 				c.Bingo = c.IsBingo()
+
+				if c.Card == 1 {
+					c.round.CheckNumberForAll(number)
+				}
+
+				return true
 			}
 		}
 	}
 
-	return c
+	return false
 }
 
-func (c *Card) Draw() *Card {
+func (c *Card) Draw() int {
 	if c.Checked >= c.Type {
-		return c
+		return 0
 	}
 
 	newNumber := GetRandomNumber(1, c.Type)
 
-	for _, line := range c.Numbers {
-		for _, number := range line {
-			if number.Number == newNumber && number.Checked {
-				return c.Draw()
-			}
-		}
+	if !c.CheckNumber(newNumber) {
+		return c.Draw()
 	}
 
-	c.CheckNumber(newNumber)
-	c.LastNumber = newNumber
-
-	return c
+	return newNumber
 }
 
 func (c *Card) DrawCard() {
@@ -305,10 +321,29 @@ func (c *Card) uncheckNumber(number int) *Card {
 	return c
 }
 
-func NewCard(round, card, cardType int) (newCard Card) {
-	newCard.Card = card
-	newCard.Round = round
-	newCard.Type = cardType
-	newCard.DrawCard()
-	return newCard
+func (c *Card) UpdateCard() error {
+	if c.conn == nil {
+		return nil
+	}
+
+	err := c.conn.WriteJSON(c)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewCard(round *Round) (card *Card) {
+	card.Autoplay = true
+	card.Card = len(round.Cards) + 1
+	card.round = round
+	card.Round = round.Round
+	card.Type = round.Type
+	card.DrawCard()
+
+	card.round.Cards = append(card.round.Cards, card)
+
+	return card
 }
