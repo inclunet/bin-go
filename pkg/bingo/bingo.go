@@ -18,14 +18,9 @@ type Bingo struct {
 
 func (b *Bingo) AddRound(w http.ResponseWriter, r *http.Request) {
 	log.Println("Adding round", GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "type"))
-	log.Println(b)
-	currentRound, err := b.Rounds.AddRound(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "type"))
-
-	if err != nil {
-		log.Printf("Adding card: %s", err)
-	}
-
-	Repply(w, currentRound)
+	round := NewRound(&b.Rounds, GetUrlIntParam(r, "type"))
+	round.SetNextRound(GetUrlIntParam(r, "round") - 1)
+	Repply(w, round)
 }
 
 func (b *Bingo) Draw(w http.ResponseWriter, r *http.Request) {

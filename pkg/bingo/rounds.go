@@ -2,14 +2,13 @@ package bingo
 
 import (
 	"fmt"
-	"log"
 )
 
 type Rounds struct {
-	Total  int
 	Rounds []Round
 }
 
+// todo refatore it for call directly by bingo controller.
 func (r *Rounds) AddCard(round int) Card {
 	currentRound, err := r.GetRound(round)
 
@@ -17,35 +16,7 @@ func (r *Rounds) AddCard(round int) Card {
 		return Card{}
 	}
 
-	r.Total++
-
 	return NewCard(currentRound)
-}
-
-func (r *Rounds) AddRound(oldRoundId, roundType int) (*Card, error) {
-	log.Println("Adding round", oldRoundId, roundType)
-
-	currentRound := NewRound(r, roundType)
-	log.Println("Adding round", oldRoundId, roundType)
-	mainCard, err := currentRound.GetCard(0)
-
-	log.Println("Adding round", oldRoundId, roundType)
-
-	if err != nil {
-		return nil, err
-	}
-
-	oldRound, err := r.GetRound(oldRoundId)
-
-	if err != nil {
-		return mainCard, nil
-	}
-
-	if oldRoundId > 0 {
-		oldRound.SetNextRound(currentRound)
-	}
-
-	return mainCard, nil
 }
 
 func (r *Rounds) CheckNumber(round, card, number int) *Card {

@@ -2,7 +2,6 @@ package bingo
 
 import (
 	"fmt"
-	"log"
 )
 
 type Round struct {
@@ -68,13 +67,19 @@ func (r *Round) GetCard(card int) (*Card, error) {
 	return &r.Cards[card], nil
 }
 
-func (r *Round) SetNextRound(round Round) *Round {
-	if round.Round == 0 || round.Round == r.Round {
+func (r *Round) SetNextRound(round int) *Round {
+	if round == 0 || round == r.Round {
 		return r
 	}
 
-	for card := range r.Cards {
-		r.Cards[card].SetNextRound(round.Round)
+	oldRound, err := r.rounds.GetRound(round)
+
+	if err != nil {
+		return r
+	}
+
+	for card := range oldRound.Cards {
+		oldRound.Cards[card].SetNextRound(r.Round)
 	}
 
 	return r
@@ -105,8 +110,6 @@ func NewRound(rounds *Rounds, roundType int) (round Round) {
 	round.Round = len(rounds.Rounds) + 1
 	round.Type = roundType
 	NewCard(&round)
-	log.Print("*9")
 	round.rounds.Rounds = append(round.rounds.Rounds, round)
-	log.Print("*10")
 	return round
 }
