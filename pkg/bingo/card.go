@@ -1,6 +1,7 @@
 package bingo
 
 import (
+	"log"
 	"sort"
 
 	"github.com/gorilla/websocket"
@@ -335,15 +336,21 @@ func (c *Card) UpdateCard() error {
 	return nil
 }
 
-func NewCard(round *Round) (card *Card) {
+func NewCard(round *Round) (card Card) {
+	log.Println("nc0")
 	card.Autoplay = true
+	log.Println("nc1")
 	card.Card = len(round.Cards) + 1
+	log.Println("nc2")
 	card.round = round
+	log.Println("nc3")
 	card.Round = round.Round
+	log.Println("nc4")
 	card.Type = round.Type
+	log.Println("nc5")
 	card.DrawCard()
-
+	log.Println("nc6")
 	card.round.Cards = append(card.round.Cards, card)
-
+	log.Println("nc7")
 	return card
 }

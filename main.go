@@ -24,6 +24,7 @@ func main() {
 	}
 
 	b := bingo.NewBingo()
+
 	r := mux.NewRouter()
 	r.HandleFunc("/api/card/{round}/new/{type}", b.AddRound)
 	r.HandleFunc("/api/card/{round}", b.GetRound)

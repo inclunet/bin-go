@@ -1,42 +1,51 @@
 package bingo
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type Rounds struct {
 	Total  int
-	Rounds []*Round
+	Rounds []Round
 }
 
-func (r *Rounds) AddCard(round int) *Card {
+func (r *Rounds) AddCard(round int) Card {
 	currentRound, err := r.GetRound(round)
 
 	if err != nil {
-		return nil
+		return Card{}
 	}
 
 	r.Total++
 
-	return currentRound.AddCard()
+	return NewCard(currentRound)
 }
 
-func (r *Rounds) AddRound(oldRoundId, roundType int) *Card {
-	currentRound := NewRound(r, roundType)
+func (r *Rounds) AddRound(oldRoundId, roundType int) (*Card, error) {
+	log.Println("Adding round", oldRoundId, roundType)
 
+	currentRound := NewRound(r, roundType)
+	log.Println("Adding round", oldRoundId, roundType)
 	mainCard, err := currentRound.GetCard(0)
 
+	log.Println("Adding round", oldRoundId, roundType)
+
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	oldRound, err := r.GetRound(oldRoundId)
 
 	if err != nil {
-		return mainCard
+		return mainCard, nil
 	}
 
-	oldRound.SetNextRound(currentRound)
+	if oldRoundId > 0 {
+		oldRound.SetNextRound(currentRound)
+	}
 
-	return mainCard
+	return mainCard, nil
 }
 
 func (r *Rounds) CheckNumber(round, card, number int) *Card {
@@ -80,7 +89,7 @@ func (r *Rounds) GetRound(round int) (*Round, error) {
 		return nil, fmt.Errorf("Round %d not found", round)
 	}
 
-	return r.Rounds[round], nil
+	return &r.Rounds[round], nil
 }
 
 func (r *Rounds) ToggleAutoplay(round, card int) *Card {

@@ -1,16 +1,15 @@
 package bingo
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type Round struct {
-	Cards  []*Card
+	Cards  []Card
 	Round  int
 	rounds *Rounds
 	Type   int
-}
-
-func (r *Round) AddCard() *Card {
-	return NewCard(r)
 }
 
 func (r *Round) CheckNumber(card, number int) *Card {
@@ -66,14 +65,10 @@ func (r *Round) GetCard(card int) (*Card, error) {
 		return nil, fmt.Errorf("Card %d not found", card)
 	}
 
-	return r.Cards[card], nil
+	return &r.Cards[card], nil
 }
 
-func (r *Round) SetNextRound(round *Round) *Round {
-	if round == nil {
-		return r
-	}
-
+func (r *Round) SetNextRound(round Round) *Round {
 	if round.Round == 0 || round.Round == r.Round {
 		return r
 	}
@@ -105,12 +100,13 @@ func (r *Round) UncheckNumber(number int) *Round {
 	return r
 }
 
-func NewRound(rounds *Rounds, roundType int) (round *Round) {
+func NewRound(rounds *Rounds, roundType int) (round Round) {
+	round.rounds = rounds
 	round.Round = len(rounds.Rounds) + 1
 	round.Type = roundType
-	round.AddCard()
-
-	round.rounds.Rounds = append(rounds.Rounds, round)
-
+	NewCard(&round)
+	log.Print("*9")
+	round.rounds.Rounds = append(round.rounds.Rounds, round)
+	log.Print("*10")
 	return round
 }
