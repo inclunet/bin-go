@@ -17,14 +17,39 @@ type Bingo struct {
 }
 
 func (b *Bingo) AddRound(w http.ResponseWriter, r *http.Request) {
-	log.Println("Adding round", GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "type"))
+	log.Println("Adding round", GetUrlIntParam(r, "round"), GetUrlIntParam(r, "type"))
 	round := NewRound(&b.Rounds, GetUrlIntParam(r, "type"))
 	round.SetNextRound(GetUrlIntParam(r, "round") - 1)
-	Repply(w, round)
+
+	card, err := round.GetCard(0)
+
+	if err != nil {
+		log.Printf("Error on get main card: %v", err)
+	}
+
+	Repply(w, card)
 }
 
 func (b *Bingo) Draw(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.Draw(GetUrlIntParam(r, "round")-1))
+	log.Printf("Drawing number for round %d...", GetUrlIntParam(r, "round"))
+
+	round, err := b.Rounds.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Printf("Error on get round: %v", err)
+	}
+
+	card, err := round.GetCard(0)
+
+	if err != nil {
+		log.Printf("Error on get card: %v", err)
+	}
+
+	number := card.Draw()
+
+	log.Printf("Drawed number %d for round %d", number, GetUrlIntParam(r, "round"))
+
+	Repply(w, card)
 }
 
 func (b *Bingo) ToggleNumber(w http.ResponseWriter, r *http.Request) {

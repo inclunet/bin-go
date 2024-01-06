@@ -29,16 +29,6 @@ func (r *Rounds) CheckNumber(round, card, number int) *Card {
 	return currentRound.CheckNumber(card, number)
 }
 
-func (r *Rounds) Draw(round int) *Card {
-	currentRound, err := r.GetRound(round)
-
-	if err != nil {
-		return nil
-	}
-
-	return currentRound.Draw()
-}
-
 func (r *Rounds) GetCard(round, card int) *Card {
 	currentRound, err := r.GetRound(round)
 

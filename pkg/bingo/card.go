@@ -1,7 +1,6 @@
 package bingo
 
 import (
-	"log"
 	"sort"
 
 	"github.com/gorilla/websocket"
@@ -83,6 +82,10 @@ func (c *Card) CheckNumber(number int) bool {
 }
 
 func (c *Card) Draw() int {
+	if c.Card > 1 {
+		return 0
+	}
+
 	if c.Checked >= c.Type {
 		return 0
 	}
@@ -336,21 +339,15 @@ func (c *Card) UpdateCard() error {
 	return nil
 }
 
+// NewCard creates a new bingo card and adds it to the current round
 func NewCard(round *Round) (card Card) {
-	log.Println("nc0")
+
 	card.Autoplay = true
-	log.Println("nc1")
 	card.Card = len(round.Cards) + 1
-	log.Println("nc2")
 	card.round = round
-	log.Println("nc3")
 	card.Round = round.Round
-	log.Println("nc4")
 	card.Type = round.Type
-	log.Println("nc5")
 	card.DrawCard()
-	log.Println("nc6")
 	card.round.Cards = append(card.round.Cards, card)
-	log.Println("nc7")
 	return card
 }
