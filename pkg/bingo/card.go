@@ -65,6 +65,7 @@ func (c *Card) CheckNumber(number int) bool {
 				c.Numbers[l][col].Checked = true
 				c.Checked++
 				c.Bingo = c.IsBingo()
+				c.UpdateCard()
 				return true
 			}
 		}
@@ -278,6 +279,16 @@ func (c *Card) IsChecked(drawedNumber int) bool {
 	}
 
 	return false
+}
+
+func (c *Card) SetConn(conn *websocket.Conn) bool {
+	if conn == nil {
+		return false
+	}
+
+	c.conn = conn
+
+	return true
 }
 
 func (c *Card) SetNextRound(round int) bool {

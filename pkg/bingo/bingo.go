@@ -135,6 +135,34 @@ func (b *Bingo) GetRoundsHandler(w http.ResponseWriter, r *http.Request) {
 	Repply(w, round)
 }
 
+func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Getting live for round %d...", GetUrlIntParam(r, "round"))
+
+	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Printf("Error on get round: %v", err)
+	}
+
+	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
+
+	if err != nil {
+		log.Printf("Error on get card: %v", err)
+	}
+
+	conn, err := round.upgrader.Upgrade(w, r, nil)
+
+	if err != nil {
+		log.Printf("Error on upgrade connection: %v", err)
+	}
+
+	if !card.SetConn(conn) {
+		log.Printf("Error on set connection: %v", err)
+	}
+
+	card.UpdateCard()
+}
+
 func (b *Bingo) ToggleCardsAutoplayHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Toggling autoplay for card %d on round %d...", GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
 

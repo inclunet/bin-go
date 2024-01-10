@@ -32,6 +32,7 @@ func main() {
 	r.HandleFunc("/api/card/{round}/{card}", b.GetCardsHandler)
 	r.HandleFunc("/api/card/{round}/{card}/autoplay", b.ToggleCardsAutoplayHandler)
 	r.HandleFunc("/api/card/{round}/1/0", b.DrawHandler)
+	r.HandleFunc("/api/card/{round}/{card}/live", b.LiveHandler)
 	r.HandleFunc("/api/card/{round}/{card}/{number}", b.ToggleNumbersHandler)
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardsQRHandler)
 	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"index.html") })

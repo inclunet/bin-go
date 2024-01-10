@@ -2,12 +2,15 @@ package bingo
 
 import (
 	"fmt"
+
+	"github.com/gorilla/websocket"
 )
 
 type Round struct {
-	Cards []Card
-	Round int
-	Type  int
+	Cards    []Card
+	Round    int
+	Type     int
+	upgrader websocket.Upgrader
 }
 
 func (r *Round) AddCard() *Card {
@@ -99,6 +102,13 @@ func (r *Round) UncheckNumberForAll(number int) *Round {
 func NewRound(bingo Bingo, roundType int) (round Round) {
 	round.Round = len(bingo.Rounds) + 1
 	round.Type = roundType
+
+	round.upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
 	round.Cards = append(round.Cards, NewCard(round))
+
 	return round
 }
