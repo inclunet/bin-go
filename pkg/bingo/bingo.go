@@ -2,6 +2,7 @@ package bingo
 
 import (
 	"encoding/json"
+	"fmt"
 	"image/png"
 	"log"
 	"net/http"
@@ -13,13 +14,41 @@ import (
 )
 
 type Bingo struct {
-	Rounds Rounds
+	Rounds []Round
 }
 
-func (b *Bingo) AddRound(w http.ResponseWriter, r *http.Request) {
+func (b *Bingo) AddCardsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Adding bingo card for round %d...", GetUrlIntParam(r, "round"))
+
+	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Printf("Error on get round: %v", err)
+	}
+
+	card := round.AddCard()
+
+	log.Printf("Added bingo card %d for round %d", card.Card, GetUrlIntParam(r, "round"))
+
+	Repply(w, card)
+}
+
+func (b *Bingo) AddRoundsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Adding round", GetUrlIntParam(r, "round"), GetUrlIntParam(r, "type"))
-	round := NewRound(&b.Rounds, GetUrlIntParam(r, "type"))
-	round.SetNextRound(GetUrlIntParam(r, "round") - 1)
+
+	round := NewRound(*b, GetUrlIntParam(r, "type"))
+
+	log.Printf("Forwarding %d round players to the %d new round...", GetUrlIntParam(r, "round"), round.Round)
+
+	oldRound, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Printf("Error on get old round: %v", err)
+	}
+
+	if oldRound.SetNextRound(round.Round - 1) {
+		log.Printf("Forwarded %d round players to the %d new round", GetUrlIntParam(r, "round"), round.Round)
+	}
 
 	card, err := round.GetCard(0)
 
@@ -27,13 +56,17 @@ func (b *Bingo) AddRound(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error on get main card: %v", err)
 	}
 
+	b.Rounds = append(b.Rounds, round)
+
+	log.Printf("Added round %d", round.Round)
+
 	Repply(w, card)
 }
 
-func (b *Bingo) Draw(w http.ResponseWriter, r *http.Request) {
+func (b *Bingo) DrawHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Drawing number for round %d...", GetUrlIntParam(r, "round"))
 
-	round, err := b.Rounds.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
 		log.Printf("Error on get round: %v", err)
@@ -49,43 +82,111 @@ func (b *Bingo) Draw(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Drawed number %d for round %d", number, GetUrlIntParam(r, "round"))
 
+	checked := round.CheckNumberForAll(number)
+
+	log.Printf("Checked number %d for %d cards into round %d", number, checked, round.Round)
+
 	Repply(w, card)
 }
 
-func (b *Bingo) ToggleNumber(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.ToggleNumber(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1, GetUrlIntParam(r, "number")))
-}
+func (b *Bingo) GetCardsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Getting bingo card %d for round %d...", GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
 
-func (b *Bingo) AddBingoCard(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.AddCard(GetUrlIntParam(r, "round")-1))
-}
-
-func (b *Bingo) GetBingoCard(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.GetCard(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1))
-}
-
-func (b *Bingo) GetRound(w http.ResponseWriter, r *http.Request) {
-	currentRound, err := b.Rounds.GetRound(GetUrlIntParam(r, "round") - 1)
+	Round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Println(err)
+		log.Printf("Error on get round: %v", err)
 	}
 
-	Repply(w, currentRound)
+	card, err := Round.GetCard(GetUrlIntParam(r, "card") - 1)
+
+	if err != nil {
+		log.Printf("Error on get card: %v", err)
+	}
+
+	log.Printf("Got bingo card %d for round %d", card.Card, Round.Round)
+
+	Repply(w, card)
 }
 
-func (b *Bingo) GetCardQR(w http.ResponseWriter, r *http.Request) {
+func (b *Bingo) GetCardsQRHandler(w http.ResponseWriter, r *http.Request) {
 	qr, _ := qr.Encode(GetQueryString(r, "url", ""), qr.L, qr.Auto)
 	qrCode, _ := barcode.Scale(qr, 300, 300)
 	png.Encode(w, qrCode)
 }
 
-func (b *Bingo) ToggleAutoplay(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.ToggleAutoplay(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1))
+func (b *Bingo) GetRound(round int) (*Round, error) {
+	if round < 0 || round >= len(b.Rounds) || len(b.Rounds) == 0 {
+		return nil, fmt.Errorf("Round %d not found", round)
+	}
+
+	return &b.Rounds[round], nil
 }
 
-func (b *Bingo) UncheckNumbers(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.Rounds.UncheckNumber(GetUrlIntParam(r, "round")-1, GetUrlIntParam(r, "card")-1, GetUrlIntParam(r, "number")))
+func (b *Bingo) GetRoundsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Getting round %d...", GetUrlIntParam(r, "round"))
+
+	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Printf("Error on get round: %v", err)
+	}
+
+	Repply(w, round)
+}
+
+func (b *Bingo) ToggleCardsAutoplayHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Toggling autoplay for card %d on round %d...", GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
+
+	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Printf("Error on get round: %v", err)
+	}
+
+	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
+
+	if err != nil {
+		log.Printf("Error on get card: %v", err)
+	}
+
+	card.ToggleAutoplay()
+
+	Repply(w, card)
+}
+
+func (b *Bingo) ToggleNumbersHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Toggling number %d for card %d on round %d...", GetUrlIntParam(r, "number"), GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
+
+	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		log.Printf("Error on get round: %v", err)
+	}
+
+	mainCard, err := round.GetCard(0)
+
+	if err != nil {
+		log.Printf("Error on get main card: %v", err)
+	}
+
+	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
+
+	if err != nil {
+		log.Printf("Error on get card: %v", err)
+	}
+
+	if card.ToggleNumber(*mainCard, GetUrlIntParam(r, "number")) {
+		log.Printf("Number %d for card %d on round %d toggled", GetUrlIntParam(r, "number"), GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
+
+		if card.Card == 1 {
+			checked := round.CheckNumberForAll(GetUrlIntParam(r, "number"))
+
+			log.Printf("Checked number %d for %d cards into round %d", GetUrlIntParam(r, "number"), checked, round.Round)
+		}
+	}
+
+	Repply(w, card)
 }
 
 func GetUrlIntParam(r *http.Request, param string) int {

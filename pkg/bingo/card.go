@@ -23,7 +23,6 @@ type Card struct {
 	DisallowBingoTypes BingoTypes
 	Autoplay           bool
 	Bingo              bool
-	round              *Round
 	Round              int
 	Card               int
 	conn               *websocket.Conn
@@ -34,14 +33,8 @@ type Card struct {
 	Numbers            [][5]Number
 }
 
-func (c *Card) CheckDrawedNumbers() *Card {
+func (c *Card) CheckDrawedNumbers(mainCard Card) *Card {
 	if !c.Autoplay {
-		return c
-	}
-
-	mainCard, err := c.round.GetCard(0)
-
-	if err != nil {
 		return c
 	}
 
@@ -61,6 +54,10 @@ func (c *Card) CheckDrawedNumbers() *Card {
 }
 
 func (c *Card) CheckNumber(number int) bool {
+	if c.IsChecked(number) {
+		return false
+	}
+
 	for l, line := range c.Numbers {
 		for col, column := range line {
 			if column.Number == number && !column.Checked {
@@ -68,11 +65,6 @@ func (c *Card) CheckNumber(number int) bool {
 				c.Numbers[l][col].Checked = true
 				c.Checked++
 				c.Bingo = c.IsBingo()
-
-				if c.Card == 1 {
-					c.round.CheckNumberForAll(number)
-				}
-
 				return true
 			}
 		}
@@ -288,12 +280,13 @@ func (c *Card) IsChecked(drawedNumber int) bool {
 	return false
 }
 
-func (c *Card) SetNextRound(round int) *Card {
+func (c *Card) SetNextRound(round int) bool {
 	if c.NextRound == 0 && c.Round != round {
 		c.NextRound = round
+		return true
 	}
 
-	return c
+	return false
 }
 
 func (c *Card) ShortNumbers(numbers []Number) []Number {
@@ -302,27 +295,38 @@ func (c *Card) ShortNumbers(numbers []Number) []Number {
 	return numbers
 }
 
-func (c *Card) ToggleAutoplay() *Card {
+func (c *Card) ToggleAutoplay() {
 	if c.Autoplay {
 		c.Autoplay = false
 	} else {
 		c.Autoplay = true
 	}
-
-	return c
 }
 
-func (c *Card) uncheckNumber(number int) *Card {
+func (c *Card) ToggleNumber(mainCard Card, number int) bool {
+	if c.IsChecked(number) && c.Card == 1 {
+		return c.UncheckNumber(number)
+	} else {
+		if !mainCard.IsChecked(number) && c.Card > 1 {
+			return false
+		}
+
+		return c.CheckNumber(number)
+	}
+}
+
+func (c *Card) UncheckNumber(number int) bool {
 	for l, line := range c.Numbers {
 		for col, column := range line {
 			if column.Number == number && column.Checked {
 				c.Numbers[l][col].Checked = false
 				c.Checked--
+				return true
 			}
 		}
 	}
 
-	return c
+	return false
 }
 
 func (c *Card) UpdateCard() error {
@@ -339,15 +343,12 @@ func (c *Card) UpdateCard() error {
 	return nil
 }
 
-// NewCard creates a new bingo card and adds it to the current round
-func NewCard(round *Round) (card Card) {
-
+// NewCard creates a new bingo card.
+func NewCard(round Round) (card Card) {
 	card.Autoplay = true
 	card.Card = len(round.Cards) + 1
-	card.round = round
 	card.Round = round.Round
 	card.Type = round.Type
 	card.DrawCard()
-	card.round.Cards = append(card.round.Cards, card)
 	return card
 }
