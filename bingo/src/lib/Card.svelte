@@ -28,7 +28,7 @@
             <tr>
                 {#each row as number}
                     <td>
-                        <Number bind:number bind:card />
+                        <Number bind:number bind:card on:numberChecked />
                     </td>
                 {/each}
             </tr>

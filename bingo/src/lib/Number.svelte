@@ -1,7 +1,9 @@
 <script>
+    import { afterUpdate, createEventDispatcher } from "svelte";
     import { getCard } from "./bingo";
     export let card = { Card: 0, Round: 0 };
     export let number = { Checked: false, Number: 0 };
+    const dispatcher = createEventDispatcher();
 
     async function checkNumber() {
         if (!number.Checked || card.Card == 1) {
@@ -11,10 +13,16 @@
                 number.Checked = true;
             }
             card = await getCard(
-                "/card/" + card.Round + "/" + card.Card + "/" + number.Number
+                "/card/" + card.Round + "/" + card.Card + "/" + number.Number,
             );
         }
     }
+
+    afterUpdate(() => {
+        if (number.Checked && number.Number > 0) {
+            dispatcher("numberChecked", number);
+        }
+    });
 </script>
 
 {#if number.Number != 0}
@@ -37,7 +45,6 @@
             {number.Number}
         </button>
     {/if}
-    
 {:else}
     <img src="/img/favicon.png" alt="Logotipo Inclunet" />
 {/if}
@@ -68,7 +75,7 @@
         font-size: 1.5em;
     }
 
-    @media(max-width: 1132px){
+    @media (max-width: 1132px) {
         .button-card-draw {
             margin: 6px;
             width: 47px;
@@ -78,7 +85,7 @@
         }
     }
 
-    @media(max-width: 1059px){
+    @media (max-width: 1059px) {
         .button-card-draw {
             margin: 4px;
             width: 47px;
@@ -88,7 +95,7 @@
         }
     }
 
-    @media(max-width: 999px){
+    @media (max-width: 999px) {
         .button-card-draw {
             margin: 3px;
             width: 45px;
@@ -97,7 +104,7 @@
             font-size: 1em;
         }
     }
-    @media(max-width: 939px){
+    @media (max-width: 939px) {
         .button-card-draw {
             margin: 6px;
             width: 52px;
@@ -106,7 +113,7 @@
             font-size: 1.4em;
         }
     }
-    
+
     @media (max-width: 680px) {
         img {
             width: 80px;
@@ -153,5 +160,4 @@
             font-size: 1.1em;
         }
     }
-
 </style>

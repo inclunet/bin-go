@@ -18,7 +18,7 @@
     <div class="container-header">
         <div class="container-header-inner">
             <Autoplay bind:card={card} />
-            <Bingo bind:card={card} />
+            <Bingo bind:card={card} on:stopBingoAlert />
             <NewRound bind:card={card} />
             <Draw bind:card />
         </div>

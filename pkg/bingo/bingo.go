@@ -150,6 +150,8 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error on get card: %v", err)
 	}
 
+	round.upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
 	conn, err := round.upgrader.Upgrade(w, r, nil)
 
 	if err != nil {

@@ -1,15 +1,14 @@
 <script>
+    import { createEventDispatcher } from "svelte";
+
     export let card;
+    const dispatch = createEventDispatcher();
 
-function stopAudio () {
-    var audio = document.getElementsByTagName("audio")[0];
-    audio.pause();
-    audio.currentTime = 0;
-}
-
+    function stopBingoAlert() {
+        dispatch("stopBingoAlert");
+    }
 </script>
 
-{#if card.Card > 1 && card.Bingo }
-    <audio src="/sms.mp3" autoplay loop ></audio>
-    <button class="btn btn-warning btn-lg" on:click={stopAudio}>Bingo!</button>
+{#if card.Card > 1 && card.Bingo}
+    <button class="btn btn-warning btn-lg" on:click={stopBingoAlert}>Bingo!</button>
 {/if}

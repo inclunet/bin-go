@@ -36,3 +36,16 @@ export function getEndpointUrl(call = "") {
     }
 }
 
+export function getWsEndpointUrl(call = "") {
+    if (window.location.port == "5173") {
+        return (
+            "ws://" +
+            window.location.hostname +
+            ":8080/api" +
+            call
+        );
+    } else {
+        return "wss://" + window.location.host + "/api" + call;
+    }
+}
+
