@@ -210,9 +210,9 @@ func (b *Bingo) ToggleNumbersHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Number %d for card %d on round %d toggled", GetUrlIntParam(r, "number"), GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
 
 		if card.Card == 1 {
-			checked := round.CheckNumberForAll(GetUrlIntParam(r, "number"))
+			checked, unchecked := round.ToggleNumberForAll(GetUrlIntParam(r, "number"))
 
-			log.Printf("Checked number %d for %d cards into round %d", GetUrlIntParam(r, "number"), checked, round.Round)
+			log.Printf("Number %d checked for %d cards and unchecked for %d cards into round %d", GetUrlIntParam(r, "number"), checked, unchecked, round.Round)
 		}
 	}
 

@@ -89,6 +89,28 @@ func (r *Round) ToggleAutoplay(card int) *Card {
 	return currentCard
 }
 
+func (r *Round) ToggleNumberForAll(number int) (int, int) {
+	checkCounter := 0
+	uncheckCounter := 0
+
+	for i, card := range r.Cards {
+		if card.Autoplay && i > 0 {
+			if card.IsChecked(number) {
+				if r.Cards[i].UncheckNumber(number) {
+					uncheckCounter++
+				}
+			} else {
+				if r.Cards[i].CheckNumber(number) {
+					checkCounter++
+				}
+			}
+
+		}
+	}
+
+	return checkCounter, uncheckCounter
+}
+
 func (r *Round) UncheckNumberForAll(number int) *Round {
 	for i := range r.Cards {
 		if i > 0 {
