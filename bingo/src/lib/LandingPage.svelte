@@ -2,6 +2,9 @@
     <header class="my-5">
         <h2>Seja muito bem-vindo ao <strong>IncluBingo</strong> o jogo de bingo <strong>Acessível</strong> e <strong>Inclusivo!</strong> 
         </h2>
+        <div class="container-iframe">
+            <iframe src="https://www.youtube.com/embed/TieanLP3Les?si=fwD7lXiRkoT7VHKM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
         
             <p class="pt-2">Diversão Inclusiva ao Seu Alcance 
                 <a href="/card/new" class="btn button-color text-black" role="button">
@@ -199,6 +202,17 @@
     :root{
         --primary-button-color: #2b7ef4;
     }
+    div .container-iframe{
+        margin: 50px 0;
+        display: flex;
+        justify-content: center;
+    }
+    iframe{
+        width: 80%;
+        height: 80vh;
+        border: none;
+        border-radius: 10px;
+    }
     section h2:nth-child(1n){
         font-size: 1.6em;
     }
@@ -235,6 +249,10 @@
     }
 
     @media(max-width: 573px){
+        iframe{
+            width: 100%;
+            height: 30vh;
+        }
         .container{
             padding: 0 20px 0 20px;
         }
