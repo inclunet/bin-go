@@ -12,7 +12,7 @@
     <p class="text-center my-3">
         Vamos Jogar! Escolha a quantidade de bolinhas que serão sorteadas:
     </p>
-    <NewRound bind:card />
+    <NewRound />
 </div>
 
 <style>

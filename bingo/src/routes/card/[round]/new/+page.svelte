@@ -2,18 +2,26 @@
     import Adds from "$lib/Adds.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
     import Play from "$lib/Play.svelte";
+    import { onMount } from "svelte";
+    import { card } from "$lib/bingo";
 
     export let data;
-    export let card = data;
+
+    const loadCard = async () => {
+        $card.Card = Number(data.Card);
+        $card.Round = Number(data.Round);
+    };
+
+    onMount(loadCard);
 </script>
 
-<PageTitle title="Nova Cartela de Bingo" />
+<PageTitle title="Nova Cartela de Bingo - Rodada #{$card.Round}" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
-    <h2>Rodada #{card.Round}</h2>
+    <h2>Rodada #{$card.Round}</h2>
     <p class="text-center my-3">Para jogar clique no botão "Jogar" a baixo</p>
     <Adds />
-    <Play bind:card />
+    <Play />
 </div>
 
 <style>

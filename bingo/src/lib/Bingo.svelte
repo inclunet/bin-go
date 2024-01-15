@@ -1,7 +1,7 @@
 <script>
+    import { card } from "./bingo";
     import { createEventDispatcher } from "svelte";
 
-    export let card;
     const dispatch = createEventDispatcher();
 
     function stopBingoAlert() {
@@ -9,6 +9,8 @@
     }
 </script>
 
-{#if card.Card > 1 && card.Bingo}
-    <button class="btn btn-warning btn-lg" on:click={stopBingoAlert}>Bingo!</button>
+{#if $card.Card > 1 && $card.Bingo}
+    <button class="btn btn-warning btn-lg" on:click={stopBingoAlert}
+        >Bingo!</button
+    >
 {/if}

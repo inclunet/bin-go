@@ -1,19 +1,14 @@
 <script>
+    import { card, getCard } from "./bingo";
     import { afterUpdate, createEventDispatcher } from "svelte";
-    import { getCard } from "./bingo";
-    export let card = { Card: 0, Round: 0 };
+
     export let number = { Checked: false, Number: 0 };
     const dispatcher = createEventDispatcher();
 
     async function checkNumber() {
-        if (!number.Checked || card.Card == 1) {
-            if (number.Checked) {
-                number.Checked = false;
-            } else {
-                number.Checked = true;
-            }
-            card = await getCard(
-                "/card/" + card.Round + "/" + card.Card + "/" + number.Number,
+        if (!number.Checked || $card.Card == 1) {
+            $card = await getCard(
+                "/card/" + $card.Round + "/" + $card.Card + "/" + number.Number,
             );
         }
     }
@@ -26,7 +21,7 @@
 </script>
 
 {#if number.Number != 0}
-    {#if card.Card == 1}
+    {#if $card.Card == 1}
         <button
             aria-pressed={number.Checked}
             on:click={checkNumber}
@@ -36,7 +31,7 @@
         </button>
     {/if}
 
-    {#if card.Card > 1}
+    {#if $card.Card > 1}
         <button
             aria-pressed={number.Checked}
             on:click={checkNumber}

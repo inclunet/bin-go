@@ -1,7 +1,8 @@
 import { goto } from "$app/navigation";
 import { page } from "$app/stores";
+import { writable } from "svelte/store";
 
-export let card = {
+export let card = writable({
     Autoplay: false,
     Bingo: false,
     Card: 0,
@@ -15,37 +16,36 @@ export let card = {
             { Checked: false, Number: 0, },
         ],
     ],
-};
+});
 
 export async function getCard(endpoint = "") {
     const response = await fetch(getEndpointUrl(endpoint));
-    return await response.json();
+    const data = await response.json();
+    return data;
 }
 
-export function getEndpointUrl(call = "") {
+function getEndpointProtocol(protocol = "http") {
+    if (window.location.protocol == "https:" && protocol == "ws") {
+        return ("wss:");
+    }
+
+    if (window.location.protocol == "http:" && protocol == "ws") {
+        return ("ws:");
+    }
+
+    return (window.location.protocol);
+}
+
+export function getEndpointUrl(call = "", protocol = "http") {
     if (window.location.port == "5173") {
         return (
-            window.location.protocol +
+            getEndpointProtocol(protocol) +
             "//" +
             window.location.hostname +
             ":8080/api" +
             call
         );
     } else {
-        return window.location.protocol + "//" + window.location.host + "/api" + call;
+        return getEndpointProtocol(protocol) + "//" + window.location.host + "/api" + call;
     }
 }
-
-export function getWsEndpointUrl(call = "") {
-    if (window.location.port == "5173") {
-        return (
-            "ws://" +
-            window.location.hostname +
-            ":8080/api" +
-            call
-        );
-    } else {
-        return "wss://" + window.location.host + "/api" + call;
-    }
-}
-

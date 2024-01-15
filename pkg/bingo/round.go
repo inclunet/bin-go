@@ -94,17 +94,16 @@ func (r *Round) ToggleNumberForAll(number int) (int, int) {
 	uncheckCounter := 0
 
 	for i, card := range r.Cards {
-		if card.Autoplay && i > 0 {
-			if card.IsChecked(number) {
-				if r.Cards[i].UncheckNumber(number) {
-					uncheckCounter++
-				}
-			} else {
+		if i > 0 {
+			if card.Autoplay && !card.IsChecked(number) {
 				if r.Cards[i].CheckNumber(number) {
 					checkCounter++
 				}
+			} else {
+				if r.Cards[i].UncheckNumber(number) {
+					uncheckCounter++
+				}
 			}
-
 		}
 	}
 

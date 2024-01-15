@@ -3,86 +3,99 @@
     import { goto } from "$app/navigation";
     import CardHeader from "$lib/CardHeader.svelte";
     import Card from "$lib/Card.svelte";
-    import { getCard, getWsEndpointUrl } from "../../../../lib/bingo";
+    import { card, getCard, getEndpointUrl } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
     import Play from "$lib/Play.svelte";
 
     export let data;
+    let checkAudioEnabled = true;
     let bingoAudio = null;
     let checkAudio = null;
-    let card = data;
 
     function playCheckedSounds() {
-checkAudio.play();
+        if (checkAudioEnabled) {
+            checkAudio.pause();
+            checkAudio.currentTime = 0;
+            checkAudio.play();
+        }
     }
-    
+
     function playSounds() {
-        if (card.Bingo) {
+        if ($card.Bingo) {
             bingoAudio.play();
         }
     }
 
     function redirectToNextRound() {
-        if (card.Round == 0) {
+        if ($card.Round == 0) {
             window.location.href = "/";
         }
 
-        if (card.Card == 0) {
-            window.location.href = "/card/" + card.Round + "/new";
+        if ($card.Card == 0) {
+            window.location.href = "/card/" + $card.Round + "/new";
         }
 
-        if (card.NextRound > 0) {
-            window.location.href = "/card/" + card.NextRound + "/new";
+        if ($card.NextRound > 0) {
+            window.location.href = "/card/" + $card.NextRound + "/new";
         }
     }
 
     function stopBinngoAlert() {
         bingoAudio.pause();
-        audio.currentTime = 0;
+        bingoAudio.currentTime = 0;
     }
 
-    async function updateCard() {
-        redirectToNextRound();
-        card = await getCard("/card/" + card.Round + "/" + card.Card);
-        setTimeout(updateCard, 2000);
-    }
-
-    async function updateCardLive() {
+    const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getWsEndpointUrl("/card/" + card.Round + "/" + card.Card + "/live"),
+            getEndpointUrl(
+                "/card/" + $card.Round + "/" + $card.Card + "/live",
+                "ws",
+            ),
         );
 
-        socket.addEventListener("message", (event) => {
-            card = JSON.parse(event.data);
-redirectToNextRound            ();
-            playSounds();
+        socket.addEventListener("open", (event) => {
+            //this.update(JSON.parse(event.data));
         });
-    }
 
-    async function UpdateHandler() {
+        socket.addEventListener("message", (event) => {
+            $card = JSON.parse(event.data);
+            redirectToNextRound();
+        });
+    };
+
+    const loadCard = async () => {
+        $card.Card = Number(data.Card);
+        $card.Round = Number(data.Round);
+
         if ("WebSocket" in window) {
-            updateCardLive();
+            liveUpdater();
         } else {
-            // updateCard();
+            checkAudioEnabled = false;
+            setInterval(poolingUpdater, 1000);
         }
-    }
+    };
 
-    onMount(UpdateHandler);
+    const poolingUpdater = async () => {
+        $card = await getCard("/card/" + $card.Round + "/" + $card.Card);
+        redirectToNextRound();
+    };
+
+    onMount(loadCard);
 </script>
 
-<PageTitle title="Cartela de Bingo" />
+<PageTitle title="Cartela de Bingo {$card.Card}" />
 
 <div class="container container-card">
     <div class="mx-3 info-card">
         <div class="info-card-header">
-            <h2>Cartela de Bingo #{card.Card}</h2>
-            <h3 class="info-card-header-round">Rodada #{card.Round}</h3>
+            <h2>Cartela de Bingo #{$card.Card}</h2>
+            <h3 class="info-card-header-round">Rodada #{$card.Round}</h3>
         </div>
-        <CardHeader bind:card on:stopBingoAlert={stopBinngoAlert} />
+        <CardHeader on:stopBingoAlert={stopBinngoAlert} />
     </div>
     <div class="table-card">
-        <Card bind:card on:numberChecked={playCheckedSounds} />
+        <Card on:numberChecked={playCheckedSounds} />
     </div>
     <div class="anuncio">
         <Adds />

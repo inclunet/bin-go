@@ -1,34 +1,38 @@
 <script>
-    export let card;
+    import { card } from "./bingo";
+
+    export let data;
 
     function startRound() {
-        window.location.href = "/card/" + card.Round + "/1";
+        window.location.href = "/card/" + $data.Round + "/1";
     }
 </script>
 
-<button on:click={startRound} class="btn"><strong>Começar a Rodada</strong></button>
+<button on:click={startRound} class="btn"
+    ><strong>Começar a Rodada</strong></button
+>
 
 <style>
-    :root{
+    :root {
         --primary-button-color: #2b7ef4;
         --secondary-button-color: #2868c2;
         --tertiary-button-color: #2157a1;
     }
-    button{
+    button {
         padding: 10px;
         font-size: 1.3em;
         background-color: var(--primary-button-color);
     }
-    .btn:hover{
+    .btn:hover {
         color: #fff;
         background-color: var(--secondary-button-color);
     }
-    .btn:active{
+    .btn:active {
         color: #fff;
         background-color: var(--tertiary-button-color);
     }
-    @media(max-width: 450px){
-        button{
+    @media (max-width: 450px) {
+        button {
             height: 48px;
             padding: 7px;
             font-size: 1em;
