@@ -30,6 +30,9 @@
 </div>
 
 <div class="container content-main">
+    <div class="container-iframe">
+        <iframe src="https://www.youtube.com/embed/TieanLP3Les?si=fwD7lXiRkoT7VHKM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
     <div class="row d-flex justify-content-between" style="margin: 0;">
         
         <div class="container-role rounded col-sm-12">
@@ -335,6 +338,16 @@
     :root{
         --primary-button-color: #2b7ef4;
     }
+    div .container-iframe{
+    margin: 60px 0;
+    display: flex;
+    justify-content: center;
+    }
+    iframe{
+        width: 80%;
+        height: 80vh;
+        border-radius: 10px;
+    }
     h2{
         font-size: 1.6em;
     }
@@ -461,6 +474,10 @@
         .container{
             padding: 0 20px 0 20px;
         }
+        iframe{
+            width: 100%;
+            height: 60vh;
+        }
         h2{
             margin-top: -20px;
             line-height: 40px;
@@ -500,6 +517,9 @@
             padding: 0 20px 0 20px;
         }
         @media(max-width: 450px) {
+            iframe{
+                height: 50vh;
+            }
             hr{
                 display: none;
             }
@@ -511,7 +531,11 @@
                 margin-top: 25px;
             }
         }
+        @media(max-width: 375px){
+            iframe{
+                height: 40vh;
+            }
+        }
     }
 
 </style>
-
