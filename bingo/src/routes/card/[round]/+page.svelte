@@ -1,27 +1,26 @@
 <script>
-    import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-    import Card from "$lib/Card.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
     import StartRound from "$lib/StartRound.svelte";
-    import { getCard } from "$lib/bingo.js";
     import { onMount } from "svelte";
+    import { card, getCard } from "$lib/bingo";
 
     export let data;
-    export let card = data;
 
-    async function updateCard() {
-        card = await getCard("/card/" + card.Round + "/1");
-    }
+    const loadCard = async () => {
+        $card.Card = 1;
+        $card.Round = Number(data.Round);
+        $card = await getCard("/card/" + $card.Round + "/" + $card.Card);
+    };
 
-    onMount(updateCard);
+    onMount(loadCard);
 </script>
 
-<PageTitle title="Sorteio de Cartelas" />
+<PageTitle title="Inclubingo - Sorteio de Cartelas, rodada {$card.Round}" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
-    <h2 class="text-center">Rodada #{card.Round}</h2>
-    
+    <h2 class="text-center">Rodada #{$card.Round}</h2>
+
     <p class="text-center">
         Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
         link:
@@ -29,13 +28,13 @@
             <a href="{$page.url}/new" id="link_jogo">{$page.url}/new</a>
         </strong>
     </p>
-    <div id="qr_code" class="d-flex ">
+    <div id="qr_code" class="d-flex">
         <img
-            src="/qr/{card.Round}/{card.Card}?url={$page.url}/new"
+            src="/qr/{$card.Round}/{$card.Card}?url={$page.url}/new"
             alt="QR-Code"
         />
     </div>
-    <StartRound bind:card />
+    <StartRound />
 </div>
 
 <style>
@@ -55,7 +54,7 @@
     #qr_code {
         margin: 10px 0px 15px 0px;
     }
-    img{
+    img {
         width: 248px;
         height: 208px;
     }

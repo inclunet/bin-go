@@ -2,6 +2,8 @@ package bingo
 
 import (
 	"sort"
+
+	"github.com/gorilla/websocket"
 )
 
 type BingoTypes struct {
@@ -23,6 +25,7 @@ type Card struct {
 	Bingo              bool
 	Round              int
 	Card               int
+	conn               *websocket.Conn
 	Checked            int
 	LastNumber         int
 	NextRound          int
@@ -30,53 +33,67 @@ type Card struct {
 	Numbers            [][5]Number
 }
 
-func (c *Card) CheckDrawedNumbers(card Card) *Card {
-	if c.Autoplay && card.Checked > 0 {
-		for _, line := range card.Numbers {
-			for _, number := range line {
-				if number.Checked {
-					c.CheckNumber(number.Number)
+func (c *Card) CheckDrawedNumbers(mainCard Card) int {
+	counter := 0
+
+	if !c.Autoplay {
+		return counter
+	}
+
+	if mainCard.Checked == 0 {
+		return 0
+	}
+
+	for _, line := range mainCard.Numbers {
+		for _, number := range line {
+			if number.Checked {
+				if c.CheckNumber(number.Number) {
+					counter++
 				}
 			}
 		}
 	}
 
-	return c
+	return counter
 }
 
-func (c *Card) CheckNumber(number int) *Card {
+func (c *Card) CheckNumber(number int) bool {
+	if c.IsChecked(number) {
+		return false
+	}
+
 	for l, line := range c.Numbers {
 		for col, column := range line {
 			if column.Number == number && !column.Checked {
+				c.LastNumber = number
 				c.Numbers[l][col].Checked = true
 				c.Checked++
 				c.Bingo = c.IsBingo()
+				c.UpdateCard()
+				return true
 			}
 		}
 	}
 
-	return c
+	return false
 }
 
-func (c *Card) Draw() *Card {
+func (c *Card) Draw() int {
+	if c.Card > 1 {
+		return 0
+	}
+
 	if c.Checked >= c.Type {
-		return c
+		return 0
 	}
 
 	newNumber := GetRandomNumber(1, c.Type)
 
-	for _, line := range c.Numbers {
-		for _, number := range line {
-			if number.Number == newNumber && number.Checked {
-				return c.Draw()
-			}
-		}
+	if !c.CheckNumber(newNumber) {
+		return c.Draw()
 	}
 
-	c.CheckNumber(newNumber)
-	c.LastNumber = newNumber
-
-	return c
+	return newNumber
 }
 
 func (c *Card) DrawCard() {
@@ -268,12 +285,24 @@ func (c *Card) IsChecked(drawedNumber int) bool {
 	return false
 }
 
-func (c *Card) SetNextRound(round int) *Card {
-	if c.NextRound == 0 && c.Round != round {
-		c.NextRound = round
+func (c *Card) SetConn(conn *websocket.Conn) bool {
+	if conn == nil {
+		return false
 	}
 
-	return c
+	c.conn = conn
+
+	return true
+}
+
+func (c *Card) SetNextRound(round int) bool {
+	if c.NextRound == 0 && c.Round != round {
+		c.NextRound = round
+		c.UpdateCard()
+		return true
+	}
+
+	return false
 }
 
 func (c *Card) ShortNumbers(numbers []Number) []Number {
@@ -282,33 +311,62 @@ func (c *Card) ShortNumbers(numbers []Number) []Number {
 	return numbers
 }
 
-func (c *Card) ToggleAutoplay() *Card {
+func (c *Card) ToggleAutoplay() {
 	if c.Autoplay {
 		c.Autoplay = false
 	} else {
 		c.Autoplay = true
 	}
-
-	return c
 }
 
-func (c *Card) uncheckNumber(number int) *Card {
+func (c *Card) ToggleNumber(mainCard Card, number int) bool {
+	if c.IsChecked(number) && c.Card == 1 {
+		return c.UncheckNumber(number)
+	} else {
+		if !mainCard.IsChecked(number) && c.Card > 1 {
+			return false
+		}
+
+		return c.CheckNumber(number)
+	}
+}
+
+func (c *Card) UncheckNumber(number int) bool {
 	for l, line := range c.Numbers {
 		for col, column := range line {
 			if column.Number == number && column.Checked {
 				c.Numbers[l][col].Checked = false
 				c.Checked--
+				c.IsBingo()
+				c.UpdateCard()
+				return true
 			}
 		}
 	}
 
-	return c
+	return false
 }
 
-func NewCard(round, card, cardType int) (newCard Card) {
-	newCard.Card = card
-	newCard.Round = round
-	newCard.Type = cardType
-	newCard.DrawCard()
-	return newCard
+func (c *Card) UpdateCard() error {
+	if c.conn == nil {
+		return nil
+	}
+
+	err := c.conn.WriteJSON(c)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// NewCard creates a new bingo card.
+func NewCard(round Round) (card Card) {
+	card.Autoplay = true
+	card.Card = len(round.Cards) + 1
+	card.Round = round.Round
+	card.Type = round.Type
+	card.DrawCard()
+	return card
 }

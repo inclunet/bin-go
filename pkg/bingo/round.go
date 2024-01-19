@@ -1,83 +1,137 @@
 package bingo
 
+import (
+	"fmt"
+
+	"github.com/gorilla/websocket"
+)
+
 type Round struct {
-	Cards []Card
-	Round int
-	Type  int
+	Cards    []Card
+	Round    int
+	Type     int
+	upgrader websocket.Upgrader
 }
 
 func (r *Round) AddCard() *Card {
-	card := NewCard(r.Round, len(r.Cards)+1, r.Type)
+	card := NewCard(*r)
+
 	r.Cards = append(r.Cards, card)
 
-	if r.GetCard(0).Checked == 0 {
-		r.GetCard(card.Card - 1).ToggleAutoplay()
-	}
-
-	return r.GetCard(card.Card - 1)
+	return &card
 }
 
-func (r *Round) CheckNumber(card, number int) *Card {
-	if !r.GetCard(0).IsChecked(number) && card > 0 {
-		return r.GetCard(card)
-	}
+func (r *Round) CheckNumberForAll(number int) int {
+	counter := 0
 
-	if card == 0 {
-		return r.CheckNumberForAll(number).GetCard(card)
-	}
-
-	return r.GetCard(card).CheckNumber(number)
-}
-
-func (r *Round) CheckNumberForAll(number int) *Round {
 	for i, card := range r.Cards {
-		r.Cards[i].LastNumber = number
+		if card.Autoplay && i > 0 {
+			if r.Cards[i].CheckNumber(number) {
+				counter++
+			}
+		}
+	}
 
-		if card.Autoplay {
-			r.Cards[i].CheckNumber(number)
+	return counter
+}
+
+func (r Round) Draw() *Card {
+	mainCard, err := r.GetCard(0)
+
+	if err != nil {
+		return nil
+	}
+
+	mainCard.Draw()
+
+	return mainCard
+}
+
+func (r *Round) GetCard(card int) (*Card, error) {
+	if card < 0 || card >= len(r.Cards) || len(r.Cards) == 0 {
+		return nil, fmt.Errorf("Card %d not found", card)
+	}
+
+	return &r.Cards[card], nil
+}
+
+func (r *Round) SetNextRound(nextRound int) int {
+	count := 0
+
+	if nextRound < 0 {
+		return count
+	}
+
+	for card := range r.Cards {
+		if r.Cards[card].SetNextRound(nextRound) {
+			count++
+		}
+	}
+
+	return count
+}
+
+func (r *Round) SetRoundForAll(round *Round) bool {
+	for card := range r.Cards {
+		r.Cards[card].SetNextRound(round.Round)
+	}
+
+	return false
+}
+
+func (r *Round) ToggleAutoplay(card int) *Card {
+	currentCard, err := r.GetCard(card)
+
+	if err != nil {
+		return nil
+	}
+
+	// currentCard.ToggleAutoplay().CheckDrawedNumbers()
+
+	return currentCard
+}
+
+func (r *Round) ToggleNumberForAll(number int) (int, int) {
+	checkCounter := 0
+	uncheckCounter := 0
+
+	for i, card := range r.Cards {
+		if i > 0 {
+			if card.Autoplay && !card.IsChecked(number) {
+				if r.Cards[i].CheckNumber(number) {
+					checkCounter++
+				}
+			} else {
+				if r.Cards[i].UncheckNumber(number) {
+					uncheckCounter++
+				}
+			}
+		}
+	}
+
+	return checkCounter, uncheckCounter
+}
+
+func (r *Round) UncheckNumberForAll(number int) *Round {
+	for i := range r.Cards {
+		if i > 0 {
+			r.Cards[i].UncheckNumber(number)
 		}
 	}
 
 	return r
 }
 
-func (r Round) Draw() *Card {
-	return r.CheckNumberForAll(r.GetCard(0).Draw().LastNumber).GetCard(0)
-}
+func NewRound(bingo Bingo, roundType int) (round Round) {
+	round.Round = len(bingo.Rounds) + 1
+	round.Type = roundType
 
-func (r *Round) GetCard(card int) (defaultCard *Card) {
-	//if card < len(r.Cards) {
-	return &r.Cards[card]
-	//}
-
-	//return defaultCard
-}
-
-func (r *Round) SetNextRound(round int) *Round {
-	for card := range r.Cards {
-		r.GetCard(card).SetNextRound(round)
+	round.upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
 	}
 
-	return r
-}
+	round.Cards = append(round.Cards, NewCard(round))
 
-func (r *Round) ToggleAutoplay(card int) *Card {
-	return r.GetCard(card).ToggleAutoplay().CheckDrawedNumbers(*r.GetCard(0))
-}
-
-func (r *Round) UncheckNumber(number int) *Round {
-	for i := range r.Cards {
-		r.Cards[i].uncheckNumber(number)
-	}
-
-	return r
-}
-
-func NewRound(round, roundType int) (newRound Round) {
-	newRound.Round = round
-	newRound.Type = roundType
-
-	newRound.AddCard()
-
-	return newRound
+	return round
 }

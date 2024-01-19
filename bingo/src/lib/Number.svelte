@@ -1,24 +1,35 @@
 <script>
-    import { getCard } from "./bingo";
-    export let card = { Card: 0, Round: 0 };
+    import { card, getCard } from "./bingo";
+    import { afterUpdate, beforeUpdate, createEventDispatcher } from "svelte";
+
     export let number = { Checked: false, Number: 0 };
+    const dispatcher = createEventDispatcher();
+    let muted = false;
 
     async function checkNumber() {
-        if (!number.Checked || card.Card == 1) {
-            if (number.Checked) {
-                number.Checked = false;
-            } else {
-                number.Checked = true;
-            }
-            card = await getCard(
-                "/card/" + card.Round + "/" + card.Card + "/" + number.Number
+        if (!number.Checked || $card.Card == 1) {
+            $card = await getCard(
+                "/card/" + $card.Round + "/" + $card.Card + "/" + number.Number,
             );
         }
     }
+
+    beforeUpdate(() => {
+        if (!number.Checked && number.Number > 0) {
+            muted = false;
+        }
+    });
+
+    afterUpdate(() => {
+        if (number.Checked && !muted && number.Number > 0) {
+            muted = true;
+            dispatcher("numberChecked", number);
+        }
+    });
 </script>
 
 {#if number.Number != 0}
-    {#if card.Card == 1}
+    {#if $card.Card == 1}
         <button
             aria-pressed={number.Checked}
             on:click={checkNumber}
@@ -28,7 +39,7 @@
         </button>
     {/if}
 
-    {#if card.Card > 1}
+    {#if $card.Card > 1}
         <button
             aria-pressed={number.Checked}
             on:click={checkNumber}
@@ -37,7 +48,6 @@
             {number.Number}
         </button>
     {/if}
-    
 {:else}
     <img src="/img/favicon.png" alt="Logotipo Inclunet" />
 {/if}
@@ -68,7 +78,7 @@
         font-size: 1.5em;
     }
 
-    @media(max-width: 1132px){
+    @media (max-width: 1132px) {
         .button-card-draw {
             margin: 6px;
             width: 47px;
@@ -78,7 +88,7 @@
         }
     }
 
-    @media(max-width: 1059px){
+    @media (max-width: 1059px) {
         .button-card-draw {
             margin: 4px;
             width: 47px;
@@ -88,7 +98,7 @@
         }
     }
 
-    @media(max-width: 999px){
+    @media (max-width: 999px) {
         .button-card-draw {
             margin: 3px;
             width: 45px;
@@ -97,7 +107,7 @@
             font-size: 1em;
         }
     }
-    @media(max-width: 939px){
+    @media (max-width: 939px) {
         .button-card-draw {
             margin: 6px;
             width: 52px;
@@ -106,7 +116,7 @@
             font-size: 1.4em;
         }
     }
-    
+
     @media (max-width: 680px) {
         img {
             width: 80px;
@@ -153,5 +163,4 @@
             font-size: 1.1em;
         }
     }
-
 </style>
