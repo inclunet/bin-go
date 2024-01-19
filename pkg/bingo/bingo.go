@@ -28,6 +28,16 @@ func (b *Bingo) AddCardsHandler(w http.ResponseWriter, r *http.Request) {
 
 	card := round.AddCard()
 
+	mainCard, err := round.GetCard(0)
+
+	if err != nil {
+		log.Printf("Error on get main card: %v", err)
+	}
+
+	if checked := card.SetNumbers(*mainCard); checked > 0 {
+		log.Printf("Checked %d numbers for card %d into round %d", checked, card.Card, round.Round)
+	}
+
 	log.Printf("Added bingo card %d for round %d", card.Card, GetUrlIntParam(r, "round"))
 
 	Repply(w, card)

@@ -16,14 +16,6 @@ type Round struct {
 func (r *Round) AddCard() *Card {
 	card := NewCard(*r)
 
-	mainCard, err := r.GetCard(0)
-
-	if err != nil {
-		return nil
-	}
-
-	card.CheckDrawedNumbers(*mainCard)
-
 	r.Cards = append(r.Cards, card)
 
 	return &card
