@@ -34,7 +34,7 @@ func (b *Bingo) AddCardsHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error on get main card: %v", err)
 	}
 
-	if checked := card.SetNumbers(*mainCard); checked > 0 {
+	if checked := card.CheckDrawedNumbers(*mainCard); checked > 0 {
 		log.Printf("Checked %d numbers for card %d into round %d", checked, card.Card, round.Round)
 	}
 
