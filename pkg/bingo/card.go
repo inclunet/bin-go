@@ -33,24 +33,28 @@ type Card struct {
 	Numbers            [][5]Number
 }
 
-func (c *Card) CheckDrawedNumbers(mainCard Card) *Card {
+func (c *Card) CheckDrawedNumbers(mainCard Card) int {
+	counter := 0
+
 	if !c.Autoplay {
-		return c
+		return counter
 	}
 
 	if mainCard.Checked == 0 {
-		return c
+		return 0
 	}
 
 	for _, line := range mainCard.Numbers {
 		for _, number := range line {
 			if number.Checked {
-				c.CheckNumber(number.Number)
+				if c.CheckNumber(number.Number) {
+					counter++
+				}
 			}
 		}
 	}
 
-	return c
+	return counter
 }
 
 func (c *Card) CheckNumber(number int) bool {
