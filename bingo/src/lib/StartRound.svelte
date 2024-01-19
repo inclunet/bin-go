@@ -1,11 +1,10 @@
 <script>
-    import { card } from "./bingo";
+    import { goto } from "$app/navigation";
+    import { card, getCard } from "./bingo";
 
-    export let data;
-
-    function startRound() {
-        window.location.href = "/card/" + $data.Round + "/1";
-    }
+    const startRound = async () => {
+        goto("/card/" + $card.Round + "/1");
+    };
 </script>
 
 <button on:click={startRound} class="btn"

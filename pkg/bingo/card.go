@@ -294,6 +294,7 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 func (c *Card) SetNextRound(round int) bool {
 	if c.NextRound == 0 && c.Round != round {
 		c.NextRound = round
+		c.UpdateCard()
 		return true
 	}
 

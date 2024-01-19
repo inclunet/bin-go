@@ -1,6 +1,14 @@
 <script>
     import { card } from "./bingo";
     import Number from "./Number.svelte";
+
+    let audio = undefined;
+
+    const playCheckedSounds = ()=>  {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.play();
+    };
 </script>
 
 <div class="container-fluid d-flex text-center flex-column table-draw">
@@ -18,14 +26,15 @@
             <tr>
                 {#each row as number}
                     <td>
-                        <Number bind:number on:numberChecked />
+                        <Number bind:number on:numberChecked={playCheckedSounds} />
                     </td>
                 {/each}
             </tr>
         {/each}
     </table>
 </div>
-<audio src="/sms.mp3" />
+
+<audio bind:this={audio} src="/pop.mp3"></audio>
 
 <style>
     .table-draw {

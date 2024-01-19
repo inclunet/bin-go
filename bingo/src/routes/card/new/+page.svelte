@@ -5,7 +5,7 @@
     export let card = data;
 </script>
 
-<PageTitle title="Nova Rodada" />
+<PageTitle title="Inclubingo - Nova Rodada" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2 class="text-center">Bem-vindo ao <strong>Inclubingo</strong></h2>

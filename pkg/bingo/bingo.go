@@ -38,16 +38,18 @@ func (b *Bingo) AddRoundsHandler(w http.ResponseWriter, r *http.Request) {
 
 	round := NewRound(*b, GetUrlIntParam(r, "type"))
 
-	log.Printf("Forwarding %d round players to the %d new round...", GetUrlIntParam(r, "round"), round.Round)
+	if GetUrlIntParam(r, "round") > 0 {
+		log.Printf("Forwarding %d round players to the %d new round...", GetUrlIntParam(r, "round"), round.Round)
 
-	oldRound, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+		oldRound, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
-	if err != nil {
-		log.Printf("Error on get old round: %v", err)
-	}
+		if err != nil {
+			log.Printf("Error on get old round: %v", err)
+		}
 
-	if oldRound.SetNextRound(round.Round - 1) {
-		log.Printf("Forwarded %d round players to the %d new round", GetUrlIntParam(r, "round"), round.Round)
+		if players := oldRound.SetNextRound(round.Round); players > 0 {
+			log.Printf("Forwarded %d players from round %d to %d new round.", players, oldRound.Round, round.Round)
+		}
 	}
 
 	card, err := round.GetCard(0)

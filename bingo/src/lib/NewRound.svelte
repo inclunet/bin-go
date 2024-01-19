@@ -1,9 +1,10 @@
 <script>
+    import { goto } from "$app/navigation";
     import { card, getCard } from "./bingo";
 
     async function newRound() {
         $card = await getCard("/card/" + $card.Round + "/new/" + $card.Type);
-        window.location.href = "/card/" + $card.Round;
+        goto("/card/" + $card.Round);
     }
 </script>
 

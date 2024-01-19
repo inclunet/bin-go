@@ -9,41 +9,19 @@
     import Play from "$lib/Play.svelte";
 
     export let data;
-    let checkAudioEnabled = true;
-    let bingoAudio = null;
-    let checkAudio = null;
-
-    function playCheckedSounds() {
-        if (checkAudioEnabled) {
-            checkAudio.pause();
-            checkAudio.currentTime = 0;
-            checkAudio.play();
-        }
-    }
-
-    function playSounds() {
-        if ($card.Bingo) {
-            bingoAudio.play();
-        }
-    }
 
     function redirectToNextRound() {
         if ($card.Round == 0) {
-            window.location.href = "/";
+            goto("/");
         }
 
         if ($card.Card == 0) {
-            window.location.href = "/card/" + $card.Round + "/new";
+            goto("/card/" + $card.Round + "/new");
         }
 
-        if ($card.NextRound > 0) {
-            window.location.href = "/card/" + $card.NextRound + "/new";
+        if ($card.NextRound > 0 && $card.Card > 1) {
+            goto("/card/" + $card.NextRound + "/new");
         }
-    }
-
-    function stopBinngoAlert() {
-        bingoAudio.pause();
-        bingoAudio.currentTime = 0;
     }
 
     const liveUpdater = async () => {
@@ -71,7 +49,6 @@
         if ("WebSocket" in window) {
             liveUpdater();
         } else {
-            checkAudioEnabled = false;
             setInterval(poolingUpdater, 1000);
         }
     };
@@ -84,7 +61,7 @@
     onMount(loadCard);
 </script>
 
-<PageTitle title="Cartela de Bingo {$card.Card}" />
+<PageTitle title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}" />
 
 <div class="container container-card">
     <div class="mx-3 info-card">
@@ -92,18 +69,15 @@
             <h2>Cartela de Bingo #{$card.Card}</h2>
             <h3 class="info-card-header-round">Rodada #{$card.Round}</h3>
         </div>
-        <CardHeader on:stopBingoAlert={stopBinngoAlert} />
+        <CardHeader />
     </div>
     <div class="table-card">
-        <Card on:numberChecked={playCheckedSounds} />
+        <Card  />
     </div>
     <div class="anuncio">
         <Adds />
     </div>
 </div>
-
-<audio src="/sms.mp3" loop bind:this={bingoAudio}></audio>
-<audio src="/pop.mp3" bind:this={checkAudio}></audio>
 
 <style>
     .info-card,

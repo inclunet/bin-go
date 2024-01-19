@@ -1,12 +1,28 @@
 <script>
     import { card } from "./bingo";
-    import { createEventDispatcher } from "svelte";
+    import { afterUpdate, onMount } from "svelte";
 
-    const dispatch = createEventDispatcher();
+    let audio = undefined;
+    let drawed = 0;
+    let muted = true;
+
+    const isBingo = () => {
+        if ($card.Card > 1 && $card.Bingo) {
+            if ($card.Checked != drawed && muted) {
+                drawed = $card.Checked;
+                muted = false;
+                audio.play();
+            }
+        }
+    };
 
     function stopBingoAlert() {
-        dispatch("stopBingoAlert");
+        muted = true;
+        audio.pause();
+        audio.currentTime = 0;
     }
+
+    afterUpdate(isBingo);
 </script>
 
 {#if $card.Card > 1 && $card.Bingo}
@@ -14,3 +30,5 @@
         >Bingo!</button
     >
 {/if}
+
+<audio bind:this={audio} src="/sms.mp3" loop></audio>

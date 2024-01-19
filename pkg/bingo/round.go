@@ -55,18 +55,20 @@ func (r *Round) GetCard(card int) (*Card, error) {
 	return &r.Cards[card], nil
 }
 
-func (r *Round) SetNextRound(nextRound int) bool {
-	if nextRound == 0 || nextRound == r.Round {
-		return false
+func (r *Round) SetNextRound(nextRound int) int {
+	count := 0
+
+	if nextRound < 0 {
+		return count
 	}
 
 	for card := range r.Cards {
 		if r.Cards[card].SetNextRound(nextRound) {
-			return true
+			count++
 		}
 	}
 
-	return false
+	return count
 }
 
 func (r *Round) SetRoundForAll(round *Round) bool {

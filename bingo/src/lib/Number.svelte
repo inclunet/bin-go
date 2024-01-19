@@ -1,9 +1,10 @@
 <script>
     import { card, getCard } from "./bingo";
-    import { afterUpdate, createEventDispatcher } from "svelte";
+    import { afterUpdate, beforeUpdate, createEventDispatcher } from "svelte";
 
     export let number = { Checked: false, Number: 0 };
     const dispatcher = createEventDispatcher();
+    let muted = false;
 
     async function checkNumber() {
         if (!number.Checked || $card.Card == 1) {
@@ -13,8 +14,15 @@
         }
     }
 
+    beforeUpdate(() => {
+        if (!number.Checked && number.Number > 0) {
+            muted = false;
+        }
+    });
+
     afterUpdate(() => {
-        if (number.Checked && number.Number > 0) {
+        if (number.Checked && !muted && number.Number > 0) {
+            muted = true;
             dispatcher("numberChecked", number);
         }
     });
