@@ -43,31 +43,20 @@
     </nav>
 </header>
 <nav class="navbar menu-navbar">
-    <div class="container-nav-inner">
-        <ul class="navbar-nav navbar-ul-primary d-flex flex-row">
-            <li class="nav-item">
-                <a href="/" class="nav-link navbar-brand">Início</a>
-            </li>
-            <li class="nav-item">
-                <a href="/card/new" class="nav-link navbar-brand">Jogar</a>
-            </li>
-            <li class="nav-item">
-                <a href="/instructions" class="nav-link navbar-brand">Como Jogar</a>
-            </li>
-            <li class="nav-item">
-                <a href="/terms" class="nav-link navbar-brand">Termo de Uso</a>
-            </li>
-        </ul>
-        <section class="section-social-medias-nav align-items-end">
-            <ul class="d-flex flex-row">
-                <li class=""><a href="https://www.facebook.com/CanalInclunet" target="_blank" class="social-medias-nav-link" role="button"><img src="/img/facebook.png" alt="Facebook" class="social-medias-nav-img"></a></li>
-                <li class=""><a href="https://www.youtube.com/@Inclunet" target="_blank" class="social-medias-nav-link" role="button"><img src="/img/youtube.png" alt="YouTube" class="social-medias-nav-img"></a></li>
-                <li class=""><a href="https://www.instagram.com/inclunet/" target="_blank" class="social-medias-nav-link" role="button"><img src="/img/instagram.png" alt="Instagram" class="social-medias-nav-img"></a></li>
-                <li class=""><a href="https://www.linkedin.com/company/inclunet/" target="_blank" class="social-medias-nav-link" role="button"><img src="/img/linkedin.png" alt="Linkedin" class="social-medias-nav-img"></a></li>
-                <li class=""><a href="https://www.twitter.com/inclunet" target="_blank" class="social-medias-nav-link" role="button"><img src="/img/twitter.png" alt="Twitter" class="social-medias-nav-img"></a></li>
-            </ul>
-        </section>
-    </div>
+    <ul class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row">
+        <li class="nav-item">
+            <a href="/" class="nav-link navbar-brand">Início</a>
+        </li>
+        <li class="nav-item">
+            <a href="/card/new" class="nav-link navbar-brand">Jogar</a>
+        </li>
+        <li class="nav-item">
+            <a href="/instructions" class="nav-link navbar-brand">Como Jogar</a>
+        </li>
+        <li class="nav-item">
+            <a href="/terms" class="nav-link navbar-brand">Termo de Uso</a>
+        </li>
+    </ul>
 </nav>
 <main class="content">
     <slot></slot>
@@ -164,21 +153,21 @@
     .menu-navbar{
         background-color: var(--primary-color);
         border-top: 1px solid var(--quaternary-color);
+        display: flex;
+        justify-content: center;
     }
     .container-nav-inner{
         height: 48px;
-        width: 100%;
-        padding: 0 50px 0 50px;
+        width: 80%;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        
     }
     .menu-navbar a{
         height: 48px;
         line-height: 48px;
-        padding: 0 7px 0 7px;
+        padding: 0 30px;
         color: var(--quinary-color);
         font-weight: 600;
     }
@@ -263,6 +252,9 @@
         background-color: var(--tertiary-color);
     }
     @media(max-width: 838px){
+        .menu-navbar a{
+            padding: 0 10px;
+        }
         .container-nav-inner{
             padding: 0 25px 0 25px;
         }
@@ -318,6 +310,11 @@
         }
         header h1{
             font-size: 3.7em;
+        }
+    }
+    @media(max-width: 650px){
+        .menu-navbar a{
+            padding: 7px;
         }
     }
     @media(max-width: 640px){
