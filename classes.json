@@ -1,0 +1,19 @@
+[
+    {"Description": "Caracteres em Braille da primeira serie: Letras de a até j",
+    "RequiredPunctuation": 30,
+    "Rounds": 40,
+    "words": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j"
+    ]
+}
+   
+]
