@@ -1,4 +1,4 @@
-module github.com/legle/bin-go
+module github.com/inclunet/bin-go
 
 go 1.20
 

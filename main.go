@@ -6,7 +6,8 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/legle/bin-go/pkg/bingo"
+	"github.com/inclunet/bin-go/pkg/bingo"
+	"github.com/inclunet/bin-go/pkg/braille"
 )
 
 func main() {
@@ -24,6 +25,11 @@ func main() {
 	}
 
 	b := bingo.NewBingo()
+	brl, err := braille.New("classes.json")
+
+	if err != nil {
+		panic(err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/card/{round}/new/{type}", b.AddRoundsHandler)
@@ -35,9 +41,13 @@ func main() {
 	r.HandleFunc("/api/card/{round}/{card}/live", b.LiveHandler)
 	r.HandleFunc("/api/card/{round}/{card}/{number}", b.ToggleNumbersHandler)
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardsQRHandler)
+	//braille routs;
+	r.HandleFunc("/api/braille/new", brl.AddPlayerHandler)
+	r.HandleFunc("/api/braille/{player}", brl.GetPlayerHandler)
+
 	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"index.html") })
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(dir)))
-	err := http.ListenAndServe(host+":"+port, r)
+	err = http.ListenAndServe(host+":"+port, r)
 
 	if err != nil {
 		panic(err)
