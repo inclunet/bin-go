@@ -2,11 +2,19 @@ package braille
 
 import (
 	"encoding/json"
+	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
+
+func GetRandomNumber(start int, end int) int {
+	source := rand.NewSource(time.Now().UnixNano())
+	rand := rand.New(source)
+	return rand.Intn(end-start+1) + start
+}
 
 func GetUrlIntParam(r *http.Request, param string, defaultValue int) int {
 	if value, err := strconv.Atoi(GetUrlStringParam(r, param, "")); err == nil {
