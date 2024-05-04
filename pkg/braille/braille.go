@@ -4,16 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/inclunet/bin-go/pkg/classes"
 )
 
 type Braille struct {
-	Players []classes.BrailleClass
+	Players []BrailleClass
 }
 
-func (b *Braille) AddPlayer() classes.BrailleClass {
-	player := classes.NewBrailleClass(len(b.Players))
+func (b *Braille) AddPlayer() BrailleClass {
+	player := NewBrailleClass(len(b.Players))
 	b.Players = append(b.Players, player)
 	return player
 }
@@ -22,7 +20,7 @@ func (b *Braille) AddPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	Repply(w, b.AddPlayer())
 }
 
-func (b *Braille) GetPlayer(i int) *classes.BrailleClass {
+func (b *Braille) GetPlayer(i int) *BrailleClass {
 	if i < 0 {
 		return nil
 	}
@@ -53,7 +51,7 @@ func (b *Braille) SolveChallengeHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var repply classes.BrailleClass
+	var repply BrailleClass
 
 	err := json.NewDecoder(r.Body).Decode(&repply)
 
@@ -66,14 +64,14 @@ func (b *Braille) SolveChallengeHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func New(classesFileName string) (*Braille, error) {
-	err := classes.LoadClass(classesFileName)
+	err := LoadClass(classesFileName)
 
 	if err != nil {
 		return nil, err
 	}
 
 	b := Braille{
-		Players: []classes.BrailleClass{},
+		Players: []BrailleClass{},
 	}
 
 	return &b, nil

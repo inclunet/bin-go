@@ -1,4 +1,4 @@
-package classes
+package braille
 
 import (
 	"encoding/json"
