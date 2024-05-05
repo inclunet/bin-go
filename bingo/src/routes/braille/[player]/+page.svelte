@@ -1,6 +1,6 @@
 <script>
     import BrailleChallenge from "$lib/BrailleChallenge.svelte";
-import PageTitle from "$lib/PageTitle.svelte";
+    import PageTitle from "$lib/PageTitle.svelte";
     import { callApi } from "$lib/api.js";
     import { braille } from "$lib/braille.js";
     import { onMount } from "svelte";
@@ -13,6 +13,18 @@ import PageTitle from "$lib/PageTitle.svelte";
             `/api/braille/${data.Player}`,
             "GET",
         );
+    };
+
+    const handleChallengeSubmit = async () => {
+        console.log("calling api");
+        $braille = await callApi(
+            $braille,
+            `/api/braille/${data.Player}`,
+            "POST",
+            $braille,
+        );
+
+        console.log($braille);
     };
 
     onMount(LoadBrailleClass);
@@ -33,4 +45,7 @@ import PageTitle from "$lib/PageTitle.svelte";
     </ul>
 </div>
 
-<BrailleChallenge bind:brailleChallenge={$braille.Challenge} />
+<BrailleChallenge
+    bind:brailleChallenge={$braille.Challenge}
+    on:submitChallenge={handleChallengeSubmit}
+/>

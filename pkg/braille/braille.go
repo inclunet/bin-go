@@ -20,6 +20,26 @@ func (b *Braille) AddPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	Repply(w, b.AddPlayer())
 }
 
+func (b *Braille) CheckChallengeRepplyHandler(w http.ResponseWriter, r *http.Request) {
+	player := b.GetPlayer(GetUrlIntParam(r, "player", -1))
+
+	if player == nil {
+		http.Error(w, fmt.Sprintf("Player %d not found", GetUrlIntParam(r, "player", -1)), http.StatusNotFound)
+		return
+	}
+	fmt.Println("antes do oi")
+	var challengeRepply BrailleClass
+
+	err := json.NewDecoder(r.Body).Decode(&challengeRepply)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	fmt.Println("oi")
+	Repply(w, player.Check(challengeRepply.Challenge.Repply))
+}
+
 func (b *Braille) GetPlayer(i int) *BrailleClass {
 	if i < 0 {
 		return nil

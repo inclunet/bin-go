@@ -54,12 +54,11 @@
                 dispatch("brailleKey", { key: 0 });
                 event.preventDefault();
             }
-
-            if (event.key === "Enter") {
+        }
+        if (event.key === "Enter") {
                 handleSubmit();
                 event.preventDefault();
             }
-        }
     };
 
     const handleKeyUp = (/** @type {{ key: any; }} */ event) => {
