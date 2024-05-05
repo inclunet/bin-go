@@ -40,7 +40,7 @@ brailleWord = "";
         <BrailleWord
             on:brailleKey={handleBrailleKey}
             on:brailleEnter={handleBrailleTypping}
-            on:brailleEnter
+            on:submitChallenge
             bind:brailleWord
             brailleKeyboard="true"
         />

@@ -1,6 +1,7 @@
 package braille
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -20,8 +21,10 @@ type BrailleClass struct {
 	UpdatedAt          time.Time
 }
 
-func (b *BrailleClass) Check(repply BrailleClass) *BrailleClass {
-	if b.Challenge.Check(repply.Challenge) {
+func (b *BrailleClass) Check(repply string) *BrailleClass {
+	fmt.Println(repply, "a")
+	if b.Challenge.Check(repply) {
+		fmt.Println("b")
 		b.CurrentPunctuation++
 		b.GetChallenge()
 	}
@@ -55,7 +58,7 @@ func (b *BrailleClass) GetChallenge() *BrailleClass {
 		return b.GetClass()
 	}
 
-	b.Challenge = NewChallenge(b.class.Draw())
+	b.Challenge = NewChallenge(b.class.DrawWord())
 	b.CurrentRound++
 	b.UpdatedAt = time.Now()
 

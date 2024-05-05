@@ -43,7 +43,8 @@ func main() {
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardsQRHandler)
 	//braille routs;
 	r.HandleFunc("/api/braille/new", brl.AddPlayerHandler)
-	r.HandleFunc("/api/braille/{player}", brl.GetPlayerHandler)
+	r.HandleFunc("/api/braille/{player}", brl.GetPlayerHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/braille/{player}", brl.CheckChallengeRepplyHandler).Methods(http.MethodPost)
 
 	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"index.html") })
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(dir)))

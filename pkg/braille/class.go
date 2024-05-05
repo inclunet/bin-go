@@ -11,10 +11,23 @@ type Class struct {
 	Description         string
 	RequiredPunctuation int
 	Rounds              int
+	AllowedChallenges   []string
 	Words               []string
 }
 
-func (c *Class) Draw() string {
+func (c *Class) DrawAllowedChallenge() string {
+	t := len(c.AllowedChallenges)
+
+	if t == 0 {
+		return ""
+	}
+
+	r := GetRandomNumber(0, t-1)
+
+	return c.AllowedChallenges[r]
+}
+
+func (c *Class) DrawWord() string {
 	t := len(c.Words)
 
 	if t == 0 {
