@@ -1,12 +1,12 @@
 <script>
-    import BrailleChallenge from "$lib/BrailleChallenge.svelte";
+    import { goto } from "$app/navigation";
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApi } from "$lib/api.js";
     import { braille } from "$lib/braille.js";
     import { onMount } from "svelte";
-
+    
     export let data;
-
+    
     const LoadBrailleClass = async () => {
         $braille = await callApi(
             $braille,
@@ -15,37 +15,21 @@
         );
     };
 
-    const handleChallengeSubmit = async () => {
-        console.log("calling api");
-        $braille = await callApi(
-            $braille,
-            `/api/braille/${data.Player}`,
-            "POST",
-            $braille,
-        );
-
-        console.log($braille);
+    const handlePlay = async() => {
+        goto(`/braille/${data.Player}/${$braille.CurrentClass}`);
     };
 
     onMount(LoadBrailleClass);
 </script>
 
-<PageTitle title="Braille Personal Trainer" />
+<PageTitle title="Aula #{$braille.CurrentClass} - Braille Personal Trainer" />
 
-<h2>Braille Personal Trainer</h2>
 <div>
-    {$braille.Description}
-</div>
-<div>
-    <ul>
-        <li>Exercício: {$braille.CurrentClass + 1}</li>
-        <li>Rodada: {$braille.CurrentRound}</li>
-        <li>Pontuação do exercício: {$braille.CurrentPunctuation}</li>
-        <li>Pontuação total: {$braille.TotalPunctuation}</li>
-    </ul>
-</div>
+<h2>Aula #{$braille.CurrentClass} - Braille Personal Trainer</h2>
 
-<BrailleChallenge
-    bind:brailleChallenge={$braille.Challenge}
-    on:submitChallenge={handleChallengeSubmit}
-/>
+<p>{$braille.Description}</p>
+
+
+
+<button on:click={handlePlay}>Jogar</button>
+</div>

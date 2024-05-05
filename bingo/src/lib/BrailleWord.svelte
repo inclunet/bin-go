@@ -4,6 +4,8 @@
     export let brailleWord = "";
     export let brailleKeyboard;
 
+    let audio;
+
     const dispatch = createEventDispatcher();
 
     const handleKeyDown = (
@@ -56,9 +58,9 @@
             }
         }
         if (event.key === "Enter") {
-                handleSubmit();
-                event.preventDefault();
-            }
+            handleSubmit();
+            event.preventDefault();
+        }
     };
 
     const handleKeyUp = (/** @type {{ key: any; }} */ event) => {
@@ -73,9 +75,11 @@
                 case "l":
                 case "ç":
                     dispatch("brailleEnter", "dots");
+                    audio.play();
                     break;
                 case " ":
                     dispatch("brailleEnter", "space");
+                                        audio.play();
                     break;
             }
         }
@@ -105,3 +109,5 @@
 <div>
     <button on:click={handleSubmit}>Enviar</button>
 </div>
+
+<audio src="/key.mp3" bind:this={audio} />
