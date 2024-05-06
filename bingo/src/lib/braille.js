@@ -5,6 +5,7 @@ export let braille = writable({
     CurrentClass: 0,
         CurrentPunctuation: 0,
     CurrentRound: 0,
+    Player: -1,
     TotalPunctuation: 0,
     Challenge: {
         Braille: [],
