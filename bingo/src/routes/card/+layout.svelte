@@ -41,7 +41,7 @@
                             <a
                                 class="nav-link active"
                                 aria-current="page"
-                                href="/">Início</a
+                                href="/card">Início</a
                             >
                         </li>
                         <li
@@ -58,7 +58,7 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/instructions"
+                            <a class="nav-link" href="/card/instructions"
                                 >Como Jogar</a
                             >
                         </li>
@@ -67,7 +67,9 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/terms">Termo de uso</a>
+                            <a class="nav-link" href="/card/terms"
+                                >Termo de uso</a
+                            >
                         </li>
                     </ul>
                     <hr />
@@ -140,16 +142,18 @@
         class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row"
     >
         <li class="nav-item">
-            <a href="/" class="nav-link navbar-brand">Início</a>
+            <a href="/card/" class="nav-link navbar-brand">Início</a>
         </li>
         <li class="nav-item">
             <a href="/card/new" class="nav-link navbar-brand">Jogar</a>
         </li>
         <li class="nav-item">
-            <a href="/instructions" class="nav-link navbar-brand">Como Jogar</a>
+            <a href="/card/instructions" class="nav-link navbar-brand"
+                >Como Jogar</a
+            >
         </li>
         <li class="nav-item">
-            <a href="/terms" class="nav-link navbar-brand">Termo de Uso</a>
+            <a href="/card/terms" class="nav-link navbar-brand">Termo de Uso</a>
         </li>
     </ul>
 </nav>
@@ -360,8 +364,8 @@
     .section-social-medias-nav ul li {
         margin: 0 8px 0 8px;
     }
-    
-            .content {
+
+    .content {
         flex: 1 0 auto;
     }
     p {
@@ -494,7 +498,7 @@
         .container-nav-inner .navbar-ul-primary a {
             padding: 0 20px 0 20px;
         }
-            }
+    }
     @media (max-width: 571px) {
         header {
             justify-content: space-between;
