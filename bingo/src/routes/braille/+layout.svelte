@@ -1,5 +1,5 @@
 <header class="d-flex flex-row">
-    <a href="/"><img src="/img/logo.png" alt="Inclunet" /></a>
+    <a href="/braille"><img src="/img/logo.png" alt="Inclunet" /></a>
     <h1 class="text-center">Inclubraille</h1>
 
     <nav class="navbar">
@@ -22,7 +22,7 @@
             >
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">
-                        Inclubingo
+                        Inclubraille
                     </h5>
                     <button
                         type="button"
@@ -41,7 +41,7 @@
                             <a
                                 class="nav-link active"
                                 aria-current="page"
-                                href="/">Início</a
+                                href="/braille">Início</a
                             >
                         </li>
                         <li
@@ -49,7 +49,7 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/card/new"
+                            <a class="nav-link" href="/braille/new"
                                 >Ir para o jogo</a
                             >
                         </li>
@@ -58,7 +58,7 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/instructions"
+                            <a class="nav-link" href="/braille/instructions"
                                 >Como Jogar</a
                             >
                         </li>
@@ -67,7 +67,9 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/terms">Termo de uso</a>
+                            <a class="nav-link" href="/braille/terms"
+                                >Termo de uso</a
+                            >
                         </li>
                     </ul>
                     <hr />
@@ -140,16 +142,20 @@
         class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row"
     >
         <li class="nav-item">
-            <a href="/" class="nav-link navbar-brand">Início</a>
+            <a href="/braille" class="nav-link navbar-brand">Início</a>
         </li>
         <li class="nav-item">
-            <a href="/card/new" class="nav-link navbar-brand">Jogar</a>
+            <a href="/braille/new" class="nav-link navbar-brand">Jogar</a>
         </li>
         <li class="nav-item">
-            <a href="/instructions" class="nav-link navbar-brand">Como Jogar</a>
+            <a href="/braille/instructions" class="nav-link navbar-brand"
+                >Como Jogar</a
+            >
         </li>
         <li class="nav-item">
-            <a href="/terms" class="nav-link navbar-brand">Termo de Uso</a>
+            <a href="/braille/terms" class="nav-link navbar-brand"
+                >Termo de Uso</a
+            >
         </li>
     </ul>
 </nav>
@@ -158,14 +164,12 @@
 </main>
 <footer>
     <p class="text-center">
-        <strong>
-            Jogo de Bingo acessível e inclusivo para pessoas com deficiência.
-        </strong>
+        <strong> Aprenda Braille brincando. </strong>
     </p>
     <hr />
     <section class="content-footer">
         <section class="section-logo-footer">
-            <a href="/"
+            <a href="/braille"
                 ><img
                     src="/img/logo.png"
                     alt="Inclunet"

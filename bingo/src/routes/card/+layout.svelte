@@ -1,5 +1,5 @@
 <header class="d-flex flex-row">
-    <a href="/"><img src="/img/logo.png" alt="Inclunet" /></a>
+    <a href="/card"><img src="/img/logo.png" alt="Inclunet" /></a>
     <h1 class="text-center">Inclubingo</h1>
 
     <nav class="navbar">
@@ -142,7 +142,7 @@
         class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row"
     >
         <li class="nav-item">
-            <a href="/card/" class="nav-link navbar-brand">Início</a>
+            <a href="/card" class="nav-link navbar-brand">Início</a>
         </li>
         <li class="nav-item">
             <a href="/card/new" class="nav-link navbar-brand">Jogar</a>
@@ -169,7 +169,7 @@
     <hr />
     <section class="content-footer">
         <section class="section-logo-footer">
-            <a href="/"
+            <a href="/card"
                 ><img
                     src="/img/logo.png"
                     alt="Inclunet"
