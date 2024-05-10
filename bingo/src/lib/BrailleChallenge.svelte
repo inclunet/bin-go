@@ -6,13 +6,13 @@
 </script>
 
 <div role="region" aria-label="Exercício">
-    <div aria-live="polite">
+    <header aria-live="polite">
         {#if brailleChallenge.Challenge == "word"}
-            <h3>Escreva {brailleChallenge.Word} em Braille</h3>
+            <h3 class="mt-4">Escreva {brailleChallenge.Word} em Braille</h3>
         {:else}
-            <h3>Escreva {brailleChallenge.Word} em tinta</h3>
+            <h3 class="mt-4">Escreva {brailleChallenge.Word} em tinta</h3>
         {/if}
-    </div>
+    </header>
 
     {#if brailleChallenge.Challenge == "braille"}
         <BrailleWord
@@ -27,3 +27,9 @@
         />
     {/if}
 </div>
+
+<style>
+    h3 {
+        font-size: 1.4em;
+    }
+</style>
