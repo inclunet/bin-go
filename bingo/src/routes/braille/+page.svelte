@@ -30,21 +30,25 @@
         </p>
     </section>
 
-    <button
-        class="button-color btn text-black"
-        on:click={handleStartLearningNow}>Comece a aprender Agora</button
-    >
+    <section>
+        <button
+            class="btn button-color text-black"
+            on:click={handleStartLearningNow}
+        >
+            <strong>Comece a aprender Agora</strong>
+        </button>
+    </section>
 </div>
 
 <style>
-    :root {
-        --primary-button-color: #2b7ef4;
-    }
+    @import "style.css";
+
     h2:nth-child(2n) {
         font-size: 1.6em;
     }
 
-    section p {
+    section p,
+    section button {
         font-size: 1.2em;
     }
 
@@ -60,9 +64,6 @@
         padding: 3px 5px 3px 5px;
         margin: 0;
         font-size: 1em;
-    }
-    .button-color {
-        background-color: var(--primary-button-color);
     }
 
     @media (max-width: 573px) {
