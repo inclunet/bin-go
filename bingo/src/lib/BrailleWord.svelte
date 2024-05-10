@@ -9,7 +9,7 @@
     const dispatch = createEventDispatcher();
 
     const handleKeyDown = (
-        /** @type {{ key: string; preventDefault: () => void; }} */ event,
+        /** @type {{ key: string; preventDefault: () => void; }} */ event
     ) => {
         if (brailleKeyboard) {
             if (event.key === "f") {
@@ -79,7 +79,7 @@
                     break;
                 case " ":
                     dispatch("brailleEnter", "space");
-                                        audio.play();
+                    audio.play();
                     break;
             }
         }
@@ -90,24 +90,48 @@
     };
 </script>
 
-<div>
-    <label for="word">Resposta:</label>
-</div>
-
-<div>
-    <input
-        type="text"
-        id="word"
-        bind:value={brailleWord}
-        on:keydown={handleKeyDown}
-        on:keyup={handleKeyUp}
-        autocomplete="off"
-        autofocus
-    />
-</div>
-
-<div>
-    <button on:click={handleSubmit}>Enviar</button>
-</div>
+<section id="answer">
+    <div>
+        <label for="word">Resposta:</label>
+        <input
+            type="text"
+            id="word"
+            bind:value={brailleWord}
+            on:keydown={handleKeyDown}
+            on:keyup={handleKeyUp}
+            autocomplete="off"
+            autofocus
+        />
+    </div>
+    <button class="btn button-color" on:click={handleSubmit}>Enviar</button>
+</section>
 
 <audio src="/key.mp3" bind:this={audio} />
+
+<style>
+    :root {
+        --primary-button-color: #2b7ef4;
+        --secondary-button-color: #2868c2;
+        --white: #fff;
+        --black: #000;
+    }
+
+    section#answer {
+        display: flex;
+        flex-direction: column;
+    }
+
+    section button {
+        font-size: 1.2em;
+    }
+
+    .button-color {
+        background-color: var(--primary-button-color);
+        color: var(--black);
+    }
+
+    .button-color:hover {
+        background-color: var(--secondary-button-color);
+        color: var(--white);
+    }
+</style>
