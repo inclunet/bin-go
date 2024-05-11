@@ -1,11 +1,17 @@
 <script>
     import { goto } from "$app/navigation";
+    import { callApi } from "./api";
     import { card, getCard } from "./bingo";
 
-    async function startGame() {
-        $card = await getCard("/card/" + $card.Round + "/" + $card.Card);
-        goto("/card/" + $card.Round + "/" + $card.Card);
-    }
+    const startGame = async () => {
+        $card = await callApi(
+            $card,
+            `/api/bingo/${$card.Round}/${$card.Card}`,
+            "GET",
+        );
+        
+        goto(`/bingo/${$card.Round}/${$card.Card}`);
+    };
 </script>
 
 <button class="btn" on:click={startGame}><strong>Jogar!</strong></button>

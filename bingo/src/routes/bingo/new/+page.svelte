@@ -1,11 +1,9 @@
 <script>
     import NewRound from "$lib/NewRound.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
-    export let data;
-    export let card = data;
 </script>
 
-<PageTitle title="Inclubingo - Nova Rodada" />
+<PageTitle title="Nova Rodada" game="Inclubingo" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2 class="text-center">Bem-vindo ao <strong>Inclubingo</strong></h2>

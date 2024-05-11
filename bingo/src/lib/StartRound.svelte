@@ -1,13 +1,14 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { card, getCard } from "./bingo";
+    import { createEventDispatcher } from "svelte";
+    
+    const dispatch = createEventDispatcher();
 
-    const startRound = async () => {
-        goto("/card/" + $card.Round + "/1");
+    const handleClick = async () => {
+        dispatch("playEvent");
     };
 </script>
 
-<button on:click={startRound} class="btn"
+<button on:click={handleClick} class="btn"
     ><strong>Começar a Rodada</strong></button
 >
 

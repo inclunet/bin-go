@@ -1,7 +1,6 @@
 package braille
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -22,29 +21,43 @@ type BrailleClass struct {
 }
 
 func (b *BrailleClass) Check(repply string) *BrailleClass {
-	fmt.Println(repply, "a")
+	b.CurrentRound++
+
 	if b.Challenge.Check(repply) {
-		fmt.Println("b")
 		b.CurrentPunctuation++
+		b.TotalPunctuation++
 		b.GetChallenge()
+
+		return b
 	}
+
+	b.TotalPunctuation--
 
 	return b
 }
 
 func (b *BrailleClass) GetClass() *BrailleClass {
-	b.TotalPunctuation += b.CurrentPunctuation
 	b.CurrentPunctuation = 0
-	b.CurrentRound = 0
-	b.PreviousClass = b.CurrentClass - 1
-	b.NextClass = b.CurrentClass + 1
+	b.CurrentRound = 1
+	b.PreviousClass = 0
+
+	if b.CurrentClass > 0 {
+		b.PreviousClass = b.CurrentClass - 1
+	}
+
+	b.NextClass = b.CurrentClass
+
+	if b.CurrentClass < len(classes)-1 {
+		b.NextClass = b.CurrentClass + 1
+	}
 
 	if class := GetClass(b.CurrentClass); class != nil {
 		b.class = class
 		b.Description = b.class.Description
 		b.TotalRounds = b.class.Rounds
-		b.GetChallenge()
 	}
+
+	b.GetChallenge()
 
 	return b
 }
@@ -59,7 +72,7 @@ func (b *BrailleClass) GetChallenge() *BrailleClass {
 	}
 
 	b.Challenge = NewChallenge(b.class.DrawWord())
-	b.CurrentRound++
+
 	b.UpdatedAt = time.Now()
 
 	return b

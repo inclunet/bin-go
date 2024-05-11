@@ -1,11 +1,17 @@
 <script>
     import { goto } from "$app/navigation";
-    import { card, getCard } from "./bingo";
+    import { callApi } from "./api";
+    import { card } from "./bingo";
 
-    async function newRound() {
-        $card = await getCard("/card/" + $card.Round + "/new/" + $card.Type);
-        goto("/card/" + $card.Round);
-    }
+    const newRound = async () => {
+        $card = await callApi(
+            $card,
+            `/api/bingo/${$card.Round}/new/${$card.Type}`,
+            "GET",
+        );
+
+        goto(`/bingo/${$card.Round}`);
+    };
 </script>
 
 {#if ($card.Card == 1 && $card.Checked == $card.Type) || $card.Round == 0}

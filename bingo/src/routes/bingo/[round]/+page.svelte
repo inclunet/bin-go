@@ -4,13 +4,17 @@
     import StartRound from "$lib/StartRound.svelte";
     import { onMount } from "svelte";
     import { card, getCard } from "$lib/bingo";
+    import { callApi } from "$lib/api.js";
+    import { goto } from "$app/navigation";
 
     export let data;
 
     const loadCard = async () => {
-        $card.Card = 1;
-        $card.Round = Number(data.Round);
-        $card = await getCard("/card/" + $card.Round + "/" + $card.Card);
+        $card = await callApi($card, `/api/bingo/${data.Round}/1`, "GET");
+    };
+
+    const handlePlayEvent = async () => {
+        goto(`/bingo/${$card.Round}/1`);
     };
 
     onMount(loadCard);
