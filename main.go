@@ -32,21 +32,22 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/api/card/{round}/new/{type}", b.AddRoundsHandler)
-	r.HandleFunc("/api/card/{round}", b.GetRoundsHandler)
-	r.HandleFunc("/api/card/{round}/0", b.AddCardsHandler)
-	r.HandleFunc("/api/card/{round}/{card}", b.GetCardsHandler)
-	r.HandleFunc("/api/card/{round}/{card}/autoplay", b.ToggleCardsAutoplayHandler)
-	r.HandleFunc("/api/card/{round}/1/0", b.DrawHandler)
-	r.HandleFunc("/api/card/{round}/{card}/live", b.LiveHandler)
-	r.HandleFunc("/api/card/{round}/{card}/{number}", b.ToggleNumbersHandler)
+	r.HandleFunc("/api/bingo/{round}/new/{type}", b.AddRoundsHandler)
+	r.HandleFunc("/api/bingo/{round}", b.GetRoundsHandler)
+	r.HandleFunc("/api/bingo/{round}/0", b.AddCardsHandler)
+	r.HandleFunc("/api/bingo/{round}/{card}", b.GetCardsHandler)
+	r.HandleFunc("/api/bingo/{round}/{card}/autoplay", b.ToggleCardsAutoplayHandler)
+	r.HandleFunc("/api/bingo/{round}/1/0", b.DrawHandler)
+	r.HandleFunc("/api/bingo/{round}/{card}/live", b.LiveHandler)
+	r.HandleFunc("/api/bingo/{round}/{card}/{number}", b.ToggleNumbersHandler)
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardsQRHandler)
 	//braille routs;
 	r.HandleFunc("/api/braille/new", brl.AddPlayerHandler)
 	r.HandleFunc("/api/braille/{player}", brl.GetPlayerHandler).Methods(http.MethodGet)
 	r.HandleFunc("/api/braille/{player}", brl.CheckChallengeRepplyHandler).Methods(http.MethodPost)
 
-	r.PathPrefix("/card/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"index.html") })
+	r.PathPrefix("/card").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"index.html") })
+	r.PathPrefix("/braille").HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, dir+"index.html") })
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(dir)))
 	err = http.ListenAndServe(host+":"+port, r)
 

@@ -4,7 +4,7 @@
         </h2>
         
             <p class="pt-2">Diversão Inclusiva ao Seu Alcance 
-                <a href="/card/new" class="btn button-color text-black" role="button">
+                <a href="/bingo/new" class="btn button-color text-black" role="button">
                     <strong>Jogue Agora!</strong>
                 </a>
             </p>      
@@ -178,7 +178,7 @@
         </p>
 
         <h2>
-            <a href="/card/new" class="btn button-color btn-sm text-black" role="button"><strong>Jogue Agora</strong></a> 
+            <a href="/bingo/new" class="btn button-color btn-sm text-black" role="button"><strong>Jogue Agora</strong></a> 
             e Faça Parte da Diversão Inclusiva!
         </h2>
 

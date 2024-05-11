@@ -3,33 +3,31 @@
     import { goto } from "$app/navigation";
     import CardHeader from "$lib/CardHeader.svelte";
     import Card from "$lib/Card.svelte";
-    import { card, getCard, getEndpointUrl } from "../../../../lib/bingo";
+    import { card } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
     import Play from "$lib/Play.svelte";
+    import { callApi } from "$lib/api";
 
     export let data;
 
-    function redirectToNextRound() {
+    const redirectToNextRound = () => {
         if ($card.Round == 0) {
             goto("/");
         }
 
         if ($card.Card == 0) {
-            goto("/card/" + $card.Round + "/new");
+            goto(`/bingo/${$card.Round}/new`);
         }
 
         if ($card.NextRound > 0 && $card.Card > 1) {
-            goto("/card/" + $card.NextRound + "/new");
+            goto(`/card/${$card.NextRound}/new`);
         }
-    }
+    };
 
     const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getEndpointUrl(
-                "/card/" + $card.Round + "/" + $card.Card + "/live",
-                "ws",
-            ),
+            `/bingo/${$card.Round}/${$card.Card}/live`,
         );
 
         socket.addEventListener("open", (event) => {
@@ -54,7 +52,11 @@
     };
 
     const poolingUpdater = async () => {
-        $card = await getCard("/card/" + $card.Round + "/" + $card.Card);
+        $card = await callApi(
+            $card,
+            `/api/bingo/${$card.Round}/${$card.Card}`,
+            "GET",
+        );
         redirectToNextRound();
     };
 
@@ -72,7 +74,7 @@
         <CardHeader />
     </div>
     <div class="table-card">
-        <Card  />
+        <Card />
     </div>
     <div class="anuncio">
         <Adds />

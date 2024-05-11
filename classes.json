@@ -1,19 +1,43 @@
 [
-    {"Description": "Caracteres em Braille da primeira serie: Letras de a até j",
-    "RequiredPunctuation": 30,
-    "Rounds": 40,
-    "words": [
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j"
-    ]
-}
-   
+    {
+        "Description": "Nesta aula vamos treinar os caracteres Braille da primeira serie que representam as Letras de a até j e usam apenas os pontos 1, 2 4 e 6 e que formam a base do sistema de leitura e escrita",
+        "RequiredPunctuation": 40,
+        "Rounds": 50,
+        "words": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j"
+        ]
+    },
+    {
+        "Description": "Agora vamos formar pequenas palavras usando as letras de a até j que aprendemos na aula anterior",
+        "RequiredPunctuation": 40,
+        "Rounds": 50,
+        "words": [
+            "fada",
+            "jaca",
+            "jaba",
+            "cha",
+            "ida",
+            "bebida",
+            "faca",
+            "cada",
+            "cade",
+            "cabe",
+            "bebe",
+            "chegada",
+            "bica",
+            "bebada",
+            "beija",
+            "gaga",
+            "facada"
+        ]
+    }
 ]

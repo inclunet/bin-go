@@ -4,12 +4,16 @@
     import Play from "$lib/Play.svelte";
     import { onMount } from "svelte";
     import { card } from "$lib/bingo";
+    import { callApi } from "$lib/api.js";
 
     export let data;
 
     const loadCard = async () => {
-        $card.Card = Number(data.Card);
-        $card.Round = Number(data.Round);
+        $card = await callApi(
+            $card,
+            `/api/bingo/${data.Round}/${data.Card}`,
+            "GET",
+        );
     };
 
     onMount(loadCard);
