@@ -1,8 +1,8 @@
 export const callApi = async (data = {}, url = "", method = "GET", body = null) => {
     const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
-console.log(url);
-console.log(method)
-console.log(body)
+    console.log(url);
+    console.log(method)
+    console.log(body)
     try {
         const response = await fetch(url, {
             method: method,
@@ -35,4 +35,18 @@ console.log(body)
         console.error("Error:", error);
         return data;
     }
+};
+
+export const getWSEndpoint = (path = "") => {
+    let url = document.location.href;
+
+    if (document.location.protocol === "https:") {
+        url = url.replace(document.location.protocol, "wss:");
+    } else {
+        url = url.replace(document.location.protocol, "ws:");
+    }
+
+    url = url.replace(document.location.pathname, path);
+console.log(url);
+    return url;
 };

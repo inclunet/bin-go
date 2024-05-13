@@ -1,8 +1,13 @@
 <script>
-    import { card, getCard } from "./bingo";
+    import { callApi } from "./api";
+    import { card } from "./bingo";
 
     async function drawNumber() {
-        $card = await getCard("/card/" + $card.Round + "/" + $card.Card + "/0");
+        $card = await callApi(
+            $card,
+            `/api/bingo/${$card.Round}/${$card.Card}/0`,
+            "GET",
+        );
     }
 </script>
 
