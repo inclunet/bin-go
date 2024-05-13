@@ -1,23 +1,14 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { callApi } from "./api";
-    import { card } from "./bingo";
+    import { createEventDispatcher } from "svelte";
 
-    const newRound = async () => {
-        $card = await callApi(
-            $card,
-            `/api/bingo/${$card.Round}/new/${$card.Type}`,
-            "GET",
-        );
+    const dispatch = createEventDispatcher();
 
-        goto(`/bingo/${$card.Round}`);
+    const handleClick = async () => {
+        dispatch("newRound");
     };
 </script>
 
-{#if ($card.Card == 1 && $card.Checked == $card.Type) || $card.Round == 0}
-    <button class="btn" on:click={newRound}><strong>Nova Rodada</strong></button
-    >
-{/if}
+<button class="btn" on:click={handleClick}><strong>Nova Rodada</strong></button>
 
 <style>
     :root {
