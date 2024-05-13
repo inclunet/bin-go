@@ -1,23 +1,13 @@
 <script>
-    import { card, getCard } from "./bingo";
-
-    const toggleAutoplay = async () => {
-        $card = await getCard(
-            "/card/" + $card.Round + "/" + $card.Card + "/autoplay",
-        );
-    };
+    export let autoplay = false;
 </script>
 
-{#if $card.Card > 1 && !$card.Bingo}
-    {#if $card.Autoplay}
-        <button class="btn btn-success" on:click={toggleAutoplay}>
-            <strong>Automático</strong>
-        </button>
-    {:else}
-        <button class="btn btn-warning" on:click={toggleAutoplay}>
-            Manual
-        </button>
-    {/if}
+{#if autoplay}
+    <button class="btn btn-success" on:click>
+        <strong>Automático</strong>
+    </button>
+{:else}
+    <button class="btn btn-warning" on:click> Manual </button>
 {/if}
 
 <style>

@@ -11,6 +11,14 @@
 
     export let data;
 
+    let bingoAudio;
+    let drawed = 0;
+    let muted = true;
+
+    const handleAutoplayEvent = async () => {
+        await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/autoplay`);
+    };
+
     const handleDrawEvent = async () => {
         await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/0`);
     };
@@ -18,6 +26,22 @@
     const handleNewRoundEvent = async () => {
         await updateCard(`/api/bingo/${$card.Round}/new/${$card.Type}`);
         goto(`/bingo/${$card.Round}`);
+    };
+
+    const handleStopBingoAlertEvent = () => {
+        muted = true;
+        bingoAudio.pause();
+        bingoAudio.currentTime = 0;
+    };
+
+    const isBingo = () => {
+        if ($card.Card > 1 && $card.Bingo) {
+            if ($card.Checked != drawed && muted) {
+                drawed = $card.Checked;
+                muted = false;
+                bingoAudio.play();
+            }
+        }
     };
 
     const liveUpdater = async () => {
@@ -32,6 +56,7 @@
         socket.addEventListener("message", (event) => {
             $card = JSON.parse(event.data);
             redirectToNextRound();
+            isBingo();
         });
 
         socket.addEventListener("close", (event) => {
@@ -56,7 +81,7 @@
 
     const poolingUpdater = async () => {
         await updateCard(`/api/bingo/${$card.Round}/${$card.Card}`);
-            };
+    };
 
     const redirectToNextRound = () => {
         if ($card.Round == 0) {
@@ -72,9 +97,10 @@
         }
     };
 
-    const updateCard = async(path = "") => {
+    const updateCard = async (path = "") => {
         $card = await callApi($card, path, "GET");
         redirectToNextRound();
+        isBingo();
     };
 
     onMount(loadCard);
@@ -92,8 +118,10 @@
             <h3 class="info-card-header-round">Rodada #{$card.Round}</h3>
         </div>
         <CardHeader
-            on:newRound={handleNewRoundEvent}
+            on:autoplay={handleAutoplayEvent}
             on:draw={handleDrawEvent}
+            on:newRound={handleNewRoundEvent}
+            on:stopBingoAlert={handleStopBingoAlertEvent}
         />
     </div>
     <div class="table-card">
@@ -103,6 +131,8 @@
         <Adds />
     </div>
 </div>
+
+<audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
 
 <style>
     .info-card,
