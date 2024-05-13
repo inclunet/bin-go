@@ -1,16 +1,6 @@
-<script>
-    import { createEventDispatcher } from "svelte";
-
-    const dispatch = createEventDispatcher();
-
-    const handleClick = () => {
-        dispatch("draw");
-    };
-</script>
-
-<button class="btn btn-primary" on:click={handleClick}
-    ><strong>Sortear</strong></button
->
+<button class="btn btn-primary" on:click>
+    <strong>Sortear</strong>
+</button>
 
 <style>
     button {

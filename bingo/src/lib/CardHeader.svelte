@@ -1,23 +1,50 @@
 <script>
+    import { createEventDispatcher } from "svelte";
     import { card } from "./bingo.js";
     import Autoplay from "./Autoplay.svelte";
     import Draw from "./Draw.svelte";
     import NewRound from "./NewRound.svelte";
     import Bingo from "./Bingo.svelte";
+
+    const dispatch = createEventDispatcher();
+
+    const handleDispatchAutoplayEvent = () => {
+        dispatch("autoplay");
+    };
+
+    const handleDispatchDraw = () => {
+        dispatch("draw");
+    };
+
+    const handleDispatchNewRound = async () => {
+        dispatch("newRound");
+    };
+
+    const handleDispatchStopBingoAlert = () => {
+        dispatch("stopBingoAlert");
+    };
 </script>
 
 <div class="container d-flex flex-column">
     <div class="container-header">
         <div class="container-header-inner">
-            <Autoplay />
-            <Bingo />
-            
+            {#if $card.Card > 1 && !$card.Bingo}
+                <Autoplay
+                    autoplay={$card.Autoplay}
+                    on:click={handleDispatchAutoplayEvent}
+                />
+            {/if}
+
+            {#if $card.Card > 1 && $card.Bingo}
+                <Bingo on:click={handleDispatchStopBingoAlert} />
+            {/if}
+
             {#if $card.Card == 1 && $card.Checked == $card.Type}
-                <NewRound on:newRound />
+                <NewRound on:click={handleDispatchNewRound} />
             {/if}
 
             {#if $card.Card == 1 && $card.Checked < $card.Type}
-                <Draw on:draw />
+                <Draw on:click={handleDispatchDraw} />
             {/if}
         </div>
         <div></div>

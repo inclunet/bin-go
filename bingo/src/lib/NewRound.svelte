@@ -1,14 +1,4 @@
-<script>
-    import { createEventDispatcher } from "svelte";
-
-    const dispatch = createEventDispatcher();
-
-    const handleClick = async () => {
-        dispatch("newRound");
-    };
-</script>
-
-<button class="btn" on:click={handleClick}><strong>Nova Rodada</strong></button>
+<button class="btn" on:click><strong>Nova Rodada</strong></button>
 
 <style>
     :root {

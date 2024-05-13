@@ -1,6 +1,14 @@
 <script>
+    import { goto } from "$app/navigation";
     import NewRound from "$lib/NewRound.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
+    import { callApi } from "$lib/api";
+    import { card } from "$lib/bingo";
+
+    const handleNewRoundEvent = async() => {
+$card = await callApi($card, `/api/bingo/0/new/${$card.Type}`, "GET");
+goto(`/bingo/${$card.Round}`);
+    };
 </script>
 
 <PageTitle title="Nova Rodada" game="Inclubingo" />
@@ -10,7 +18,7 @@
     <p class="text-center my-3">
         Vamos Jogar! Escolha a quantidade de bolinhas que serão sorteadas:
     </p>
-    <NewRound />
+    <NewRound on:click={handleNewRoundEvent} />
 </div>
 
 <style>
