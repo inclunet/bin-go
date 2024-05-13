@@ -13,14 +13,14 @@
         $card = await callApi($card, `/api/bingo/${data.Round}/1`, "GET");
     };
 
-    const handlePlayEvent = async () => {
+    const handleCallToAction = async () => {
         goto(`/bingo/${$card.Round}/1`);
     };
 
     onMount(loadCard);
 </script>
 
-<PageTitle title="Inclubingo - Sorteio de Cartelas, rodada {$card.Round}" />
+<PageTitle title="Sorteio de Cartelas, rodada {$card.Round}" game="Inclubingo" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2 class="text-center">Rodada #{$card.Round}</h2>
@@ -38,7 +38,7 @@
             alt="QR-Code"
         />
     </div>
-    <StartRound />
+    <StartRound on:callToAction={handleCallToAction} />
 </div>
 
 <style>

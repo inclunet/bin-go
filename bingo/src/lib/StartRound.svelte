@@ -4,7 +4,7 @@
     const dispatch = createEventDispatcher();
 
     const handleClick = async () => {
-        dispatch("playEvent");
+        dispatch("callToAction");
     };
 </script>
 

@@ -38,7 +38,7 @@ func main() {
 	r.HandleFunc("/api/bingo/{round}/{card}", b.GetCardsHandler)
 	r.HandleFunc("/api/bingo/{round}/{card}/autoplay", b.ToggleCardsAutoplayHandler)
 	r.HandleFunc("/api/bingo/{round}/1/0", b.DrawHandler)
-	r.HandleFunc("/api/bingo/{round}/{card}/live", b.LiveHandler)
+	r.HandleFunc("/ws/bingo/{round}/{card}", b.LiveHandler)
 	r.HandleFunc("/api/bingo/{round}/{card}/{number}", b.ToggleNumbersHandler)
 	r.HandleFunc("/qr/{round}/{card}", b.GetCardsQRHandler)
 	//braille routs;

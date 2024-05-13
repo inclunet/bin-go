@@ -7,7 +7,7 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
     import Play from "$lib/Play.svelte";
-    import { callApi } from "$lib/api";
+    import { callApi, getWSEndpoint } from "$lib/api";
 
     export let data;
 
@@ -21,23 +21,32 @@
         }
 
         if ($card.NextRound > 0 && $card.Card > 1) {
-            goto(`/card/${$card.NextRound}/new`);
+            goto(`/bingo/${$card.NextRound}/new`);
         }
     };
 
     const liveUpdater = async () => {
+        
         const socket = new window.WebSocket(
-            `/bingo/${$card.Round}/${$card.Card}/live`,
+            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`),
         );
 
         socket.addEventListener("open", (event) => {
-            //this.update(JSON.parse(event.data));
+                        //this.update(JSON.parse(event.data));
         });
 
         socket.addEventListener("message", (event) => {
             $card = JSON.parse(event.data);
             redirectToNextRound();
         });
+
+        socket.addEventListener("close", (event) => {
+            setInterval(poolingUpdater, 1000);
+        });
+        
+        socket.addEventListener("error", (event) => {
+                        setInterval(poolingUpdater, 1000);
+        })
     };
 
     const loadCard = async () => {
