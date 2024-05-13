@@ -11,28 +11,22 @@
 
     export let data;
 
-    const redirectToNextRound = () => {
-        if ($card.Round == 0) {
-            goto("/");
-        }
+    const handleDrawEvent = async () => {
+        await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/0`);
+    };
 
-        if ($card.Card == 0) {
-            goto(`/bingo/${$card.Round}/new`);
-        }
-
-        if ($card.NextRound > 0 && $card.Card > 1) {
-            goto(`/bingo/${$card.NextRound}/new`);
-        }
+    const handleNewRoundEvent = async () => {
+        await updateCard(`/api/bingo/${$card.Round}/new/${$card.Type}`);
+        goto(`/bingo/${$card.Round}`);
     };
 
     const liveUpdater = async () => {
-        
         const socket = new window.WebSocket(
             getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`),
         );
 
         socket.addEventListener("open", (event) => {
-                        //this.update(JSON.parse(event.data));
+            //this.update(JSON.parse(event.data));
         });
 
         socket.addEventListener("message", (event) => {
@@ -43,10 +37,10 @@
         socket.addEventListener("close", (event) => {
             setInterval(poolingUpdater, 1000);
         });
-        
+
         socket.addEventListener("error", (event) => {
-                        setInterval(poolingUpdater, 1000);
-        })
+            setInterval(poolingUpdater, 1000);
+        });
     };
 
     const loadCard = async () => {
@@ -61,18 +55,35 @@
     };
 
     const poolingUpdater = async () => {
-        $card = await callApi(
-            $card,
-            `/api/bingo/${$card.Round}/${$card.Card}`,
-            "GET",
-        );
+        await updateCard(`/api/bingo/${$card.Round}/${$card.Card}`);
+            };
+
+    const redirectToNextRound = () => {
+        if ($card.Round == 0) {
+            goto("/");
+        }
+
+        if ($card.Card == 0) {
+            goto(`/bingo/${$card.Round}/new`);
+        }
+
+        if ($card.NextRound > 0 && $card.Card > 1) {
+            goto(`/bingo/${$card.NextRound}/new`);
+        }
+    };
+
+    const updateCard = async(path = "") => {
+        $card = await callApi($card, path, "GET");
         redirectToNextRound();
     };
 
     onMount(loadCard);
 </script>
 
-<PageTitle title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}" />
+<PageTitle
+    title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}"
+    game="Inclubingo"
+/>
 
 <div class="container container-card">
     <div class="mx-3 info-card">
@@ -80,7 +91,10 @@
             <h2>Cartela de Bingo #{$card.Card}</h2>
             <h3 class="info-card-header-round">Rodada #{$card.Round}</h3>
         </div>
-        <CardHeader />
+        <CardHeader
+            on:newRound={handleNewRoundEvent}
+            on:draw={handleDrawEvent}
+        />
     </div>
     <div class="table-card">
         <Card />

@@ -1,21 +1,16 @@
 <script>
-    import { callApi } from "./api";
-    import { card } from "./bingo";
+    import { createEventDispatcher } from "svelte";
 
-    async function drawNumber() {
-        $card = await callApi(
-            $card,
-            `/api/bingo/${$card.Round}/${$card.Card}/0`,
-            "GET",
-        );
-    }
+    const dispatch = createEventDispatcher();
+
+    const handleClick = () => {
+        dispatch("draw");
+    };
 </script>
 
-{#if $card.Card == 1 && $card.Checked < $card.Type}
-    <button class="btn btn-primary" on:click={drawNumber}
-        ><strong>Sortear</strong></button
-    >
-{/if}
+<button class="btn btn-primary" on:click={handleClick}
+    ><strong>Sortear</strong></button
+>
 
 <style>
     button {

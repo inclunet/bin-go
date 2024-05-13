@@ -11,8 +11,14 @@
         <div class="container-header-inner">
             <Autoplay />
             <Bingo />
-            <NewRound />
-            <Draw />
+            
+            {#if $card.Card == 1 && $card.Checked == $card.Type}
+                <NewRound on:newRound />
+            {/if}
+
+            {#if $card.Card == 1 && $card.Checked < $card.Type}
+                <Draw on:draw />
+            {/if}
         </div>
         <div></div>
         <div aria-live="polite">
