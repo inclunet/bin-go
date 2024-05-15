@@ -18,7 +18,12 @@
             <tr>
                 {#each row as number}
                     <td>
-                        <Number {number} on:checkNumber on:playCheckSound />
+                        <Number
+                            {number}
+                            mainCard={$card.Card == 1}
+                            on:checkNumber
+                            on:playCheckSound
+                        />
                     </td>
                 {/each}
             </tr>
