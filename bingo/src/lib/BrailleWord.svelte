@@ -118,11 +118,19 @@
 
     section#answer {
         display: flex;
+        width: 19em;
+        margin: 1.5em 0;
         flex-direction: column;
+        align-items: flex-start;
     }
 
+    section input {
+        width: 70%;
+    }
     section button {
         font-size: 1.2em;
+        align-self: center;
+        margin-top: 1em;
     }
 
     .button-color {
