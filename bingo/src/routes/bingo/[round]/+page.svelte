@@ -3,7 +3,7 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import StartRound from "$lib/StartRound.svelte";
     import { onMount } from "svelte";
-    import { card, getCard } from "$lib/bingo";
+    import { card } from "$lib/bingo";
     import { callApi } from "$lib/api.js";
     import { goto } from "$app/navigation";
 

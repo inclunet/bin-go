@@ -12,11 +12,22 @@
     export let data;
 
     let bingoAudio;
+    let checkAudio;
     let drawed = 0;
     let muted = true;
 
     const handleAutoplayEvent = async () => {
         await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/autoplay`);
+    };
+
+    const handleCheckNumberEvent = async (event = {}) => {
+        if (!$card.Autoplay || $card.Card == 1) {
+            if (!event.detail.Checked || $card.Card == 1) {
+                await updateCard(
+                    `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`,
+                );
+            }
+        }
     };
 
     const handleDrawEvent = async () => {
@@ -26,6 +37,12 @@
     const handleNewRoundEvent = async () => {
         await updateCard(`/api/bingo/${$card.Round}/new/${$card.Type}`);
         goto(`/bingo/${$card.Round}`);
+    };
+
+    const handlePlayCheckSoundEvent = async () => {
+        checkAudio.pause();
+        checkAudio.currentTime = 0;
+        checkAudio.play();
     };
 
     const handleStopBingoAlertEvent = () => {
@@ -125,7 +142,10 @@
         />
     </div>
     <div class="table-card">
-        <Card />
+        <Card
+            on:checkNumber={handleCheckNumberEvent}
+            on:playCheckSound={handlePlayCheckSoundEvent}
+        />
     </div>
     <div class="anuncio">
         <Adds />
@@ -133,6 +153,7 @@
 </div>
 
 <audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
+<audio bind:this={checkAudio} src="/pop.mp3"></audio>
 
 <style>
     .info-card,

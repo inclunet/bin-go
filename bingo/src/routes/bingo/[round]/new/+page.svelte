@@ -19,7 +19,7 @@
     onMount(loadCard);
 </script>
 
-<PageTitle title="Inclubingo - Nova cartela, rodada {$card.Round}" />
+<PageTitle title="Nova cartela, rodada {$card.Round}" game="Inclubingo"/>
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2>Rodada #{$card.Round}</h2>
