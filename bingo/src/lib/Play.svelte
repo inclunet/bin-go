@@ -1,7 +1,7 @@
 <script>
     import { goto } from "$app/navigation";
     import { callApi } from "./api";
-    import { card, getCard } from "./bingo";
+    import { card, } from "./bingo";
 
     const startGame = async () => {
         $card = await callApi(
