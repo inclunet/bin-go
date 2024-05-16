@@ -13,5 +13,20 @@
 
 <button
     aria-pressed={Boolean(brailleCell & (1 << (brailleDot - 1)))}
-    on:click={handleClick}>{brailleDot}</button
->
+    on:click={handleClick}
+    >{brailleDot}
+</button>
+
+<style>
+    button {
+        margin: 0 0.2em;
+        padding: 1em;
+        border-radius: 2em;
+        border: 1px solid black;
+        background-color: #fcdcc0;
+    }
+
+    button[aria-pressed="true"] {
+        background-color: #00ff00;
+    }
+</style>
