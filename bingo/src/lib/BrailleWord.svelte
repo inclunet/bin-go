@@ -121,7 +121,6 @@
         width: 19em;
         margin: 1.5em 0;
         flex-direction: column;
-        align-items: flex-start;
     }
 
     section input {
@@ -141,5 +140,8 @@
     .button-color:hover {
         background-color: var(--secondary-button-color);
         color: var(--white);
+    }
+    .button-color:active {
+        background-color: var(--primary-button-color);
     }
 </style>

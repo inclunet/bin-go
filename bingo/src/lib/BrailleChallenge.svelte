@@ -8,9 +8,13 @@
 <div role="region" aria-label="Exercício">
     <header aria-live="polite">
         {#if brailleChallenge.Challenge == "word"}
-            <h3 class="mt-4">Escreva {brailleChallenge.Word} em Braille</h3>
+            <h3 class="mt-4">
+                Escreva em Braille: <span>{brailleChallenge.Word}</span>
+            </h3>
         {:else}
-            <h3 class="mt-4">Escreva {brailleChallenge.Word} em tinta</h3>
+            <h3 class="mt-4">
+                Escreva em tinta: <span>{brailleChallenge.Word}</span>
+            </h3>
         {/if}
     </header>
 
@@ -30,6 +34,9 @@
 
 <style>
     h3 {
+        font-size: 1.4em;
+    }
+    header span {
         font-size: 1.4em;
     }
 </style>
