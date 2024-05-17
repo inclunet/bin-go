@@ -36,16 +36,6 @@
 </script>
 
 <div role="region" aria-label="Resposta">
-    <div>
-        <BrailleWord
-            on:brailleKey={handleBrailleKey}
-            on:brailleEnter={handleBrailleTypping}
-            on:submitChallenge
-            bind:brailleWord
-            brailleKeyboard="true"
-        />
-    </div>
-
     <div role="region" aria-label="Teclado Braille" id="container-keyboard">
         <div>
             <button on:click={handleClearKey} class="btn" id="limpar"
@@ -127,6 +117,15 @@
             >
         </div>
     </div>
+    <div>
+        <BrailleWord
+            on:brailleKey={handleBrailleKey}
+            on:brailleEnter={handleBrailleTypping}
+            on:submitChallenge
+            bind:brailleWord
+            brailleKeyboard="true"
+        />
+    </div>
 </div>
 
 <style>
@@ -135,7 +134,7 @@
         --secondary-button-limpar-color: #ffa500;
         --primary-button-espaco-color: #1e90ff;
         --secondary-button-espaco-color: #246bb3;
-        --primary-button-backspace-color: #808080;
+        --primary-button-backspace-color: #9c9c9c;
         --secondary-button-backspace-color: #5a5656;
         --white: #fff;
         --black: #000;
@@ -145,6 +144,8 @@
         display: flex;
         align-items: center;
         justify-content: space-around;
+        margin-top: 2em;
+        margin-bottom: 4em;
     }
 
     .brailleDot-numbers {
@@ -152,23 +153,23 @@
     }
     .btn {
         color: var(--black);
-        margin-top: 5.5em;
+        margin-top: 4.5em;
     }
     .sete-oito {
         display: block;
-        margin-top: 4.3em;
+        margin-top: 2.2em;
     }
     .tres-seis {
         display: block;
-        margin-top: 3.5em;
+        margin-top: 1em;
     }
     .dois-cinco {
         display: block;
-        margin-top: 3em;
+        margin-top: 0.3em;
     }
     .um-quatro {
         display: block;
-        margin-top: 2.7em;
+        /* margin-top: 2.7em; */
     }
 
     #limpar {
@@ -185,7 +186,7 @@
         background-color: var(--primary-button-espaco-color);
     }
     #espaco:hover {
-        background-color: var(--secondary-button-backspace-color);
+        background-color: var(--secondary-button-espaco-color);
         color: var(--white);
     }
     #espaco:active {

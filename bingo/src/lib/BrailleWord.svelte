@@ -91,18 +91,16 @@
 </script>
 
 <section id="answer">
-    <div>
-        <label for="word">Resposta:</label>
-        <input
-            type="text"
-            id="word"
-            bind:value={brailleWord}
-            on:keydown={handleKeyDown}
-            on:keyup={handleKeyUp}
-            autocomplete="off"
-            autofocus
-        />
-    </div>
+    <label for="word">Resposta:</label>
+    <input
+        type="text"
+        id="word"
+        bind:value={brailleWord}
+        on:keydown={handleKeyDown}
+        on:keyup={handleKeyUp}
+        autocomplete="off"
+        autofocus
+    />
     <button class="btn button-color" on:click={handleSubmit}>Enviar</button>
 </section>
 
@@ -118,18 +116,21 @@
 
     section#answer {
         display: flex;
-        width: 19em;
+        width: 40vw;
         margin: 1.5em 0;
-        flex-direction: column;
+        align-items: center;
     }
 
     section input {
-        width: 70%;
+        width: 60%;
+        margin-left: 0.8em;
+        padding: 0.2em 0;
+        padding-left: 0.8em;
     }
     section button {
+        padding: 0.2em 0.6em;
         font-size: 1.2em;
-        align-self: center;
-        margin-top: 1em;
+        margin-left: 2em;
     }
 
     .button-color {
