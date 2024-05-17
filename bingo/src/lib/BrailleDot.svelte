@@ -19,7 +19,7 @@
 
 <style>
     button {
-        margin: 0 0.2em;
+        margin: 0 0.4em;
         padding: 1em;
         border-radius: 2em;
         border: 1px solid black;

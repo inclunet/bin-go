@@ -152,15 +152,15 @@
     }
     .btn {
         color: var(--black);
-        margin-top: 5em;
+        margin-top: 5.5em;
     }
     .sete-oito {
         display: block;
-        margin-top: 5em;
+        margin-top: 4.3em;
     }
     .tres-seis {
         display: block;
-        margin-top: 4em;
+        margin-top: 3.5em;
     }
     .dois-cinco {
         display: block;
@@ -168,7 +168,7 @@
     }
     .um-quatro {
         display: block;
-        margin-top: 2em;
+        margin-top: 2.7em;
     }
 
     #limpar {
