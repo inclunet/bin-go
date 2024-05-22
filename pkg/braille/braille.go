@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Braille struct {
@@ -83,16 +85,23 @@ func (b *Braille) SolveChallengeHandler(w http.ResponseWriter, r *http.Request) 
 	Repply(w, b)
 }
 
-func New(classesFileName string) (*Braille, error) {
-	err := LoadClass(classesFileName)
+func New(routes *mux.Router) (b *Braille, err error) {
+	err = LoadClass("classes.json")
 
 	if err != nil {
-		return nil, err
+		return b, err
 	}
 
-	b := Braille{
+	b = &Braille{
 		Players: []BrailleClass{},
 	}
 
-	return &b, nil
+	if routes != nil {
+		r := routes.PathPrefix("/braille").Subrouter()
+		r.Methods(http.MethodGet).Path("/new").HandlerFunc(b.AddPlayerHandler)
+		r.Methods(http.MethodGet).Path("/{player}").HandlerFunc(b.GetPlayerHandler)
+		r.Methods(http.MethodPost).Path("/{player}").HandlerFunc(b.CheckChallengeRepplyHandler)
+	}
+
+	return b, nil
 }

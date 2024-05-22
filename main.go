@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gorilla/mux"
 	"github.com/inclunet/bin-go/pkg/bingo"
 	"github.com/inclunet/bin-go/pkg/braille"
@@ -10,29 +8,30 @@ import (
 )
 
 func main() {
+	server.Logger.Info("Starting server...")
 
-	b := bingo.NewBingo()
-	brl, err := braille.New("classes.json")
+	r := mux.NewRouter().StrictSlash(true)
+	api := r.PathPrefix("/api").Subrouter()
+	qr := r.PathPrefix("qr").Subrouter()
+	ws := r.PathPrefix("ws").Subrouter()
+
+	server.Logger.Info("Adding Bingo routes...")
+
+	bingo.New(api).AddQrRoutes(qr).AddWsRoutes(ws)
+
+	server.Logger.Info("Adding Braille routes...")
+
+	_, err := braille.New(api)
 
 	if err != nil {
-		panic(err)
+		server.Logger.Error(err.Error())
 	}
 
-	r := mux.NewRouter()
-	r.HandleFunc("/api/bingo/{round}/new/{type}", b.AddRoundsHandler)
-	r.HandleFunc("/api/bingo/{round}", b.GetRoundsHandler)
-	r.HandleFunc("/api/bingo/{round}/0", b.AddCardsHandler)
-	r.HandleFunc("/api/bingo/{round}/{card}", b.GetCardsHandler)
-	r.HandleFunc("/api/bingo/{round}/{card}/autoplay", b.ToggleCardsAutoplayHandler)
-	r.HandleFunc("/api/bingo/{round}/1/0", b.DrawHandler)
-	r.HandleFunc("/ws/bingo/{round}/{card}", b.LiveHandler)
-	r.HandleFunc("/api/bingo/{round}/{card}/{number}", b.ToggleNumbersHandler)
-	r.HandleFunc("/qr/{round}/{card}", b.GetCardsQRHandler)
-	//braille routs;
-	r.HandleFunc("/api/braille/new", brl.AddPlayerHandler)
-	r.HandleFunc("/api/braille/{player}", brl.GetPlayerHandler).Methods(http.MethodGet)
-	r.HandleFunc("/api/braille/{player}", brl.CheckChallengeRepplyHandler).Methods(http.MethodPost)
+	server.Logger.Info("Adding file server...")
 
 	server.AddFileServer(r)
+
+	server.Logger.Info("Starting server...")
+
 	server.Start(r)
 }

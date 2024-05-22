@@ -269,6 +269,39 @@ func Repply(w http.ResponseWriter, data any) {
 	w.Write(response)
 }
 
-func NewBingo() Bingo {
-	return Bingo{}
+func (b *Bingo) AddQrRoutes(routes *mux.Router) *Bingo {
+	if routes != nil {
+		r := routes.PathPrefix("/bingo").Subrouter()
+		r.Methods(http.MethodGet).Path("/{round}/{card}").HandlerFunc(b.GetCardsQRHandler)
+	}
+
+	return b
+}
+
+func (b *Bingo) AddWsRoutes(routes *mux.Router) *Bingo {
+	if routes != nil {
+		r := routes.PathPrefix("/bingo").Subrouter()
+		r.Methods(http.MethodGet).Path("/{round}/{card}").HandlerFunc(b.LiveHandler)
+	}
+
+	return b
+}
+
+func New(routes *mux.Router) (b *Bingo) {
+	b = &Bingo{
+		Rounds: []Round{},
+	}
+
+	if routes != nil {
+		r := routes.PathPrefix("/bingo").Subrouter()
+		r.Methods(http.MethodGet).Path("/{round}/new/{type}").HandlerFunc(b.AddRoundsHandler)
+		r.Methods(http.MethodGet).Path("/{round}").HandlerFunc(b.GetRoundsHandler)
+		r.Methods(http.MethodGet).Path("/{round}/0").HandlerFunc(b.AddCardsHandler)
+		r.Methods(http.MethodGet).Path("/{round}/{card}").HandlerFunc(b.GetCardsHandler)
+		r.Methods(http.MethodGet).Path("/{round}/{card}/autoplay").HandlerFunc(b.ToggleCardsAutoplayHandler)
+		r.Methods(http.MethodGet).Path("/{round}/1/0").HandlerFunc(b.DrawHandler)
+		r.Methods(http.MethodGet).Path("/{round}/{card}/{number}").HandlerFunc(b.ToggleNumbersHandler)
+	}
+
+	return b
 }
