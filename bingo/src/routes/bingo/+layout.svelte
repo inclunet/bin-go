@@ -1,5 +1,5 @@
 <header class="d-flex flex-row">
-    <a href="/card"><img src="/img/logo.png" alt="Inclunet" /></a>
+    <a href="/bingo"><img src="/img/logo.png" alt="Inclunet" /></a>
     <h1 class="text-center">Inclubingo</h1>
 
     <nav class="navbar">
@@ -41,7 +41,7 @@
                             <a
                                 class="nav-link active"
                                 aria-current="page"
-                                href="/card">Início</a
+                                href="/bingo">Início</a
                             >
                         </li>
                         <li
@@ -49,7 +49,7 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/card/new"
+                            <a class="nav-link" href="/bingo/new"
                                 >Ir para o jogo</a
                             >
                         </li>
@@ -58,7 +58,7 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/card/instructions"
+                            <a class="nav-link" href="/bingo/instructions"
                                 >Como Jogar</a
                             >
                         </li>
@@ -67,7 +67,7 @@
                             data-bs-dismiss="offcanvas"
                             aria-label="Close"
                         >
-                            <a class="nav-link" href="/card/terms"
+                            <a class="nav-link" href="/bingo/terms"
                                 >Termo de uso</a
                             >
                         </li>
@@ -142,18 +142,19 @@
         class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row"
     >
         <li class="nav-item">
-            <a href="/card" class="nav-link navbar-brand">Início</a>
+            <a href="/bingo" class="nav-link navbar-brand">Início</a>
         </li>
         <li class="nav-item">
-            <a href="/card/new" class="nav-link navbar-brand">Jogar</a>
+            <a href="/bingo/new" class="nav-link navbar-brand">Jogar</a>
         </li>
         <li class="nav-item">
-            <a href="/card/instructions" class="nav-link navbar-brand"
+            <a href="/bingo/instructions" class="nav-link navbar-brand"
                 >Como Jogar</a
             >
         </li>
         <li class="nav-item">
-            <a href="/card/terms" class="nav-link navbar-brand">Termo de Uso</a>
+            <a href="/bingo/terms" class="nav-link navbar-brand">Termo de Uso</a
+            >
         </li>
     </ul>
 </nav>
@@ -169,7 +170,7 @@
     <hr />
     <section class="content-footer">
         <section class="section-logo-footer">
-            <a href="/card"
+            <a href="/bingo"
                 ><img
                     src="/img/logo.png"
                     alt="Inclunet"
