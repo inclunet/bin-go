@@ -85,8 +85,6 @@ func ServeFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func Start(handler http.Handler) {
-	Logger.Info("Starting server")
-
 	var (
 		host, port string
 	)
