@@ -12,8 +12,8 @@ func main() {
 
 	r := mux.NewRouter().StrictSlash(true)
 	api := r.PathPrefix("/api").Subrouter()
-	qr := r.PathPrefix("qr").Subrouter()
-	ws := r.PathPrefix("ws").Subrouter()
+	qr := r.PathPrefix("/qr").Subrouter()
+	ws := r.PathPrefix("/ws").Subrouter()
 
 	server.Logger.Info("Adding Bingo routes...")
 
