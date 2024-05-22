@@ -78,6 +78,16 @@
             <button on:click={handleSpaceKey} class="btn" id="espaco"
                 >Espaço</button
             >
+            <div id="container-texto_botao-espaco">
+                <div class="seta"></div>
+                <div id="texto_botao-espaco">
+                    <p>Ei, não se esqueça!</p>
+                    <p>
+                        Pressione espaço para confirmar a letra que você quer
+                        enviar.
+                    </p>
+                </div>
+            </div>
         </div>
 
         <div class="brailleDot-numbers">
@@ -136,6 +146,7 @@
         --secondary-button-espaco-color: #246bb3;
         --primary-button-backspace-color: #9c9c9c;
         --secondary-button-backspace-color: #5a5656;
+        --tooltip: #fcdd56ef;
         --white: #fff;
         --black: #000;
     }
@@ -145,7 +156,7 @@
         align-items: center;
         justify-content: space-around;
         margin-top: 2em;
-        margin-bottom: 4em;
+        margin-bottom: 7em;
     }
 
     .brailleDot-numbers {
@@ -201,5 +212,30 @@
     }
     #backspace:active {
         background-color: var(--primary-button-backspace-color);
+    }
+    #container-texto_botao-espaco {
+        position: absolute;
+        width: 15em;
+        margin-top: 0.6em;
+        margin-left: -3em;
+    }
+    #texto_botao-espaco {
+        background-color: var(--tooltip);
+        margin-left: -5em;
+        padding: 1em;
+        border-radius: 0.4em;
+        font-weight: 500;
+    }
+    #texto_botao-espaco p {
+        margin: 0;
+        padding: 0;
+        font-size: 1.2em;
+    }
+    .seta {
+        width: 1.4em;
+        height: 1.4em;
+        margin-left: 75px;
+        background: var(--tooltip);
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
     }
 </style>
