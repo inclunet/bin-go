@@ -8,12 +8,20 @@
 <div role="region" aria-label="Exercício">
     <header aria-live="polite">
         {#if brailleChallenge.Challenge == "word"}
-            <h3 class="mt-4">
-                Escreva em Braille: <span>{brailleChallenge.Word}</span>
+            <h3>
+                Escreva em Braille: <div class="desafio-texto">
+                    <span class="texto-tinta">
+                        {brailleChallenge.Word}
+                    </span>
+                </div>
             </h3>
         {:else}
-            <h3 class="mt-4">
-                Escreva em tinta: <span>{brailleChallenge.Word}</span>
+            <h3>
+                Escreva em tinta: <div class="desafio-texto">
+                    <span class="texto-braille">
+                        {brailleChallenge.Word}
+                    </span>
+                </div>
             </h3>
         {/if}
     </header>
@@ -33,10 +41,34 @@
 </div>
 
 <style>
+    header {
+        display: flex;
+    }
     h3 {
         font-size: 1.4em;
     }
-    header span {
-        font-size: 1.4em;
+    header h3 div {
+        display: inline-block;
+    }
+    .texto-tinta {
+        display: block;
+        margin-top: -0.2em;
+    }
+    .texto-braille {
+        margin: 0;
+    }
+
+    .desafio-texto {
+        width: 1.5em;
+        height: 1.5em;
+        /* padding: 0.4em; */
+        font-size: 1.8em;
+        align-content: center;
+        text-align: center;
+        background: #00f279;
+        color: #000;
+
+        font-weight: 500;
+        border-radius: 50%;
     }
 </style>
