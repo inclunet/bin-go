@@ -55,20 +55,19 @@
         margin-top: -0.2em;
     }
     .texto-braille {
+        display: block;
         margin: 0;
     }
 
     .desafio-texto {
-        width: 1.5em;
+        width: 1.3em;
         height: 1.5em;
-        /* padding: 0.4em; */
         font-size: 1.8em;
         align-content: center;
         text-align: center;
         background: #00f279;
         color: #000;
-
         font-weight: 500;
-        border-radius: 50%;
+        border-radius: 0.7em;
     }
 </style>
