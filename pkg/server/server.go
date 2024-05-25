@@ -66,6 +66,21 @@ func SendJson(handler Handler) http.Handler {
 	})
 }
 
+func SendQRCode(handler Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		response, err := handler(r)
+
+		if response == nil && err != nil {
+			Logger.Error(err.Error())
+			response = NewInternalServerError(err)
+		}
+
+		if err := response.SendHasQRCode(w); err != nil {
+			Logger.Error(err.Error())
+		}
+	})
+}
+
 func ServeFile(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 

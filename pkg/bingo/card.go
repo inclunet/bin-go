@@ -33,18 +33,16 @@ type Card struct {
 	Numbers            [][5]Number
 }
 
-func (c *Card) CheckDrawedNumbers(mainCard Card) int {
-	counter := 0
-
+func (c *Card) CheckDrawedNumbers(main *Card) (counter int) {
 	if !c.Autoplay {
 		return counter
 	}
 
-	if mainCard.Checked == 0 {
+	if main.Checked == 0 {
 		return 0
 	}
 
-	for _, line := range mainCard.Numbers {
+	for _, line := range main.Numbers {
 		for _, number := range line {
 			if number.Checked {
 				if c.CheckNumber(number.Number) {
@@ -319,11 +317,11 @@ func (c *Card) ToggleAutoplay() {
 	}
 }
 
-func (c *Card) ToggleNumber(mainCard Card, number int) bool {
+func (c *Card) ToggleNumber(main *Card, number int) bool {
 	if c.IsChecked(number) && c.Card == 1 {
 		return c.UncheckNumber(number)
 	} else {
-		if !mainCard.IsChecked(number) && c.Card > 1 {
+		if !main.IsChecked(number) && c.Card > 1 {
 			return false
 		}
 
@@ -362,11 +360,15 @@ func (c *Card) UpdateCard() error {
 }
 
 // NewCard creates a new bingo card.
-func NewCard(round Round) (card Card) {
-	card.Autoplay = true
-	card.Card = len(round.Cards) + 1
-	card.Round = round.Round
-	card.Type = round.Type
+func NewCard(round *Round) Card {
+	card := Card{
+		Autoplay: true,
+		Card:     len(round.Cards) + 1,
+		Round:    round.Round,
+		Type:     round.Type,
+	}
+
 	card.DrawCard()
+
 	return card
 }

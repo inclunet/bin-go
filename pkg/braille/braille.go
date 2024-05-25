@@ -2,44 +2,40 @@ package braille
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/inclunet/bin-go/pkg/server"
 )
 
 type Braille struct {
 	Players []BrailleClass
 }
 
-func (b *Braille) AddPlayer() BrailleClass {
+func (b *Braille) AddPlayerHandler(r *http.Request) (*server.Response, error) {
 	player := NewBrailleClass(len(b.Players))
 	b.Players = append(b.Players, player)
-	return player
+
+	return server.NewResponse(player)
 }
 
-func (b *Braille) AddPlayerHandler(w http.ResponseWriter, r *http.Request) {
-	Repply(w, b.AddPlayer())
-}
-
-func (b *Braille) CheckChallengeRepplyHandler(w http.ResponseWriter, r *http.Request) {
+func (b *Braille) CheckChallengeRepplyHandler(r *http.Request) (*server.Response, error) {
 	player := b.GetPlayer(GetUrlIntParam(r, "player", -1))
 
 	if player == nil {
-		http.Error(w, fmt.Sprintf("Player %d not found", GetUrlIntParam(r, "player", -1)), http.StatusNotFound)
-		return
+		return server.NewResponseError(http.StatusNotFound, errors.New("player not found"))
 	}
-	fmt.Println("antes do oi")
-	var challengeRepply BrailleClass
 
-	err := json.NewDecoder(r.Body).Decode(&challengeRepply)
+	var repply BrailleClass
+
+	err := json.NewDecoder(r.Body).Decode(&repply)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return server.NewResponseError(http.StatusBadRequest, err)
 	}
-	fmt.Println("oi")
-	Repply(w, player.Check(challengeRepply.Challenge.Repply))
+
+	return server.NewResponse(player.Check(repply.Challenge.Repply))
 }
 
 func (b *Braille) GetPlayer(i int) *BrailleClass {
@@ -54,35 +50,14 @@ func (b *Braille) GetPlayer(i int) *BrailleClass {
 	return &b.Players[i]
 }
 
-func (b *Braille) GetPlayerHandler(w http.ResponseWriter, r *http.Request) {
+func (b *Braille) GetPlayerHandler(r *http.Request) (*server.Response, error) {
 	player := b.GetPlayer(GetUrlIntParam(r, "player", -1))
 
 	if player == nil {
-		http.Error(w, fmt.Sprintf("Player %d not found", GetUrlIntParam(r, "player", -1)), http.StatusNotFound)
-		return
+		return server.NewResponseError(http.StatusNotFound, errors.New("player not found"))
 	}
 
-	Repply(w, player)
-}
-
-func (b *Braille) SolveChallengeHandler(w http.ResponseWriter, r *http.Request) {
-	player := b.GetPlayer(GetUrlIntParam(r, "player", -1))
-
-	if player == nil {
-		http.Error(w, fmt.Sprintf("Player %d not found", GetUrlIntParam(r, "player", -1)), http.StatusNotFound)
-		return
-	}
-
-	var repply BrailleClass
-
-	err := json.NewDecoder(r.Body).Decode(&repply)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	Repply(w, b)
+	return server.NewResponse(player)
 }
 
 func New(routes *mux.Router) (b *Braille, err error) {
@@ -98,9 +73,9 @@ func New(routes *mux.Router) (b *Braille, err error) {
 
 	if routes != nil {
 		r := routes.PathPrefix("/braille").Subrouter()
-		r.Methods(http.MethodGet).Path("/new").HandlerFunc(b.AddPlayerHandler)
-		r.Methods(http.MethodGet).Path("/{player}").HandlerFunc(b.GetPlayerHandler)
-		r.Methods(http.MethodPost).Path("/{player}").HandlerFunc(b.CheckChallengeRepplyHandler)
+		r.Methods(http.MethodGet).Path("/new").Handler(server.SendJson(b.AddPlayerHandler))
+		r.Methods(http.MethodGet).Path("/{player}").Handler(server.SendJson(b.GetPlayerHandler))
+		r.Methods(http.MethodPost).Path("/{player}").Handler(server.SendJson(b.CheckChallengeRepplyHandler))
 	}
 
 	return b, nil
