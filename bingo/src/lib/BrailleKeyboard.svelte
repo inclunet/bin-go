@@ -4,6 +4,8 @@
 
     export let brailleWord = "";
     let brailleCell = 0;
+    let enableSpaceTip = false;
+    let spacebar;
 
     const handleBrailleKey = (event = { detail: { key: 0 } }) => {
         if (event.detail.key == 0) {
@@ -32,6 +34,13 @@
 
     const handleClearKey = () => {
         brailleWord = "";
+    };
+
+    const handleEnableSpaceTip = () => {
+        if (brailleCell > 0) {
+            spacebar.focus();
+            enableSpaceTip = true;
+        }
     };
 </script>
 
@@ -75,19 +84,25 @@
         </div>
 
         <div>
-            <button on:click={handleSpaceKey} class="btn" id="espaco"
-                >Espaço</button
+            <button
+                bind:this={spacebar}
+                on:click={handleSpaceKey}
+                class="btn"
+                id="espaco">Espaço</button
             >
-            <div id="container-texto_botao-espaco">
-                <div class="seta"></div>
-                <div id="texto_botao-espaco">
-                    <p>Ei, não se esqueça!</p>
-                    <p>
-                        Pressione espaço para confirmar a letra que você quer
-                        enviar.
-                    </p>
+
+            {#if enableSpaceTip}
+                <div id="container-texto_botao-espaco">
+                    <div class="seta"></div>
+                    <div id="texto_botao-espaco" role="alert">
+                        <p>Ei, não se esqueça!</p>
+                        <p>
+                            Pressione espaço para confirmar a letra que você
+                            quer enviar.
+                        </p>
+                    </div>
                 </div>
-            </div>
+            {/if}
         </div>
 
         <div class="brailleDot-numbers">
@@ -132,7 +147,9 @@
             on:brailleKey={handleBrailleKey}
             on:brailleEnter={handleBrailleTypping}
             on:submitChallenge
+            on:enableSpaceTip={handleEnableSpaceTip}
             bind:brailleWord
+            bind:brailleCell
             brailleKeyboard="true"
         />
     </div>

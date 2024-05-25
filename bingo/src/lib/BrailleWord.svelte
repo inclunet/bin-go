@@ -1,6 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
 
+    export let brailleCell = 0;
     export let brailleWord = "";
     export let brailleKeyboard;
 
@@ -9,7 +10,7 @@
     const dispatch = createEventDispatcher();
 
     const handleKeyDown = (
-        /** @type {{ key: string; preventDefault: () => void; }} */ event
+        /** @type {{ key: string; preventDefault: () => void; }} */ event,
     ) => {
         if (brailleKeyboard) {
             if (event.key === "f") {
@@ -86,7 +87,11 @@
     };
 
     const handleSubmit = () => {
+        if (brailleWord.length == 0) {
+        dispatch("enableSpaceTip");
+        } else {
         dispatch("submitChallenge");
+        }
     };
 </script>
 
@@ -99,9 +104,8 @@
         on:keydown={handleKeyDown}
         on:keyup={handleKeyUp}
         autocomplete="off"
-        autofocus
     />
-    <button class="btn button-color" on:click={handleSubmit}>Enviar</button>
+    <button disabled={brailleWord.length == 0 && brailleCell == 0} class="btn button-color" on:click={handleSubmit}>Enviar</button>
 </section>
 
 <audio src="/key.mp3" bind:this={audio} />
