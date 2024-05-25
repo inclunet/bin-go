@@ -1,130 +1,121 @@
 package bingo
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"image/png"
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/boombuler/barcode"
-	"github.com/boombuler/barcode/qr"
 	"github.com/gorilla/mux"
+	"github.com/inclunet/bin-go/pkg/server"
 )
 
 type Bingo struct {
 	Rounds []Round
 }
 
-func (b *Bingo) AddCardsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Adding bingo card for round %d...", GetUrlIntParam(r, "round"))
-
+func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Printf("Error on get round: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
-	card := round.AddCard()
-
-	mainCard, err := round.GetCard(0)
+	card, err := round.AddCard()
 
 	if err != nil {
-		log.Printf("Error on get main card: %v", err)
+		return server.NewResponseError(http.StatusInternalServerError, errors.New("new card cannot be added"))
 	}
 
-	if checked := card.CheckDrawedNumbers(*mainCard); checked > 0 {
-		log.Printf("Checked %d numbers for card %d into round %d", checked, card.Card, round.Round)
+	main, err := round.GetCard(0)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	log.Printf("Added bingo card %d for round %d", card.Card, GetUrlIntParam(r, "round"))
+	server.Logger.Info("Added Bingo Card", "round", card.Round, "card", card.Card, "checked", card.CheckDrawedNumbers(main))
 
-	Repply(w, card)
+	return server.NewResponse(card)
 }
 
-func (b *Bingo) AddRoundsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Adding round", GetUrlIntParam(r, "round"), GetUrlIntParam(r, "type"))
+func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
+	newRound := NewRound(b, GetUrlIntParam(r, "type"))
 
-	round := NewRound(*b, GetUrlIntParam(r, "type"))
+	b.Rounds = append(b.Rounds, newRound)
 
-	if GetUrlIntParam(r, "round") > 0 {
-		log.Printf("Forwarding %d round players to the %d new round...", GetUrlIntParam(r, "round"), round.Round)
+	round, err := b.GetRound(newRound.Round - 1)
 
-		oldRound, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	if err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, errors.New("round cannot be added"))
+	}
 
-		if err != nil {
-			log.Printf("Error on get old round: %v", err)
-		}
+	old, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
-		if players := oldRound.SetNextRound(round.Round); players > 0 {
-			log.Printf("Forwarded %d players from round %d to %d new round.", players, oldRound.Round, round.Round)
-		}
+	if err == nil {
+		server.Logger.Info("Redirect players", "from", old.Round, "to", round.Round, "players", old.SetNextRound(round.Round))
 	}
 
 	card, err := round.GetCard(0)
 
 	if err != nil {
-		log.Printf("Error on get main card: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	b.Rounds = append(b.Rounds, round)
+	server.Logger.Info("Added Bingo Round", "round", round.Round, "card", card.Card)
 
-	log.Printf("Added round %d", round.Round)
-
-	Repply(w, card)
+	return server.NewResponse(card)
 }
 
-func (b *Bingo) DrawHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Drawing number for round %d...", GetUrlIntParam(r, "round"))
-
+func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Printf("Error on get round: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
 	card, err := round.GetCard(0)
 
 	if err != nil {
-		log.Printf("Error on get card: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
 	number := card.Draw()
 
-	log.Printf("Drawed number %d for round %d", number, GetUrlIntParam(r, "round"))
+	server.Logger.Info("Draw", "round", card.Round, "card", card.Card, "number", number, "checked", round.CheckNumberForAll(number))
 
-	checked := round.CheckNumberForAll(number)
-
-	log.Printf("Checked number %d for %d cards into round %d", number, checked, round.Round)
-
-	Repply(w, card)
+	return server.NewResponse(card)
 }
 
-func (b *Bingo) GetCardsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Getting bingo card %d for round %d...", GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
-
+func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
 	Round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Printf("Error on get round: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
 	card, err := Round.GetCard(GetUrlIntParam(r, "card") - 1)
 
 	if err != nil {
-		log.Printf("Error on get card: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
-	log.Printf("Got bingo card %d for round %d", card.Card, Round.Round)
+	server.Logger.Info("Get Bingo Card", "round", card.Round, "card", card.Card, "checked", card.Checked)
 
-	Repply(w, card)
+	return server.NewResponse(card)
 }
 
-func (b *Bingo) GetCardsQRHandler(w http.ResponseWriter, r *http.Request) {
-	qr, _ := qr.Encode(GetQueryString(r, "url", ""), qr.L, qr.Auto)
-	qrCode, _ := barcode.Scale(qr, 300, 300)
-	png.Encode(w, qrCode)
+func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
+	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
+	}
+
+	qr := server.NewQRCode(fmt.Sprintf("https://%s/api/bingo/%d/new", r.Host, round.Round))
+
+	server.Logger.Info("Get Bingo QR", "round", round.Round, "qr", qr.Content)
+
+	return server.NewResponse(qr)
 }
 
 func (b *Bingo) GetRound(round int) (*Round, error) {
@@ -135,31 +126,35 @@ func (b *Bingo) GetRound(round int) (*Round, error) {
 	return &b.Rounds[round], nil
 }
 
-func (b *Bingo) GetRoundsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Getting round %d...", GetUrlIntParam(r, "round"))
-
+func (b *Bingo) GetRoundsHandler(r *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Printf("Error on get round: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
-	Repply(w, round)
+	server.Logger.Info("Get Bingo Round", "round", round.Round, "cards", len(round.Cards))
+
+	return server.NewResponse(round)
 }
 
 func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Getting live for round %d...", GetUrlIntParam(r, "round"))
-
 	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Printf("Error on get round: %v", err)
+		response, err := server.NewResponseError(http.StatusNotFound, fmt.Errorf("round not found"))
+		server.Logger.Error(err.Error())
+		response.SendHasJson(w)
+		return
 	}
 
 	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
 
 	if err != nil {
-		log.Printf("Error on get card: %v", err)
+		response, err := server.NewResponseError(http.StatusNotFound, fmt.Errorf("card not found"))
+		server.Logger.Error(err.Error())
+		response.SendHasJson(w)
+		return
 	}
 
 	round.upgrader.CheckOrigin = func(r *http.Request) bool { return true }
@@ -167,68 +162,73 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := round.upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
-		log.Printf("Error on upgrade connection: %v", err)
+		response, err := server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("websocket connection error: %v", err))
+		server.Logger.Error(err.Error())
+		response.SendHasJson(w)
+		return
 	}
 
 	if !card.SetConn(conn) {
-		log.Printf("Error on set connection: %v", err)
+		response, err := server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("websocket connection error: %v", err))
+		server.Logger.Error(err.Error())
+		response.SendHasJson(w)
+		return
+
 	}
 
 	card.UpdateCard()
 }
 
-func (b *Bingo) ToggleCardsAutoplayHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Toggling autoplay for card %d on round %d...", GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
-
+func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Printf("Error on get round: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
 	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
 
 	if err != nil {
-		log.Printf("Error on get card: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
 	card.ToggleAutoplay()
 
-	Repply(w, card)
+	server.Logger.Info("Toggle Autoplay", "round", card.Round, "card", card.Card, "checked", card.Checked, "autoplay", card.Autoplay, "bingo", card.Bingo)
+
+	return server.NewResponse(card)
 }
 
-func (b *Bingo) ToggleNumbersHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Toggling number %d for card %d on round %d...", GetUrlIntParam(r, "number"), GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
-
+func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
 
 	if err != nil {
-		log.Printf("Error on get round: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
 	mainCard, err := round.GetCard(0)
 
 	if err != nil {
-		log.Printf("Error on get main card: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
 	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
 
 	if err != nil {
-		log.Printf("Error on get card: %v", err)
+		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
-	if card.ToggleNumber(*mainCard, GetUrlIntParam(r, "number")) {
-		log.Printf("Number %d for card %d on round %d toggled", GetUrlIntParam(r, "number"), GetUrlIntParam(r, "card"), GetUrlIntParam(r, "round"))
-
-		if card.Card == 1 {
-			checked, unchecked := round.ToggleNumberForAll(GetUrlIntParam(r, "number"))
-
-			log.Printf("Number %d checked for %d cards and unchecked for %d cards into round %d", GetUrlIntParam(r, "number"), checked, unchecked, round.Round)
-		}
+	if card.ToggleNumber(mainCard, GetUrlIntParam(r, "number")) && card.Card > 1 {
+		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", GetUrlIntParam(r, "number"), "checked", card.Checked, "bingo", card.Bingo)
 	}
 
-	Repply(w, card)
+	if card.Card == 1 {
+		checked, unchecked := round.ToggleNumberForAll(GetUrlIntParam(r, "number"))
+
+		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", GetUrlIntParam(r, "number"), "checked", checked, "unchecked", unchecked)
+	}
+
+	return server.NewResponse(card)
 }
 
 func GetUrlIntParam(r *http.Request, param string) int {
@@ -254,25 +254,10 @@ func GetUrlStringParam(r *http.Request, param string) string {
 	return vars[param]
 }
 
-func Repply(w http.ResponseWriter, data any) {
-	response, err := json.Marshal(data)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
-}
-
 func (b *Bingo) AddQrRoutes(routes *mux.Router) *Bingo {
 	if routes != nil {
 		r := routes.PathPrefix("/bingo").Subrouter()
-		r.Methods(http.MethodGet).Path("/{round}/{card}").HandlerFunc(b.GetCardsQRHandler)
+		r.Methods(http.MethodGet).Path("/{round}").Handler(server.SendQRCode(b.GetCardsQRHandler))
 	}
 
 	return b
@@ -294,13 +279,13 @@ func New(routes *mux.Router) (b *Bingo) {
 
 	if routes != nil {
 		r := routes.PathPrefix("/bingo").Subrouter()
-		r.Methods(http.MethodGet).Path("/{round}/new/{type}").HandlerFunc(b.AddRoundsHandler)
-		r.Methods(http.MethodGet).Path("/{round}").HandlerFunc(b.GetRoundsHandler)
-		r.Methods(http.MethodGet).Path("/{round}/0").HandlerFunc(b.AddCardsHandler)
-		r.Methods(http.MethodGet).Path("/{round}/{card}").HandlerFunc(b.GetCardsHandler)
-		r.Methods(http.MethodGet).Path("/{round}/{card}/autoplay").HandlerFunc(b.ToggleCardsAutoplayHandler)
-		r.Methods(http.MethodGet).Path("/{round}/1/0").HandlerFunc(b.DrawHandler)
-		r.Methods(http.MethodGet).Path("/{round}/{card}/{number}").HandlerFunc(b.ToggleNumbersHandler)
+		r.Methods(http.MethodGet).Path("/{round}/new/{type}").Handler(server.SendJson(b.AddRoundsHandler))
+		r.Methods(http.MethodGet).Path("/{round}").Handler(server.SendJson(b.GetRoundsHandler))
+		r.Methods(http.MethodGet).Path("/{round}/0").Handler(server.SendJson(b.AddCardsHandler))
+		r.Methods(http.MethodGet).Path("/{round}/{card}").Handler(server.SendJson(b.GetCardsHandler))
+		r.Methods(http.MethodGet).Path("/{round}/{card}/autoplay").Handler(server.SendJson(b.ToggleCardsAutoplayHandler))
+		r.Methods(http.MethodGet).Path("/{round}/1/0").Handler(server.SendJson(b.DrawHandler))
+		r.Methods(http.MethodGet).Path("/{round}/{card}/{number}").Handler(server.SendJson(b.ToggleNumbersHandler))
 	}
 
 	return b

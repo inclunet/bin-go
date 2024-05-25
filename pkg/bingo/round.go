@@ -13,12 +13,12 @@ type Round struct {
 	upgrader websocket.Upgrader
 }
 
-func (r *Round) AddCard() *Card {
-	card := NewCard(*r)
+func (r *Round) AddCard() (*Card, error) {
+	card := NewCard(r)
 
 	r.Cards = append(r.Cards, card)
 
-	return &card
+	return r.GetCard(card.Card - 1)
 }
 
 func (r *Round) CheckNumberForAll(number int) int {
@@ -122,16 +122,18 @@ func (r *Round) UncheckNumberForAll(number int) *Round {
 	return r
 }
 
-func NewRound(bingo Bingo, roundType int) (round Round) {
-	round.Round = len(bingo.Rounds) + 1
-	round.Type = roundType
-
-	round.upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
+func NewRound(bingo *Bingo, roundType int) Round {
+	round := Round{
+		Round: len(bingo.Rounds) + 1,
+		Type:  roundType,
+		upgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+		Cards: []Card{},
 	}
 
-	round.Cards = append(round.Cards, NewCard(round))
+	round.AddCard()
 
 	return round
 }
