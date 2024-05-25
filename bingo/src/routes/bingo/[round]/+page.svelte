@@ -34,7 +34,7 @@
     </p>
     <div id="qr_code" class="d-flex">
         <img
-            src="/qr/bingo/{$card.Round}/{$card.Card}?url={$page.url}/new"
+            src="/qr/bingo/{$card.Round}"
             alt="QR-Code"
         />
     </div>

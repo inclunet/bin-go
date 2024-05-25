@@ -1,4 +1,5 @@
 <script>
+    import Tooltip from "./Tooltip.svelte";
     import BrailleDot from "./BrailleDot.svelte";
     import BrailleWord from "./BrailleWord.svelte";
 
@@ -90,19 +91,10 @@
                 class="btn"
                 id="espaco">Espaço</button
             >
-
-            {#if enableSpaceTip}
-                <div id="container-texto_botao-espaco">
-                    <div class="seta"></div>
-                    <div id="texto_botao-espaco" role="alert">
-                        <p>Ei, não se esqueça!</p>
-                        <p>
-                            Pressione espaço para confirmar a letra que você
-                            quer enviar.
-                        </p>
-                    </div>
-                </div>
-            {/if}
+            <Tooltip {enableSpaceTip}>
+                <p>Ei, não se esqueça!</p>
+            <p>Pressione espaço para confirmar a letra que você quer enviar.</p>
+                    </Tooltip>
         </div>
 
         <div class="brailleDot-numbers">
@@ -199,7 +191,6 @@
         display: block;
         /* margin-top: 2.7em; */
     }
-
     #limpar {
         background-color: var(--primary-button-limpar-color);
     }
@@ -229,30 +220,5 @@
     }
     #backspace:active {
         background-color: var(--primary-button-backspace-color);
-    }
-    #container-texto_botao-espaco {
-        position: absolute;
-        width: 15em;
-        margin-top: 0.6em;
-        margin-left: -3em;
-    }
-    #texto_botao-espaco {
-        background-color: var(--tooltip);
-        margin-left: -5em;
-        padding: 1em;
-        border-radius: 0.4em;
-        font-weight: 500;
-    }
-    #texto_botao-espaco p {
-        margin: 0;
-        padding: 0;
-        font-size: 1.2em;
-    }
-    .seta {
-        width: 1.4em;
-        height: 1.4em;
-        margin-left: 75px;
-        background: var(--tooltip);
-        clip-path: polygon(50% 0, 100% 100%, 0 100%);
     }
 </style>
