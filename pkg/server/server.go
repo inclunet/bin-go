@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type ListBody struct {
@@ -24,16 +26,37 @@ type ListBody struct {
 type Handler func(r *http.Request) (*Response, error)
 
 var (
-	Logger *slog.Logger
-	Dir    string
+	Logger            *slog.Logger
+	Dir               string
+	httpRequestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests",
+		},
+		[]string{"method", "endpoint"},
+	)
+	httpRequestDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_request_duration_seconds",
+			Help:    "Duration of HTTP requests",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "endpoint"},
+	)
 )
 
 func init() {
 	Logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	prometheus.MustRegister(httpRequestsTotal)
+	prometheus.MustRegister(httpRequestDuration)
 }
 
 func AddFileServer(routes *mux.Router) {
 	routes.PathPrefix("/").HandlerFunc(ServeFile)
+}
+
+func AddMetricsServer(routs *mux.Router) {
+	routs.Methods(http.MethodGet).Path("/metrics").Handler(promhttp.Handler())
 }
 
 func SendFile(handler Handler) http.Handler {
