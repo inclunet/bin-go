@@ -11,9 +11,14 @@ func main() {
 	server.Logger.Info("Starting server...")
 
 	r := mux.NewRouter().StrictSlash(true)
+	r.Use(server.MetricsAndLoggingMiddleware)
 	api := r.PathPrefix("/api").Subrouter()
 	qr := r.PathPrefix("/qr").Subrouter()
 	ws := r.PathPrefix("/ws").Subrouter()
+
+	server.Logger.Info("Adding metrics server...")
+
+	server.AddMetricsServer(r)
 
 	server.Logger.Info("Adding Bingo routes...")
 
