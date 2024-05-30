@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"image/png"
 	"net/http"
 
@@ -97,6 +98,17 @@ func (r *Response) SendHasQRCode(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "image/png")
 
 	return png.Encode(w, qrc)
+}
+
+func (r *Response) SendHasTemplate(w http.ResponseWriter) error {
+	if r.Body == nil {
+		return fmt.Errorf("response body is empty")
+	}
+
+	//render template using html/template
+	//todo implemente template rendering
+
+	return nil
 }
 
 func NewResponseError(statusCode int, err error) (*Response, error) {

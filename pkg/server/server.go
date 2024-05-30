@@ -65,7 +65,7 @@ func SendFile(handler Handler) http.Handler {
 
 		if response == nil && err != nil {
 			Logger.Error(err.Error())
-			response = NewInternalServerError(err)
+			response = NewError(http.StatusInternalServerError, err)
 		}
 
 		if err := response.SendHasFile(w); err != nil {
@@ -80,7 +80,7 @@ func SendJson(handler Handler) http.Handler {
 
 		if response == nil && err != nil {
 			Logger.Error(err.Error())
-			response = NewInternalServerError(err)
+			response = NewError(http.StatusInternalServerError, err)
 		}
 
 		if err := response.SendHasJson(w); err != nil {
@@ -95,7 +95,7 @@ func SendQRCode(handler Handler) http.Handler {
 
 		if response == nil && err != nil {
 			Logger.Error(err.Error())
-			response = NewInternalServerError(err)
+			response = NewError(http.StatusInternalServerError, err)
 		}
 
 		if err := response.SendHasQRCode(w); err != nil {
@@ -116,8 +116,6 @@ func ServeFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path = filepath.Join(Dir, path)
-
-	Logger.Info("Serving file", "remoteAddr", r.RemoteAddr, "requested", r.URL.Path, "path", path)
 
 	http.ServeFile(w, r, path)
 }

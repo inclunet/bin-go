@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/inclunet/bin-go/pkg/server"
@@ -15,7 +14,7 @@ type Bingo struct {
 }
 
 func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
-	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
@@ -39,7 +38,7 @@ func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
-	newRound := NewRound(b, GetUrlIntParam(r, "type"))
+	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
 
 	b.Rounds = append(b.Rounds, newRound)
 
@@ -49,7 +48,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusInternalServerError, errors.New("round cannot be added"))
 	}
 
-	old, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	old, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err == nil {
 		server.Logger.Info("Redirect players", "from", old.Round, "to", round.Round, "players", old.SetNextRound(round.Round))
@@ -67,7 +66,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
-	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
@@ -87,13 +86,13 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
-	Round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	Round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
-	card, err := Round.GetCard(GetUrlIntParam(r, "card") - 1)
+	card, err := Round.GetCard(server.GetURLParamHasInt(r, "card") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
@@ -105,7 +104,7 @@ func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
-	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
@@ -127,7 +126,7 @@ func (b *Bingo) GetRound(round int) (*Round, error) {
 }
 
 func (b *Bingo) GetRoundsHandler(r *http.Request) (*server.Response, error) {
-	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
@@ -139,7 +138,7 @@ func (b *Bingo) GetRoundsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
-	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		response, err := server.NewResponseError(http.StatusNotFound, fmt.Errorf("round not found"))
@@ -148,7 +147,7 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
+	card, err := round.GetCard(server.GetURLParamHasInt(r, "card") - 1)
 
 	if err != nil {
 		response, err := server.NewResponseError(http.StatusNotFound, fmt.Errorf("card not found"))
@@ -180,13 +179,13 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, error) {
-	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
-	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
+	card, err := round.GetCard(server.GetURLParamHasInt(r, "card") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
@@ -200,7 +199,7 @@ func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, e
 }
 
 func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) {
-	round, err := b.GetRound(GetUrlIntParam(r, "round") - 1)
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
@@ -212,46 +211,23 @@ func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) 
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	card, err := round.GetCard(GetUrlIntParam(r, "card") - 1)
+	card, err := round.GetCard(server.GetURLParamHasInt(r, "card") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
-	if card.ToggleNumber(mainCard, GetUrlIntParam(r, "number")) && card.Card > 1 {
-		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", GetUrlIntParam(r, "number"), "checked", card.Checked, "bingo", card.Bingo)
+	if card.ToggleNumber(mainCard, server.GetURLParamHasInt(r, "number")) && card.Card > 1 {
+		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", server.GetURLParamHasInt(r, "number"), "checked", card.Checked, "bingo", card.Bingo)
 	}
 
 	if card.Card == 1 {
-		checked, unchecked := round.ToggleNumberForAll(GetUrlIntParam(r, "number"))
+		checked, unchecked := round.ToggleNumberForAll(server.GetURLParamHasInt(r, "number"))
 
-		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", GetUrlIntParam(r, "number"), "checked", checked, "unchecked", unchecked)
+		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", server.GetURLParamHasInt(r, "number"), "checked", checked, "unchecked", unchecked)
 	}
 
 	return server.NewResponse(card)
-}
-
-func GetUrlIntParam(r *http.Request, param string) int {
-	if intParam, err := strconv.Atoi(GetUrlStringParam(r, param)); err == nil {
-		return intParam
-	}
-
-	return 0
-}
-
-func GetQueryString(r *http.Request, key string, value string) string {
-	query := r.URL.Query()
-
-	if value, ok := query[key]; ok {
-		return value[0]
-	}
-
-	return value
-}
-
-func GetUrlStringParam(r *http.Request, param string) string {
-	vars := mux.Vars(r)
-	return vars[param]
 }
 
 func (b *Bingo) AddQrRoutes(routes *mux.Router) *Bingo {
