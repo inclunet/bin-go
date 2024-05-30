@@ -21,7 +21,7 @@ func (b *Braille) AddPlayerHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Braille) CheckChallengeRepplyHandler(r *http.Request) (*server.Response, error) {
-	player := b.GetPlayer(GetUrlIntParam(r, "player", -1))
+	player := b.GetPlayer(server.GetURLParamHasInt(r, "player"))
 
 	if player == nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("player not found"))
@@ -51,7 +51,7 @@ func (b *Braille) GetPlayer(i int) *BrailleClass {
 }
 
 func (b *Braille) GetPlayerHandler(r *http.Request) (*server.Response, error) {
-	player := b.GetPlayer(GetUrlIntParam(r, "player", -1))
+	player := b.GetPlayer(server.GetURLParamHasInt(r, "player"))
 
 	if player == nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("player not found"))
