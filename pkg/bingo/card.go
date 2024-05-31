@@ -14,12 +14,6 @@ type BingoTypes struct {
 	Vertical   bool
 }
 
-type Number struct {
-	Checked bool
-	Column  int
-	Number  int
-}
-
 type Card struct {
 	DisallowBingoTypes BingoTypes
 	Autoplay           bool
