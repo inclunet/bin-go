@@ -3,6 +3,8 @@ package braille
 import (
 	"encoding/json"
 	"os"
+
+	"github.com/inclunet/bin-go/pkg/utils"
 )
 
 var classes []Class
@@ -22,7 +24,7 @@ func (c *Class) DrawAllowedChallenge() string {
 		return ""
 	}
 
-	r := GetRandomNumber(0, t-1)
+	r := utils.GetRandomNumber(0, t-1)
 
 	return c.AllowedChallenges[r]
 }
@@ -34,7 +36,7 @@ func (c *Class) DrawWord() string {
 		return ""
 	}
 
-	r := GetRandomNumber(0, t-1)
+	r := utils.GetRandomNumber(0, t-1)
 
 	return c.Words[r]
 }

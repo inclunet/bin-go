@@ -1,4 +1,4 @@
-package braille
+package utils
 
 import (
 	"math/rand"
