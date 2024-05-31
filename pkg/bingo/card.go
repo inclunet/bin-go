@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"github.com/gorilla/websocket"
+	"github.com/inclunet/bin-go/pkg/utils"
 )
 
 type BingoTypes struct {
@@ -85,7 +86,7 @@ func (c *Card) Draw() int {
 		return 0
 	}
 
-	newNumber := GetRandomNumber(1, c.Type)
+	newNumber := utils.GetRandomNumber(1, c.Type)
 
 	if !c.CheckNumber(newNumber) {
 		return c.Draw()
@@ -131,7 +132,7 @@ func (c *Card) drawColumn(column int) []Number {
 func (c *Card) drawNumber(drawedNumbers []Number, column int) Number {
 	columnEnd := column * c.Type / 5
 	columnStart := columnEnd - (c.Type/5 - 1)
-	drawNumber := Number{Checked: false, Column: column, Number: GetRandomNumber(columnStart, columnEnd)}
+	drawNumber := Number{Checked: false, Column: column, Number: utils.GetRandomNumber(columnStart, columnEnd)}
 
 	if IsDuplicatedNumber(drawedNumbers, drawNumber) && drawNumber.Number >= columnStart && drawNumber.Number <= columnEnd {
 		return c.drawNumber(drawedNumbers, column)

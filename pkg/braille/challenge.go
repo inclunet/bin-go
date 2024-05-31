@@ -1,6 +1,9 @@
 package braille
 
-import "github.com/inclunet/bin-go/pkg/translator"
+import (
+	"github.com/inclunet/bin-go/pkg/translator"
+	"github.com/inclunet/bin-go/pkg/utils"
+)
 
 type Challenge struct {
 	Challenge string
@@ -15,7 +18,7 @@ func (c *Challenge) Check(repply string) bool {
 func NewChallenge(word string) Challenge {
 	challenge := "word"
 
-	if GetRandomNumber(0, 1) == 1 {
+	if utils.GetRandomNumber(0, 1) == 1 {
 		word = translator.ToggleString(word)
 		challenge = "braille"
 	}
