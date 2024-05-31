@@ -28,6 +28,12 @@ type Card struct {
 	Numbers     [][5]Number
 }
 
+func (c *Card) CancelAlert() {
+	if c.Bingo {
+		c.Bingo = false
+	}
+}
+
 func (c *Card) CheckDrawedNumbers(main *Card) (counter int) {
 	if !c.Autoplay {
 		return counter
