@@ -7,25 +7,25 @@ import (
 	"github.com/inclunet/bin-go/pkg/utils"
 )
 
-type BingoTypes struct {
+type Completions struct {
 	Diagonal   bool
-	FullCard   bool
+	Full       bool
 	Horizontal bool
 	Vertical   bool
 }
 
 type Card struct {
-	DisallowBingoTypes BingoTypes
-	Autoplay           bool
-	Bingo              bool
-	Round              int
-	Card               int
-	conn               *websocket.Conn
-	Checked            int
-	LastNumber         int
-	NextRound          int
-	Type               int
-	Numbers            [][5]Number
+	Completions Completions
+	Autoplay    bool
+	Bingo       bool
+	Round       int
+	Card        int
+	conn        *websocket.Conn
+	Checked     int
+	LastNumber  int
+	NextRound   int
+	Type        int
+	Numbers     [][5]Number
 }
 
 func (c *Card) CheckDrawedNumbers(main *Card) (counter int) {
@@ -158,26 +158,27 @@ func (c *Card) IsBingo() bool {
 		return false
 	}
 
-	if c.IsHorizontalCardBingo() {
+	if c.IsHorizontal() {
 		return true
 	}
 
-	if c.IsVerticalCardBingo() {
+	if c.IsVertical() {
 		return true
 	}
 
-	if c.IsDiagonalCardBingo() {
+	if c.IsDiagonal() {
 		return true
 	}
-	if c.IsFullCardBingo() {
+
+	if c.IsFull() {
 		return true
 	}
 
 	return false
 }
 
-func (c *Card) IsDiagonalCardBingo() bool {
-	if c.DisallowBingoTypes.Diagonal {
+func (c *Card) IsDiagonal() bool {
+	if c.Completions.Diagonal {
 		return false
 	}
 
@@ -203,23 +204,23 @@ func (c *Card) IsDiagonalCardBingo() bool {
 	}
 
 	if checkedL == 5 || checkedR == 5 {
-		c.DisallowBingoTypes.Diagonal = true
+		c.Completions.Diagonal = true
 		return true
 	}
 
 	return false
 }
 
-func (c *Card) IsFullCardBingo() bool {
-	if !c.DisallowBingoTypes.FullCard {
+func (c *Card) IsFull() bool {
+	if !c.Completions.Full {
 		return c.Checked >= 24
 	}
 
 	return false
 }
 
-func (c *Card) IsHorizontalCardBingo() bool {
-	if c.DisallowBingoTypes.Horizontal {
+func (c *Card) IsHorizontal() bool {
+	if c.Completions.Horizontal {
 		return false
 	}
 
@@ -233,7 +234,7 @@ func (c *Card) IsHorizontalCardBingo() bool {
 		}
 
 		if checked == 5 {
-			c.DisallowBingoTypes.Horizontal = true
+			c.Completions.Horizontal = true
 			return true
 		}
 	}
@@ -241,8 +242,8 @@ func (c *Card) IsHorizontalCardBingo() bool {
 	return false
 }
 
-func (c *Card) IsVerticalCardBingo() bool {
-	if c.DisallowBingoTypes.Vertical {
+func (c *Card) IsVertical() bool {
+	if c.Completions.Vertical {
 		return false
 	}
 
@@ -258,7 +259,7 @@ func (c *Card) IsVerticalCardBingo() bool {
 
 	for _, number := range checked {
 		if number == 5 {
-			c.DisallowBingoTypes.Vertical = true
+			c.Completions.Vertical = true
 			return true
 		}
 	}
