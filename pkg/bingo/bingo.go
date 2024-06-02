@@ -65,6 +65,26 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	return server.NewResponse(card)
 }
 
+func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
+	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
+	}
+
+	card, err := round.GetCard(server.GetURLParamHasInt(r, "card") - 1)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
+	}
+
+	card.CancelAlert()
+
+	server.Logger.Info("Cancel Alert", "round", card.Round, "card", card.Card, "bingo", card.Bingo)
+
+	return server.NewResponse(card)
+}
+
 func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
@@ -261,6 +281,7 @@ func New(routes *mux.Router) (b *Bingo) {
 		r.Methods(http.MethodGet).Path("/{round}/{card}").Handler(server.SendJson(b.GetCardsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/{card}/autoplay").Handler(server.SendJson(b.ToggleCardsAutoplayHandler))
 		r.Methods(http.MethodGet).Path("/{round}/1/0").Handler(server.SendJson(b.DrawHandler))
+		r.Methods(http.MethodGet).Path("/{round}/{card}/cancel").Handler(server.SendJson(b.CancelAlertHandler))
 		r.Methods(http.MethodGet).Path("/{round}/{card}/{number}").Handler(server.SendJson(b.ToggleNumbersHandler))
 	}
 

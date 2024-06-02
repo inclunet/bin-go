@@ -7,13 +7,6 @@ import (
 	"github.com/inclunet/bin-go/pkg/utils"
 )
 
-type Completions struct {
-	Diagonal   bool
-	Full       bool
-	Horizontal bool
-	Vertical   bool
-}
-
 type Card struct {
 	Completions Completions
 	Autoplay    bool
@@ -31,6 +24,7 @@ type Card struct {
 func (c *Card) CancelAlert() {
 	if c.Bingo {
 		c.Bingo = false
+		c.UpdateCard()
 	}
 }
 
@@ -184,7 +178,7 @@ func (c *Card) IsBingo() bool {
 }
 
 func (c *Card) IsDiagonal() bool {
-	if c.Completions.Diagonal {
+	if !c.Completions.Diagonal.Enabled {
 		return false
 	}
 
@@ -209,26 +203,37 @@ func (c *Card) IsDiagonal() bool {
 		}
 	}
 
-	if checkedL == 5 || checkedR == 5 {
-		c.Completions.Diagonal = true
-		return true
+	var i int
+
+	if checkedL == 5 {
+		i++
 	}
 
-	return false
+	if checkedR == 5 {
+		i++
+	}
+
+	return c.Completions.Diagonal.Check(i)
 }
 
 func (c *Card) IsFull() bool {
-	if !c.Completions.Full {
-		return c.Checked >= 24
+	if !c.Completions.Full.Enabled {
+		return false
+	}
+
+	if c.Checked >= 24 {
+		return c.Completions.Full.Check(1)
 	}
 
 	return false
 }
 
 func (c *Card) IsHorizontal() bool {
-	if c.Completions.Horizontal {
+	if !c.Completions.Horizontal.Enabled {
 		return false
 	}
+
+	var i int
 
 	for _, line := range c.Numbers {
 		var checked int
@@ -240,37 +245,34 @@ func (c *Card) IsHorizontal() bool {
 		}
 
 		if checked == 5 {
-			c.Completions.Horizontal = true
-			return true
+			i++
 		}
 	}
 
-	return false
+	return c.Completions.Horizontal.Check(i)
 }
 
 func (c *Card) IsVertical() bool {
-	if c.Completions.Vertical {
+	if !c.Completions.Vertical.Enabled {
 		return false
 	}
 
 	var checked [5]int
+	var i int
 
 	for _, line := range c.Numbers {
 		for col, number := range line {
 			if number.Checked {
 				checked[col]++
 			}
+
+			if checked[col] == 5 {
+				i++
+			}
 		}
 	}
 
-	for _, number := range checked {
-		if number == 5 {
-			c.Completions.Vertical = true
-			return true
-		}
-	}
-
-	return false
+	return c.Completions.Vertical.Check(i)
 }
 
 func (c *Card) IsChecked(drawedNumber int) bool {
@@ -369,6 +371,15 @@ func NewCard(round *Round) Card {
 		Round:    round.Round,
 		Type:     round.Type,
 	}
+
+	card.Completions.Vertical.Enabled = true
+	card.Completions.Vertical.Max = 3
+	card.Completions.Horizontal.Enabled = true
+	card.Completions.Horizontal.Max = 3
+	card.Completions.Diagonal.Enabled = true
+	card.Completions.Diagonal.Max = 2
+	card.Completions.Full.Enabled = true
+	card.Completions.Full.Max = 1
 
 	card.DrawCard()
 
