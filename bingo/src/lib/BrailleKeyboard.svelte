@@ -43,6 +43,10 @@
             enableSpaceTip = true;
         }
     };
+
+    const handleDisableSpaceTip = () => {
+        enableSpaceTip = false;
+    };
 </script>
 
 <div role="region" aria-label="Resposta">
@@ -88,13 +92,17 @@
             <button
                 bind:this={spacebar}
                 on:click={handleSpaceKey}
+                on:click={handleDisableSpaceTip}
                 class="btn"
                 id="espaco">Espaço</button
             >
             <Tooltip {enableSpaceTip}>
-                <p>Ei, não se esqueça!</p>
-            <p>Pressione espaço para confirmar a letra que você quer enviar.</p>
-                    </Tooltip>
+                <p class="texto_tip">Ei, não se esqueça!</p>
+                <p class="texto_tip">
+                    Pressione espaço para confirmar a letra que você quer
+                    enviar.
+                </p>
+            </Tooltip>
         </div>
 
         <div class="brailleDot-numbers">
@@ -189,7 +197,6 @@
     }
     .um-quatro {
         display: block;
-        /* margin-top: 2.7em; */
     }
     #limpar {
         background-color: var(--primary-button-limpar-color);
@@ -210,6 +217,11 @@
     }
     #espaco:active {
         background-color: var(--primary-button-espaco-color);
+    }
+    .texto_tip {
+        margin: 0;
+        padding: 0;
+        font-size: 1.2em;
     }
     #backspace {
         background-color: var(--primary-button-backspace-color);
