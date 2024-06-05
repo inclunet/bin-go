@@ -8,17 +8,19 @@ import (
 )
 
 type Card struct {
-	Completions Completions
-	Autoplay    bool
-	Bingo       bool
-	Round       int
-	Card        int
-	conn        *websocket.Conn
-	Checked     int
-	LastNumber  int
-	NextRound   int
-	Type        int
-	Numbers     [][5]Number
+	main           *Card
+	Completions    Completions
+	Autoplay       bool
+	Bingo          bool
+	Round          int
+	Card           int
+	conn           *websocket.Conn
+	Checked        int
+	LastCompletion string
+	LastNumber     int
+	NextRound      int
+	Type           int
+	Numbers        [][5]Number
 }
 
 func (c *Card) CancelAlert() {
@@ -51,8 +53,10 @@ func (c *Card) CheckDrawedNumbers(main *Card) (counter int) {
 }
 
 func (c *Card) CheckNumber(number int) bool {
-	if c.IsChecked(number) {
-		return false
+	if c.main != nil {
+		if !c.main.IsChecked(number) {
+			return false
+		}
 	}
 
 	for l, line := range c.Numbers {
@@ -61,7 +65,7 @@ func (c *Card) CheckNumber(number int) bool {
 				c.LastNumber = number
 				c.Numbers[l][col].Checked = true
 				c.Checked++
-				c.Bingo = c.IsBingo()
+				c.Bingo, c.LastCompletion = c.IsBingo()
 				c.UpdateCard()
 				return true
 			}
@@ -153,28 +157,28 @@ func (c *Card) GetEmptyBingoCard() [][5]Number {
 	return bingoCard
 }
 
-func (c *Card) IsBingo() bool {
+func (c *Card) IsBingo() (bool, string) {
 	if c.Card == 1 {
-		return false
+		return false, ""
 	}
 
 	if c.IsHorizontal() {
-		return true
+		return true, "Horizontal"
 	}
 
 	if c.IsVertical() {
-		return true
+		return true, "Vertical"
 	}
 
 	if c.IsDiagonal() {
-		return true
+		return true, "Diagonal"
 	}
 
 	if c.IsFull() {
-		return true
+		return true, "Full"
 	}
 
-	return false
+	return false, ""
 }
 
 func (c *Card) IsDiagonal() bool {
@@ -321,16 +325,16 @@ func (c *Card) ToggleAutoplay() {
 	}
 }
 
-func (c *Card) ToggleNumber(main *Card, number int) bool {
-	if c.IsChecked(number) && c.Card == 1 {
-		return c.UncheckNumber(number)
-	} else {
-		if !main.IsChecked(number) && c.Card > 1 {
-			return false
-		}
-
-		return c.CheckNumber(number)
+func (c *Card) ToggleNumber(number int) bool {
+	if c.UncheckNumber(number) {
+		return true
 	}
+
+	if c.CheckNumber(number) {
+		return true
+	}
+
+	return false
 }
 
 func (c *Card) UncheckNumber(number int) bool {
@@ -365,6 +369,8 @@ func (c *Card) UpdateCard() error {
 
 // NewCard creates a new bingo card.
 func NewCard(round *Round) Card {
+	main, err := round.GetCard(0)
+
 	card := Card{
 		Autoplay: true,
 		Card:     len(round.Cards) + 1,
@@ -372,14 +378,12 @@ func NewCard(round *Round) Card {
 		Type:     round.Type,
 	}
 
-	card.Completions.Vertical.Enabled = true
-	card.Completions.Vertical.Max = 3
-	card.Completions.Horizontal.Enabled = true
-	card.Completions.Horizontal.Max = 3
-	card.Completions.Diagonal.Enabled = true
-	card.Completions.Diagonal.Max = 2
-	card.Completions.Full.Enabled = true
-	card.Completions.Full.Max = 1
+	if err == nil {
+		card.main = main
+		card.Completions = main.Completions
+	} else {
+		card.Completions = NewDefaultCompletions()
+	}
 
 	card.DrawCard()
 

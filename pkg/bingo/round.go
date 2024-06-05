@@ -7,10 +7,11 @@ import (
 )
 
 type Round struct {
-	Cards    []Card
-	Round    int
-	Type     int
-	upgrader websocket.Upgrader
+	Cards       []Card
+	Completions Completions
+	Round       int
+	Type        int
+	upgrader    websocket.Upgrader
 }
 
 func (r *Round) AddCard() (*Card, error) {
@@ -19,20 +20,6 @@ func (r *Round) AddCard() (*Card, error) {
 	r.Cards = append(r.Cards, card)
 
 	return r.GetCard(card.Card - 1)
-}
-
-func (r *Round) CheckNumberForAll(number int) int {
-	counter := 0
-
-	for i, card := range r.Cards {
-		if card.Autoplay && i > 0 {
-			if r.Cards[i].CheckNumber(number) {
-				counter++
-			}
-		}
-	}
-
-	return counter
 }
 
 func (r Round) Draw() *Card {

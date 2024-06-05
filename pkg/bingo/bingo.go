@@ -100,7 +100,9 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 
 	number := card.Draw()
 
-	server.Logger.Info("Draw", "round", card.Round, "card", card.Card, "number", number, "checked", round.CheckNumberForAll(number))
+	checked, Unchecked := round.ToggleNumberForAll(number)
+
+	server.Logger.Info("Draw", "round", card.Round, "card", card.Card, "number", number, "checked", checked, "unchecked", Unchecked)
 
 	return server.NewResponse(card)
 }
@@ -225,19 +227,13 @@ func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) 
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
-	mainCard, err := round.GetCard(0)
-
-	if err != nil {
-		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
-	}
-
 	card, err := round.GetCard(server.GetURLParamHasInt(r, "card") - 1)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
-	if card.ToggleNumber(mainCard, server.GetURLParamHasInt(r, "number")) && card.Card > 1 {
+	if card.ToggleNumber(server.GetURLParamHasInt(r, "number")) && card.Card > 1 {
 		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", server.GetURLParamHasInt(r, "number"), "checked", card.Checked, "bingo", card.Bingo)
 	}
 
