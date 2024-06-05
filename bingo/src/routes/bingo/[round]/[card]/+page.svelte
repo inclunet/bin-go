@@ -11,10 +11,15 @@
 
     export let data;
 
+    /**
+     * @type {HTMLAudioElement}
+     */
     let bingoAudio;
+    
+    /**
+     * @type {HTMLAudioElement}
+     */
     let checkAudio;
-    let drawed = 0;
-    let muted = true;
 
     const handleAutoplayEvent = async () => {
         await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/autoplay`);
@@ -45,18 +50,23 @@
         checkAudio.play();
     };
 
-    const handleStopBingoAlertEvent = () => {
-        muted = true;
-        bingoAudio.pause();
-        bingoAudio.currentTime = 0;
+    const handleCancelBingoAlertEvent = async () => {
+        $card = await callApi(
+            $card,
+            `/api/bingo/${$card.Round}/${$card.Card}/cancel`,
+            "GET",
+        );
+
+        isBingo();
     };
 
     const isBingo = () => {
-        if ($card.Card > 1 && $card.Bingo) {
-            if ($card.Checked != drawed && muted) {
-                drawed = $card.Checked;
-                muted = false;
+        if ($card.Card > 1) {
+            if ($card.Bingo) {
                 bingoAudio.play();
+            } else {
+                bingoAudio.pause();
+                bingoAudio.currentTime = 0;
             }
         }
     };
@@ -138,7 +148,7 @@
             on:autoplay={handleAutoplayEvent}
             on:draw={handleDrawEvent}
             on:newRound={handleNewRoundEvent}
-            on:stopBingoAlert={handleStopBingoAlertEvent}
+            on:stopBingoAlert={handleCancelBingoAlertEvent}
         />
     </div>
     <div class="table-card">
