@@ -158,8 +158,12 @@ func (c *Card) GetEmptyBingoCard() [][5]Number {
 }
 
 func (c *Card) IsBingo() (bool, string) {
-	if c.Card == 1 {
+	if c.main == nil {
 		return false, ""
+	}
+
+	if c.IsFull() {
+		return true, "Full"
 	}
 
 	if c.IsHorizontal() {
@@ -174,109 +178,151 @@ func (c *Card) IsBingo() (bool, string) {
 		return true, "Diagonal"
 	}
 
-	if c.IsFull() {
-		return true, "Full"
-	}
-
 	return false, ""
 }
 
 func (c *Card) IsDiagonal() bool {
-	if !c.Completions.Diagonal.Enabled {
+	c.Completions.Diagonal.Update(&c.main.Completions.Diagonal)
+
+	if c.main.Completions.Diagonal.GetRemaining() == 0 {
 		return false
 	}
 
-	var checkedL int
-	var checkedR int
+	if c.Completions.Diagonal.GetRemaining() == 0 {
+		return false
+	}
 
-	left := 0
-	right := 4
+	counter := 0
 
-	for l, line := range c.Numbers {
-		if l <= 4 {
-			if number := line[left]; number.Checked {
-				checkedL++
+	for l, r, cl, cr := 0, 4, 0, 0; l < 5; l, r = l+1, r-1 {
+		if c.Numbers[l][l].Checked {
+			cl++
+
+			if cl == 5 {
+				counter++
 			}
+		}
 
-			if Number := line[right]; Number.Checked {
-				checkedR++
+		if c.Numbers[l][r].Checked {
+			cr++
+
+			if cr == 5 {
+				counter++
 			}
-
-			left++
-			right--
 		}
 	}
 
-	var i int
-
-	if checkedL == 5 {
-		i++
+	if !c.Completions.Diagonal.Check(counter) {
+		return false
 	}
 
-	if checkedR == 5 {
-		i++
+	if !c.main.Completions.Diagonal.Add() {
+		return false
 	}
 
-	return c.Completions.Diagonal.Check(i)
+	return true
 }
 
 func (c *Card) IsFull() bool {
-	if !c.Completions.Full.Enabled {
+	c.Completions.Full.Update(&c.main.Completions.Full)
+
+	if c.main.Completions.Full.GetRemaining() == 0 {
 		return false
 	}
 
-	if c.Checked >= 24 {
-		return c.Completions.Full.Check(1)
+	if c.Completions.Full.GetRemaining() == 0 {
+		return false
 	}
 
-	return false
+	if c.Checked < 24 {
+		return false
+	}
+
+	if !c.Completions.Full.Check(1) {
+		return false
+	}
+
+	if !c.main.Completions.Full.Add() {
+		return false
+	}
+
+	return true
 }
 
 func (c *Card) IsHorizontal() bool {
-	if !c.Completions.Horizontal.Enabled {
+	c.Completions.Horizontal.Update(&c.main.Completions.Horizontal)
+
+	if c.main.Completions.Horizontal.GetRemaining() == 0 {
 		return false
 	}
 
-	var i int
+	if c.Completions.Horizontal.GetRemaining() == 0 {
+		return false
+	}
 
-	for _, line := range c.Numbers {
+	counter := 0
+
+	for l := range c.Numbers {
 		var checked int
 
-		for _, number := range line {
+		for _, number := range c.Numbers[l] {
 			if number.Checked {
 				checked++
 			}
 		}
 
 		if checked == 5 {
-			i++
+			counter++
 		}
 	}
 
-	return c.Completions.Horizontal.Check(i)
-}
-
-func (c *Card) IsVertical() bool {
-	if !c.Completions.Vertical.Enabled {
+	if !c.Completions.Horizontal.Check(counter) {
 		return false
 	}
 
-	var checked [5]int
-	var i int
+	if !c.main.Completions.Horizontal.Add() {
+		return false
+	}
 
-	for _, line := range c.Numbers {
-		for col, number := range line {
-			if number.Checked {
-				checked[col]++
-			}
+	return true
+}
 
-			if checked[col] == 5 {
-				i++
+func (c *Card) IsVertical() bool {
+	c.Completions.Vertical.Update(&c.main.Completions.Vertical)
+
+	if c.main.Completions.Vertical.GetRemaining() == 0 {
+		return false
+	}
+
+	if c.Completions.Vertical.GetRemaining() == 0 {
+		return false
+	}
+
+	counter := 0
+
+	for col := 0; col < 5; col++ {
+		checked := 0
+
+		for l := 0; l < 5; l++ {
+			if c.Numbers[l][col].Checked {
+				checked++
 			}
+		}
+
+		if checked == 5 {
+			counter++
 		}
 	}
 
-	return c.Completions.Vertical.Check(i)
+	if !c.Completions.Vertical.Check(counter) {
+		return false
+	}
+
+	if !c.main.Completions.Vertical.Add() {
+		return false
+	}
+
+	return true
 }
 
 func (c *Card) IsChecked(drawedNumber int) bool {
@@ -326,11 +372,11 @@ func (c *Card) ToggleAutoplay() {
 }
 
 func (c *Card) ToggleNumber(number int) bool {
-	if c.UncheckNumber(number) {
+	if c.CheckNumber(number) {
 		return true
 	}
 
-	if c.CheckNumber(number) {
+	if c.UncheckNumber(number) {
 		return true
 	}
 
