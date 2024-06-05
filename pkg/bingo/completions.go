@@ -17,13 +17,13 @@ func (c *Completions) Update(completions *Completions) {
 func (c *Completions) Register(completion string) {
 	switch completion {
 	case "full":
-		c.Full.AddCheck()
+		c.Full.Add()
 	case "diagonal":
-		c.Diagonal.AddCheck()
+		c.Diagonal.Add()
 	case "horizontal":
-		c.Horizontal.AddCheck()
+		c.Horizontal.Add()
 	case "vertical":
-		c.Vertical.AddCheck()
+		c.Vertical.Add()
 	}
 }
 

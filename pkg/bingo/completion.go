@@ -6,20 +6,12 @@ type Completion struct {
 	Quantity int
 }
 
-func (c *Completion) AddCheck() {
-	if c.Check(c.Quantity + 1) {
-		if c.GetRemaining() == 0 {
-			c.Enabled = false
-		}
-	}
+func (c *Completion) Add() bool {
+	return c.Check(c.Quantity + 1)
 }
 
 func (c *Completion) Check(i int) bool {
-	if !c.Enabled {
-		return false
-	}
-
-	if i > c.Max || i > 4 {
+	if c.GetRemaining() == 0 {
 		return false
 	}
 
@@ -27,12 +19,17 @@ func (c *Completion) Check(i int) bool {
 		return false
 	}
 
-	if i > c.Quantity {
-		c.Quantity = i
-		return true
+	if i > c.Max {
+		return false
 	}
 
-	return false
+	if i <= c.Quantity {
+		return false
+	}
+
+	c.Quantity = i
+
+	return true
 }
 
 func (c *Completion) GetRemaining() int {
@@ -44,8 +41,6 @@ func (c *Completion) GetRemaining() int {
 }
 
 func (c *Completion) Update(completion *Completion) {
-	c.Enabled = completion.Enabled
-
 	if c.Quantity <= completion.GetRemaining() {
 		c.Max = completion.GetRemaining()
 	}
@@ -53,7 +48,6 @@ func (c *Completion) Update(completion *Completion) {
 
 func NewDefaultCompletion(max int) Completion {
 	return Completion{
-		Enabled:  max > 0,
 		Max:      max,
 		Quantity: 0,
 	}
