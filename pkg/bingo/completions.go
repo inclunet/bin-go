@@ -4,6 +4,7 @@ type Completions struct {
 	Diagonal   Completion
 	Full       Completion
 	Horizontal Completion
+	Total      Completion
 	Vertical   Completion
 }
 
@@ -32,6 +33,7 @@ func NewDefaultCompletions() Completions {
 		Diagonal:   NewDefaultCompletion(1),
 		Full:       NewDefaultCompletion(1),
 		Horizontal: NewDefaultCompletion(1),
+		Total:      NewDefaultCompletion(4),
 		Vertical:   NewDefaultCompletion(1),
 	}
 }

@@ -1,6 +1,7 @@
 package bingo
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/gorilla/websocket"
@@ -26,7 +27,11 @@ type Card struct {
 func (c *Card) CancelAlert() {
 	if c.Bingo {
 		c.Bingo = false
+		c.LastCompletion = ""
+		c.main.Bingo = false
+		c.main.LastCompletion = ""
 		c.UpdateCard()
+		c.main.UpdateCard()
 	}
 }
 
@@ -65,7 +70,12 @@ func (c *Card) CheckNumber(number int) bool {
 				c.LastNumber = number
 				c.Numbers[l][col].Checked = true
 				c.Checked++
-				c.Bingo, c.LastCompletion = c.IsBingo()
+
+				if c.IsBingo() {
+					c.Bingo = true
+					c.main.UpdateCard()
+				}
+
 				c.UpdateCard()
 				return true
 			}
@@ -157,28 +167,82 @@ func (c *Card) GetEmptyBingoCard() [][5]Number {
 	return bingoCard
 }
 
-func (c *Card) IsBingo() (bool, string) {
+func (c *Card) IsBingo() bool {
 	if c.main == nil {
-		return false, ""
+		return false
+	}
+
+	c.Completions.Total.Update(&c.main.Completions.Total)
+
+	if c.main.Completions.Total.GetRemaining() == 0 {
+		return false
+	}
+
+	if c.Completions.Total.GetRemaining() == 0 {
+		return false
 	}
 
 	if c.IsFull() {
-		return true, "Full"
+		if !c.Completions.Total.Add() {
+			return false
+		}
+
+		if !c.main.Completions.Total.Add() {
+			return false
+		}
+
+		c.LastCompletion = "Full"
+		c.main.LastCompletion = fmt.Sprintf("Full: %d", c.Card)
+
+		return true
 	}
 
 	if c.IsHorizontal() {
-		return true, "Horizontal"
+		if !c.Completions.Total.Add() {
+			return false
+		}
+
+		if !c.main.Completions.Total.Add() {
+			return false
+		}
+
+		c.LastCompletion = "Horizontal"
+		c.main.LastCompletion = fmt.Sprintf("Horizontal: %d", c.Card)
+
+		return true
 	}
 
 	if c.IsVertical() {
-		return true, "Vertical"
+		if !c.Completions.Total.Add() {
+			return false
+		}
+
+		if !c.main.Completions.Total.Add() {
+			return false
+		}
+
+		c.LastCompletion = "Vertical"
+		c.main.LastCompletion = fmt.Sprintf("Vertical: %d", c.Card)
+
+		return true
 	}
 
 	if c.IsDiagonal() {
-		return true, "Diagonal"
+		if !c.Completions.Total.Add() {
+			return false
+		}
+
+		if !c.main.Completions.Total.Add() {
+			return false
+		}
+
+		c.LastCompletion = "Diagonal"
+		c.main.LastCompletion = fmt.Sprintf("Diagonal: %d", c.Card)
+
+		return true
 	}
 
-	return false, ""
+	return false
 }
 
 func (c *Card) IsDiagonal() bool {
