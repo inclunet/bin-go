@@ -1,3 +1,7 @@
+<script>
+    import MenuTop from "$lib/MenuHeaderTop.svelte";
+</script>
+
 <header class="d-flex flex-row">
     <a href="/braille"><img src="/img/logo.png" alt="Inclunet" /></a>
     <h1 class="text-center">Inclubraille</h1>
@@ -137,28 +141,7 @@
         </div>
     </nav>
 </header>
-<nav class="navbar menu-navbar">
-    <ul
-        class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row"
-    >
-        <li class="nav-item">
-            <a href="/braille" class="nav-link navbar-brand">Início</a>
-        </li>
-        <li class="nav-item">
-            <a href="/braille/new" class="nav-link navbar-brand">Jogar</a>
-        </li>
-        <li class="nav-item">
-            <a href="/braille/instructions" class="nav-link navbar-brand"
-                >Como Jogar</a
-            >
-        </li>
-        <li class="nav-item">
-            <a href="/braille/terms" class="nav-link navbar-brand"
-                >Termo de Uso</a
-            >
-        </li>
-    </ul>
-</nav>
+<MenuTop />
 <main class="content">
     <slot></slot>
 </main>
