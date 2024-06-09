@@ -7,33 +7,19 @@
     <ul
         class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row"
     >
-        {links.map((a) => {
-            return `<li class="nav-item"><a href="${a.link}" class="nav-link navbar-brand">${a.title}</a></li>`;
-        })}
-        <li class="nav-item">
-            <a href="/braille" class="nav-link navbar-brand">Início</a>
-        </li>
-        <li class="nav-item">
-            <a href="/braille/new" class="nav-link navbar-brand">Jogar</a>
-        </li>
-        <li class="nav-item">
-            <a href="/braille/instructions" class="nav-link navbar-brand"
-                >Como Jogar</a
-            >
-        </li>
-        <li class="nav-item">
-            <a href="/braille/terms" class="nav-link navbar-brand"
-                >Termo de Uso</a
-            >
-        </li>
+        {#each links as menuLink}
+            <li class="nav-item">
+                <a href={menuLink.link} class="nav-link navbar-brand"
+                    >{menuLink.title}</a
+                >
+            </li>
+        {/each}
     </ul>
 </nav>
 
 <style>
     :root {
         --primary-color: #2b7ef4;
-        --secondary-color: #2b7ff4ab;
-        --tertiary-color: #982a35;
         --quaternary-color: #fff;
         --quinary-color: #000;
         --senary-color: #1d1d1d;
