@@ -1,5 +1,6 @@
 <script>
     import MenuTop from "$lib/MenuHeaderTop.svelte";
+    import Links from "$lib/MenuItem.svelte";
 </script>
 
 <header class="d-flex flex-row">
@@ -141,7 +142,9 @@
         </div>
     </nav>
 </header>
-<MenuTop />
+<MenuTop>
+    <Links href="/braille">Início</Links>
+</MenuTop>
 <main class="content">
     <slot></slot>
 </main>
