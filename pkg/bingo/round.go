@@ -7,11 +7,10 @@ import (
 )
 
 type Round struct {
-	Cards       []Card
-	Completions Completions
-	Round       int
-	Type        int
-	upgrader    websocket.Upgrader
+	Cards    []Card
+	Round    int
+	Type     int
+	upgrader websocket.Upgrader
 }
 
 func (r *Round) AddCard() (*Card, error) {
@@ -42,7 +41,25 @@ func (r *Round) GetCard(card int) (*Card, error) {
 	return &r.Cards[card], nil
 }
 
-func (r *Round) SetNextRound(nextRound int) int {
+func (r *Round) SetCompletionsForAll(completions *Completions) (int, error) {
+	counter := 0
+
+	if len(r.Cards) == 0 {
+		return counter, fmt.Errorf("no cards found")
+	}
+
+	for i, _ := range r.Cards {
+		if err := r.Cards[i].SetCompletions(completions); err != nil {
+			return counter, err
+		}
+
+		counter++
+	}
+
+	return counter, nil
+}
+
+func (r *Round) SetNextRoundForAll(nextRound int) int {
 	count := 0
 
 	if nextRound < 0 {

@@ -70,10 +70,11 @@ func (c *Card) CheckNumber(number int) bool {
 				c.LastNumber = number
 				c.Numbers[l][col].Checked = true
 				c.Checked++
-
+				fmt.Println("a")
 				if c.IsBingo() {
 					c.Bingo = true
-					c.main.UpdateCard()
+					fmt.Println("b")
+					// c.main.UpdateCard()
 				}
 
 				c.UpdateCard()
@@ -172,8 +173,6 @@ func (c *Card) IsBingo() bool {
 		return false
 	}
 
-	c.Completions.Total.Update(&c.main.Completions.Total)
-
 	if c.main.Completions.Total.GetRemaining() == 0 {
 		return false
 	}
@@ -213,32 +212,14 @@ func (c *Card) IsBingo() bool {
 	}
 
 	if c.IsVertical() {
-		if !c.Completions.Total.Add() {
-			return false
-		}
-
-		if !c.main.Completions.Total.Add() {
-			return false
-		}
-
 		c.LastCompletion = "Vertical"
 		c.main.LastCompletion = fmt.Sprintf("Vertical: %d", c.Card)
-
 		return true
 	}
 
 	if c.IsDiagonal() {
-		if !c.Completions.Total.Add() {
-			return false
-		}
-
-		if !c.main.Completions.Total.Add() {
-			return false
-		}
-
 		c.LastCompletion = "Diagonal"
 		c.main.LastCompletion = fmt.Sprintf("Diagonal: %d", c.Card)
-
 		return true
 	}
 
@@ -246,8 +227,6 @@ func (c *Card) IsBingo() bool {
 }
 
 func (c *Card) IsDiagonal() bool {
-	c.Completions.Diagonal.Update(&c.main.Completions.Diagonal)
-
 	if c.main.Completions.Diagonal.GetRemaining() == 0 {
 		return false
 	}
@@ -284,12 +263,18 @@ func (c *Card) IsDiagonal() bool {
 		return false
 	}
 
+	if !c.Completions.Total.Add() {
+		return false
+	}
+
+	if !c.main.Completions.Total.Add() {
+		return false
+	}
+
 	return true
 }
 
 func (c *Card) IsFull() bool {
-	c.Completions.Full.Update(&c.main.Completions.Full)
-
 	if c.main.Completions.Full.GetRemaining() == 0 {
 		return false
 	}
@@ -298,7 +283,17 @@ func (c *Card) IsFull() bool {
 		return false
 	}
 
-	if c.Checked < 24 {
+	checks := 0
+
+	for _, line := range c.Numbers {
+		for _, number := range line {
+			if number.Checked {
+				checks++
+			}
+		}
+	}
+
+	if checks < 25 {
 		return false
 	}
 
@@ -314,8 +309,6 @@ func (c *Card) IsFull() bool {
 }
 
 func (c *Card) IsHorizontal() bool {
-	c.Completions.Horizontal.Update(&c.main.Completions.Horizontal)
-
 	if c.main.Completions.Horizontal.GetRemaining() == 0 {
 		return false
 	}
@@ -352,8 +345,6 @@ func (c *Card) IsHorizontal() bool {
 }
 
 func (c *Card) IsVertical() bool {
-	c.Completions.Vertical.Update(&c.main.Completions.Vertical)
-
 	if c.main.Completions.Vertical.GetRemaining() == 0 {
 		return false
 	}
@@ -386,6 +377,14 @@ func (c *Card) IsVertical() bool {
 		return false
 	}
 
+	if !c.Completions.Total.Add() {
+		return false
+	}
+
+	if !c.main.Completions.Total.Add() {
+		return false
+	}
+
 	return true
 }
 
@@ -399,6 +398,25 @@ func (c *Card) IsChecked(drawedNumber int) bool {
 	}
 
 	return false
+}
+
+func (c *Card) SetCompletions(completions *Completions) error {
+	if c.main == nil && c.NextRound > 0 {
+		return fmt.Errorf("round %d is ended", c.Round)
+	}
+
+	if c.main == nil && c.Checked >= c.Type {
+		return fmt.Errorf("round %d is completed", c.Round)
+	}
+
+	if c.main != nil && c.Checked >= 24 {
+		return fmt.Errorf("Card %d is already completed", c.Card)
+	}
+
+	c.Completions.Update(completions)
+	c.UpdateCard()
+
+	return nil
 }
 
 func (c *Card) SetConn(conn *websocket.Conn) bool {

@@ -1,7 +1,8 @@
 package bingo
 
+import "fmt"
+
 type Completion struct {
-	Enabled  bool
 	Max      int
 	Quantity int
 }
@@ -40,10 +41,14 @@ func (c *Completion) GetRemaining() int {
 	return 0
 }
 
-func (c *Completion) Update(completion *Completion) {
-	if c.Quantity <= completion.GetRemaining() {
-		c.Max = completion.GetRemaining()
+func (c *Completion) Update(completion *Completion) error {
+	if completion.Max < c.Quantity {
+		return fmt.Errorf("invalid completion quantity")
 	}
+
+	c.Max = completion.Max
+
+	return nil
 }
 
 func NewDefaultCompletion(max int) Completion {

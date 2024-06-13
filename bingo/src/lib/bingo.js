@@ -5,6 +5,7 @@ export let card = writable({
     Bingo: false,
     Card: 0,
     Checked: 0,
+    Completions: {},
     LastNumber: 0,
     NextRound: 0,
     Round: 0,

@@ -1,3 +1,5 @@
+import { error } from "@sveltejs/kit";
+
 export const callApi = async (data = {}, url = "", method = "GET", body = null) => {
     const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
     console.log(url);
@@ -19,7 +21,7 @@ export const callApi = async (data = {}, url = "", method = "GET", body = null) 
         }
 
         if (response.status === 404) {
-            window.location.href = "/404";
+            // window.location.href = "/404";
         }
 
         if (response.status === 500) {
@@ -47,6 +49,6 @@ export const getWSEndpoint = (path = "") => {
     }
 
     url = url.replace(document.location.pathname, path);
-console.log(url);
+    console.log(url);
     return url;
 };

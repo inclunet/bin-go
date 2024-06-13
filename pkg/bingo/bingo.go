@@ -1,6 +1,7 @@
 package bingo
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -51,7 +52,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	old, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
 	if err == nil {
-		server.Logger.Info("Redirect players", "from", old.Round, "to", round.Round, "players", old.SetNextRound(round.Round))
+		server.Logger.Info("Redirect players", "from", old.Round, "to", round.Round, "players", old.SetNextRoundForAll(round.Round))
 	}
 
 	card, err := round.GetCard(0)
@@ -200,6 +201,38 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 	card.UpdateCard()
 }
 
+func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error) {
+	round, err := b.GetRound(server.GetURLParamHasInt(h, "round") - 1)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
+	}
+
+	completions := NewDefaultCompletions()
+
+	err = json.NewDecoder(h.Body).Decode(&completions)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusBadRequest, errors.New("completions cannot be decoded"))
+	}
+
+	card, err := round.GetCard(0)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
+	}
+
+	counter, err := round.SetCompletionsForAll(&completions)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, err)
+	}
+
+	server.Logger.Info("Set Completions", "round", card.Round, "card", card.Card, "completions", card.Completions, "counter", counter, "bingo", card.Bingo)
+
+	return server.NewResponse(card)
+}
+
 func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
 
@@ -275,8 +308,9 @@ func New(routes *mux.Router) (b *Bingo) {
 		r.Methods(http.MethodGet).Path("/{round}").Handler(server.SendJson(b.GetRoundsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/0").Handler(server.SendJson(b.AddCardsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/{card}").Handler(server.SendJson(b.GetCardsHandler))
-		r.Methods(http.MethodGet).Path("/{round}/{card}/autoplay").Handler(server.SendJson(b.ToggleCardsAutoplayHandler))
+		r.Methods(http.MethodPost).Path("/{round}/1/completions").Handler(server.SendJson(b.SetCompletionsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/1/0").Handler(server.SendJson(b.DrawHandler))
+		r.Methods(http.MethodGet).Path("/{round}/{card}/autoplay").Handler(server.SendJson(b.ToggleCardsAutoplayHandler))
 		r.Methods(http.MethodGet).Path("/{round}/{card}/cancel").Handler(server.SendJson(b.CancelAlertHandler))
 		r.Methods(http.MethodGet).Path("/{round}/{card}/{number}").Handler(server.SendJson(b.ToggleNumbersHandler))
 	}

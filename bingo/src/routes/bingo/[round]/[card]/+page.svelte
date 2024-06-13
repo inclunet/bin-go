@@ -8,6 +8,7 @@
     import Adds from "$lib/Adds.svelte";
     import Play from "$lib/Play.svelte";
     import { callApi, getWSEndpoint } from "$lib/api";
+    import Completions from "$lib/bingo/Completions.svelte";
 
     export let data;
 
@@ -15,7 +16,7 @@
      * @type {HTMLAudioElement}
      */
     let bingoAudio;
-    
+
     /**
      * @type {HTMLAudioElement}
      */
@@ -58,6 +59,15 @@
         );
 
         isBingo();
+    };
+
+    const handleSaveCompletions = async () => {
+        $card = await callApi(
+            $card,
+            `/api/bingo/${$card.Round}/${$card.Card}/completions`,
+            "POST",
+            $card.Completions,
+        );
     };
 
     const isBingo = () => {
@@ -161,6 +171,13 @@
         <Adds />
     </div>
 </div>
+
+a {$card.Card}
+<Completions
+card={$card.Card}
+    bind:completions={$card.Completions}
+    on:saveCompletions={handleSaveCompletions}
+/>
 
 <audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
 <audio bind:this={checkAudio} src="/pop.mp3"></audio>

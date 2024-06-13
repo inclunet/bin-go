@@ -1,18 +1,42 @@
 package bingo
 
+import "fmt"
+
 type Completions struct {
-	Diagonal   Completion
-	Full       Completion
-	Horizontal Completion
-	Total      Completion
-	Vertical   Completion
+	Diagonal     Completion
+	Full         Completion
+	Horizontal   Completion
+	Intermediary Completion
+	Total        Completion
+	Vertical     Completion
 }
 
-func (c *Completions) Update(completions *Completions) {
-	c.Full.Update(&completions.Full)
-	c.Diagonal.Update(&completions.Diagonal)
-	c.Horizontal.Update(&completions.Horizontal)
-	c.Vertical.Update(&completions.Vertical)
+func (c *Completions) Update(completions *Completions) error {
+	if err := c.Total.Update(&completions.Total); err != nil {
+		return fmt.Errorf("error updating total completions %w", err)
+	}
+
+	if err := c.Intermediary.Update(&completions.Intermediary); err != nil {
+		return fmt.Errorf("error updating intermediary completions %w", err)
+	}
+
+	if err := c.Full.Update(&completions.Full); err != nil {
+		return fmt.Errorf("error updating full completions %w", err)
+	}
+
+	if err := c.Diagonal.Update(&completions.Diagonal); err != nil {
+		return fmt.Errorf("error updating diagonal completions %w", err)
+	}
+
+	if err := c.Horizontal.Update(&completions.Horizontal); err != nil {
+		return fmt.Errorf("error updating horizontal completions %w", err)
+	}
+
+	if err := c.Vertical.Update(&completions.Vertical); err != nil {
+		return fmt.Errorf("error updating vertical completions %w", err)
+	}
+
+	return nil
 }
 
 func (c *Completions) Register(completion string) {
@@ -30,10 +54,11 @@ func (c *Completions) Register(completion string) {
 
 func NewDefaultCompletions() Completions {
 	return Completions{
-		Diagonal:   NewDefaultCompletion(1),
-		Full:       NewDefaultCompletion(1),
-		Horizontal: NewDefaultCompletion(1),
-		Total:      NewDefaultCompletion(4),
-		Vertical:   NewDefaultCompletion(1),
+		Diagonal:     NewDefaultCompletion(1),
+		Full:         NewDefaultCompletion(1),
+		Horizontal:   NewDefaultCompletion(1),
+		Intermediary: NewDefaultCompletion(3),
+		Total:        NewDefaultCompletion(4),
+		Vertical:     NewDefaultCompletion(1),
 	}
 }
