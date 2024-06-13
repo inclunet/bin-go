@@ -9,6 +9,7 @@
     import Play from "$lib/Play.svelte";
     import { callApi, getWSEndpoint } from "$lib/api";
     import Completions from "$lib/bingo/Completions.svelte";
+    import TableModalCard from "$lib/TableModalCard.svelte";
 
     export let data;
 
@@ -32,7 +33,7 @@
         if (!$card.Autoplay || $card.Card == 1) {
             if (!event.detail.Checked || $card.Card == 1) {
                 await updateCard(
-                    `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`,
+                    `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`
                 );
             }
         }
@@ -40,7 +41,7 @@
 
     const handleOpenConfigEvent = () => {
         config = true;
-                setTimeout(() => {
+        setTimeout(() => {
             const dialog = document.querySelector("[role=dialog] h1");
             if (dialog) {
                 dialog.focus();
@@ -67,7 +68,7 @@
         $card = await callApi(
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/cancel`,
-            "GET",
+            "GET"
         );
 
         isBingo();
@@ -78,7 +79,7 @@
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/completions`,
             "POST",
-            $card.Completions,
+            $card.Completions
         );
     };
 
@@ -95,7 +96,7 @@
 
     const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`),
+            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`)
         );
 
         socket.addEventListener("open", (event) => {
@@ -185,12 +186,14 @@
     </div>
 </div>
 
-<Completions
-    card={$card.Card}
-    bind:config
-    bind:completions={$card.Completions}
-    on:saveCompletions={handleSaveCompletions}
-/>
+<TableModalCard title="Configurações">
+    <Completions
+        card={$card.Card}
+        bind:config
+        bind:completions={$card.Completions}
+        on:saveCompletions={handleSaveCompletions}
+    />
+</TableModalCard>
 
 <audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
 <audio bind:this={checkAudio} src="/pop.mp3"></audio>

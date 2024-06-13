@@ -40,8 +40,11 @@
                     />
                 {/if}
 
-                <Button color="dark" on:click={handleDispatchOpenConfig}
-                    >Config</Button
+                <Button
+                    color="dark"
+                    on:click={handleDispatchOpenConfig}
+                    data_bs_toggle="modal"
+                    data_bs_target="#exampleModal">Config</Button
                 >
             </div>
 

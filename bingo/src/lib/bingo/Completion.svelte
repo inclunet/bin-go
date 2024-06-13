@@ -7,8 +7,8 @@
     <th scope="row">
         <slot></slot>
     </th>
-    <td>{completion.Quantity}</td>
-    <td>
+    <td class="center">{completion.Quantity}</td>
+    <td class="center">
         {#if card == 1}
             <input
                 type="number"
@@ -21,3 +21,9 @@
         {/if}
     </td>
 </tr>
+
+<style>
+    .center {
+        text-align: center;
+    }
+</style>
