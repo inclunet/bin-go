@@ -222,7 +222,7 @@ func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error)
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	counter, err := round.SetCompletionsForAll(&completions)
+	counter, err := round.SetCompletionsForAll(completions)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusInternalServerError, err)

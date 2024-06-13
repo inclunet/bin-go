@@ -52,13 +52,13 @@ func (c *Completions) Register(completion string) {
 	}
 }
 
-func NewDefaultCompletions() Completions {
-	return Completions{
-		Diagonal:     NewDefaultCompletion(1),
+func NewDefaultCompletions() *Completions {
+	return &Completions{
+		Diagonal:     NewDefaultCompletion(4),
 		Full:         NewDefaultCompletion(1),
-		Horizontal:   NewDefaultCompletion(1),
+		Horizontal:   NewDefaultCompletion(4),
 		Intermediary: NewDefaultCompletion(3),
 		Total:        NewDefaultCompletion(4),
-		Vertical:     NewDefaultCompletion(1),
+		Vertical:     NewDefaultCompletion(4),
 	}
 }

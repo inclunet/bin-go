@@ -10,7 +10,7 @@ import (
 
 type Card struct {
 	main           *Card
-	Completions    Completions
+	Completions    *Completions
 	Autoplay       bool
 	Bingo          bool
 	Round          int
@@ -70,11 +70,10 @@ func (c *Card) CheckNumber(number int) bool {
 				c.LastNumber = number
 				c.Numbers[l][col].Checked = true
 				c.Checked++
-				fmt.Println("a")
+
 				if c.IsBingo() {
 					c.Bingo = true
-					fmt.Println("b")
-					// c.main.UpdateCard()
+					c.main.UpdateCard()
 				}
 
 				c.UpdateCard()
@@ -182,32 +181,14 @@ func (c *Card) IsBingo() bool {
 	}
 
 	if c.IsFull() {
-		if !c.Completions.Total.Add() {
-			return false
-		}
-
-		if !c.main.Completions.Total.Add() {
-			return false
-		}
-
 		c.LastCompletion = "Full"
 		c.main.LastCompletion = fmt.Sprintf("Full: %d", c.Card)
-
 		return true
 	}
 
 	if c.IsHorizontal() {
-		if !c.Completions.Total.Add() {
-			return false
-		}
-
-		if !c.main.Completions.Total.Add() {
-			return false
-		}
-
 		c.LastCompletion = "Horizontal"
 		c.main.LastCompletion = fmt.Sprintf("Horizontal: %d", c.Card)
-
 		return true
 	}
 
@@ -263,6 +244,14 @@ func (c *Card) IsDiagonal() bool {
 		return false
 	}
 
+	if !c.Completions.Intermediary.Add() {
+		return false
+	}
+
+	if !c.main.Completions.Intermediary.Add() {
+		return false
+	}
+
 	if !c.Completions.Total.Add() {
 		return false
 	}
@@ -305,6 +294,14 @@ func (c *Card) IsFull() bool {
 		return false
 	}
 
+	if !c.Completions.Total.Add() {
+		return false
+	}
+
+	if !c.main.Completions.Total.Add() {
+		return false
+	}
+
 	return true
 }
 
@@ -341,6 +338,22 @@ func (c *Card) IsHorizontal() bool {
 		return false
 	}
 
+	if !c.Completions.Intermediary.Add() {
+		return false
+	}
+
+	if !c.main.Completions.Intermediary.Add() {
+		return false
+	}
+
+	if !c.Completions.Total.Add() {
+		return false
+	}
+
+	if !c.main.Completions.Total.Add() {
+		return false
+	}
+
 	return true
 }
 
@@ -374,6 +387,14 @@ func (c *Card) IsVertical() bool {
 	}
 
 	if !c.main.Completions.Vertical.Add() {
+		return false
+	}
+
+	if !c.Completions.Intermediary.Add() {
+		return false
+	}
+
+	if !c.main.Completions.Intermediary.Add() {
 		return false
 	}
 
@@ -500,17 +521,16 @@ func NewCard(round *Round) Card {
 	main, err := round.GetCard(0)
 
 	card := Card{
-		Autoplay: true,
-		Card:     len(round.Cards) + 1,
-		Round:    round.Round,
-		Type:     round.Type,
+		Autoplay:    true,
+		Card:        len(round.Cards) + 1,
+		Completions: NewDefaultCompletions(),
+		Round:       round.Round,
+		Type:        round.Type,
 	}
 
 	if err == nil {
+		card.Completions.Update(main.Completions)
 		card.main = main
-		card.Completions = main.Completions
-	} else {
-		card.Completions = NewDefaultCompletions()
 	}
 
 	card.DrawCard()

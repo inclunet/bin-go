@@ -48,7 +48,7 @@ func (r *Round) SetCompletionsForAll(completions *Completions) (int, error) {
 		return counter, fmt.Errorf("no cards found")
 	}
 
-	for i, _ := range r.Cards {
+	for i := range r.Cards {
 		if err := r.Cards[i].SetCompletions(completions); err != nil {
 			return counter, err
 		}

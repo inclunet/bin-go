@@ -25,6 +25,7 @@ func (c *Completion) Check(i int) bool {
 	}
 
 	if i <= c.Quantity {
+		c.Quantity = i
 		return false
 	}
 
