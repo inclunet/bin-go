@@ -1,8 +1,9 @@
 <script>
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import Completion from "./Completion.svelte";
 
     export let card = 0;
+    export let config = true;
     export let completions = {
         Total: {
             Max: 0,
@@ -25,36 +26,43 @@
 
     const handleClick = () => {
         dispatch("saveCompletions");
+        config = false;
     };
+
+    
+    
 </script>
 
-<div>
-    <h1>Configurações</h1>
-    {card}
-    <table summary="Configurações da rodada">
-        <tr>
-            <th scope="col">Bingos Válidos</th>
-            <th scope="col">Premiados</th>
-            <th scope="col">Permitidos</th>
-        </tr>
-        <Completion {card} bind:completion={completions.Total}
-            >Total de ganhadores</Completion
-        >
-        <Completion {card} bind:completion={completions.Intermediary}
-            >Total de quinas</Completion
-        >
-        <Completion {card} bind:completion={completions.Full}
-            >Cartela cheia</Completion
-        >
-        <Completion {card} bind:completion={completions.Horizontal}
-            >Horizontal</Completion
-        >
-        <Completion {card} bind:completion={completions.Vertical}
-            >Vertical</Completion
-        >
-        <Completion {card} bind:completion={completions.Diagonal}>Diagonal</Completion>
-    </table>
-    {#if card == 1}
-        <button on:click={handleClick}>Salvar</button>
-    {/if}
-</div>
+{#if config}
+    <div role="dialog">
+        <h1 tabindex="0">Configurações</h1>
+                <table summary="Configurações da rodada">
+            <tr>
+                <th scope="col">Bingos Válidos</th>
+                <th scope="col">Premiados</th>
+                <th scope="col">Permitidos</th>
+            </tr>
+            <Completion {card} bind:completion={completions.Total}
+                >Total de ganhadores</Completion
+            >
+            <Completion {card} bind:completion={completions.Intermediary}
+                >Total de quinas</Completion
+            >
+            <Completion {card} bind:completion={completions.Full}
+                >Cartela cheia</Completion
+            >
+            <Completion {card} bind:completion={completions.Horizontal}
+                >Horizontal</Completion
+            >
+            <Completion {card} bind:completion={completions.Vertical}
+                >Vertical</Completion
+            >
+            <Completion {card} bind:completion={completions.Diagonal}
+                >Diagonal</Completion
+            >
+        </table>
+        {#if card == 1}
+            <button on:click={handleClick}>Salvar</button>
+        {/if}
+    </div>
+{/if}

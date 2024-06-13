@@ -13,6 +13,10 @@
         dispatch("autoplay");
     };
 
+    const handleDispatchOpenConfig = () => {
+        dispatch("openConfig");
+    };
+
     const handleDispatchDraw = () => {
         dispatch("draw");
     };
@@ -37,7 +41,9 @@
                     />
                 {/if}
 
-                <Botao color="btn-dark">Config</Botao>
+                <Botao color="btn-dark" on:click={handleDispatchOpenConfig}
+                    >Config</Botao
+                >
             </div>
 
             {#if $card.Card > 1 && $card.Bingo}

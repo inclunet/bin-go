@@ -22,6 +22,8 @@
      */
     let checkAudio;
 
+    let config = false;
+
     const handleAutoplayEvent = async () => {
         await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/autoplay`);
     };
@@ -34,6 +36,16 @@
                 );
             }
         }
+    };
+
+    const handleOpenConfigEvent = () => {
+        config = true;
+                setTimeout(() => {
+            const dialog = document.querySelector("[role=dialog] h1");
+            if (dialog) {
+                dialog.focus();
+            }
+        }, 100);
     };
 
     const handleDrawEvent = async () => {
@@ -156,6 +168,7 @@
         </div>
         <CardHeader
             on:autoplay={handleAutoplayEvent}
+            on:openConfig={handleOpenConfigEvent}
             on:draw={handleDrawEvent}
             on:newRound={handleNewRoundEvent}
             on:stopBingoAlert={handleCancelBingoAlertEvent}
@@ -172,9 +185,9 @@
     </div>
 </div>
 
-a {$card.Card}
 <Completions
-card={$card.Card}
+    card={$card.Card}
+    bind:config
     bind:completions={$card.Completions}
     on:saveCompletions={handleSaveCompletions}
 />
