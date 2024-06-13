@@ -1,26 +1,10 @@
 <script>
+    import Button from "$lib/Button.svelte";
     export let autoplay = false;
 </script>
 
 {#if autoplay}
-    <button class="btn btn-success" on:click>
-        <strong>Automático</strong>
-    </button>
+    <Button color="success" on:click>Automático</Button>
 {:else}
-    <button class="btn btn-warning" on:click> Manual </button>
+    <Button color="warning" on:click>Manual</Button>
 {/if}
-
-<style>
-    button {
-        padding: 10px;
-        font-size: 1.3em;
-        color: #000;
-    }
-    @media (max-width: 450px) {
-        button {
-            height: 48px;
-            padding: 7px;
-            font-size: 1em;
-        }
-    }
-</style>

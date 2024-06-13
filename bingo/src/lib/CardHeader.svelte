@@ -2,10 +2,9 @@
     import { createEventDispatcher } from "svelte";
     import { card } from "./bingo.js";
     import Autoplay from "./Autoplay.svelte";
-    import Draw from "./Draw.svelte";
     import NewRound from "./NewRound.svelte";
     import Bingo from "./Bingo.svelte";
-    import Botao from "./Botao.svelte";
+    import Button from "./Button.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -41,8 +40,8 @@
                     />
                 {/if}
 
-                <Botao color="btn-dark" on:click={handleDispatchOpenConfig}
-                    >Config</Botao
+                <Button color="dark" on:click={handleDispatchOpenConfig}
+                    >Config</Button
                 >
             </div>
 
@@ -55,7 +54,7 @@
             {/if}
 
             {#if $card.Card == 1 && $card.Checked < $card.Type}
-                <Draw on:click={handleDispatchDraw} />
+                <Button on:click={handleDispatchDraw}>Sortear</Button>
             {/if}
         </div>
         <div></div>
@@ -78,7 +77,6 @@
         display: flex;
         margin-top: 50px;
         margin-bottom: 50px;
-        /* justify-content: center; */
     }
     .container-botao {
         margin: 0;

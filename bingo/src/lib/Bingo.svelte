@@ -1,1 +1,5 @@
-<button class="btn btn-warning btn-lg" on:click>Bingo!</button>
+<script>
+    import Button from "./Button.svelte";
+</script>
+
+<Button color="warning" on:click>Bingo!</Button>

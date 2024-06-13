@@ -1,8 +1,8 @@
 <script>
-    export let color;
+    export let color = "primary";
 </script>
 
-<button class="btn cor {color}" on:click>
+<button class="btn btn-{color}" on:click>
     <strong><slot></slot></strong>
 </button>
 
@@ -10,7 +10,6 @@
     button {
         padding: 10px;
         font-size: 1.3em;
-        /* color: #000; */
     }
 
     @media (max-width: 450px) {
