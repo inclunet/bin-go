@@ -72,12 +72,12 @@
         display: flex;
         margin-top: 50px;
         margin-bottom: 50px;
-        justify-content: center;
+        /* justify-content: center; */
     }
     .container-botao {
         margin: 0;
         padding: 0;
-        width: 12em;
+        width: 18em;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -104,6 +104,9 @@
             margin: 0;
             margin: 5px 0 7px 0px;
             font-size: 1em;
+        }
+        .container-botao {
+            width: 12em;
         }
     }
 </style>
