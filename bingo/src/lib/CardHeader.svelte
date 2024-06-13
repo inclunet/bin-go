@@ -5,6 +5,7 @@
     import Draw from "./Draw.svelte";
     import NewRound from "./NewRound.svelte";
     import Bingo from "./Bingo.svelte";
+    import Botao from "./Botao.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -28,12 +29,16 @@
 <div class="container d-flex flex-column">
     <div class="container-header">
         <div class="container-header-inner">
-            {#if $card.Card > 1 && !$card.Bingo}
-                <Autoplay
-                    autoplay={$card.Autoplay}
-                    on:click={handleDispatchAutoplayEvent}
-                />
-            {/if}
+            <div class="container-botao">
+                {#if $card.Card > 1 && !$card.Bingo}
+                    <Autoplay
+                        autoplay={$card.Autoplay}
+                        on:click={handleDispatchAutoplayEvent}
+                    />
+                {/if}
+
+                <Botao color="btn-dark">Config</Botao>
+            </div>
 
             {#if $card.Card > 1 && $card.Bingo}
                 <Bingo on:click={handleDispatchStopBingoAlert} />
@@ -50,7 +55,7 @@
         <div></div>
         <div aria-live="polite">
             <p><strong>{$card.Checked}</strong> Bolas Sorteadas</p>
-            <p><strong>{$card.LastNumber}</strong> Última bola sorteada</p>
+            <p><strong>{$card.LastNumber}</strong> Última sorteada</p>
         </div>
     </div>
 </div>
@@ -68,6 +73,14 @@
         margin-top: 50px;
         margin-bottom: 50px;
         justify-content: center;
+    }
+    .container-botao {
+        margin: 0;
+        padding: 0;
+        width: 12em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
     p {
         font-size: 1.6em;
