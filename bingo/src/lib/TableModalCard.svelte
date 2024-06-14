@@ -23,7 +23,7 @@
             <div class="modal-footer">
                 <Button color="secondary" data_bs_dismiss="modal">Fechar</Button
                 >
-                <Button color="primary">Salvar</Button>
+                <Button color="success">Salvar</Button>
             </div>
         </div>
     </div>
