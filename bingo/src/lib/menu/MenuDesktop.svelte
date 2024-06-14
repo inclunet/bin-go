@@ -1,7 +1,5 @@
 <nav class="navbar menu-navbar">
-    <ul
-        class="container-nav-inner navbar-nav navbar-ul-primary d-flex flex-row"
-    >
+    <ul class="container-nav-inner navbar-nav navbar-ul-primary">
         <slot></slot>
     </ul>
 </nav>
@@ -20,19 +18,18 @@
     ul {
         margin: 0;
     }
-
     .menu-navbar {
+        width: 100%;
         background-color: var(--primary-color);
         border-top: 1px solid var(--quaternary-color);
         display: flex;
         justify-content: center;
     }
     .container-nav-inner {
-        height: 48px;
         width: 80%;
         display: flex;
+        flex-direction: row;
         justify-content: space-between;
-        align-items: center;
         flex-wrap: wrap;
     }
 

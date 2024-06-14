@@ -1,150 +1,53 @@
 <script>
-    import MenuTop from "$lib/MenuHeaderTop.svelte";
-    import Links from "$lib/MenuItem.svelte";
+    import ItemSocial from "$lib/menu/ItemSocial.svelte";
+    import MenuHeader from "$lib/menu/MenuHeader.svelte";
+    import MenuItem from "$lib/menu/MenuItem.svelte";
+    import MenuSocial from "$lib/menu/MenuSocial.svelte";
 </script>
 
-<header class="d-flex flex-row">
-    <a href="/braille"><img src="/img/logo.png" alt="Inclunet" /></a>
-    <h1 class="text-center">Inclubraille</h1>
+<header>
+    <div class="top-header_container">
+        <a href="/braille"><img src="/img/logo.png" alt="Inclunet" /></a>
+        <h1 class="text-center">Inclubraille</h1>
+    </div>
 
-    <nav class="navbar">
-        <button
-            class="navbar-toggler button-menu navbar-dark"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasDarkNavbar"
-            aria-controls="offcanvasDarkNavbar"
-            aria-label="Toggle navigation"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="container-fluid">
-            <div
-                class="offcanvas offcanvas-end text-bg-dark"
-                tabindex="-1"
-                id="offcanvasDarkNavbar"
-                aria-labelledby="offcanvasDarkNavbarLabel"
-            >
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">
-                        Inclubraille
-                    </h5>
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="offcanvas"
-                        aria-label="Close"
-                    ></button>
-                </div>
-                <div class="offcanvas-body">
-                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                        <li
-                            class="nav-item"
-                            data-bs-dismiss="offcanvas"
-                            aria-label="Close"
-                        >
-                            <a
-                                class="nav-link active"
-                                aria-current="page"
-                                href="/braille">Início</a
-                            >
-                        </li>
-                        <li
-                            class="nav-item"
-                            data-bs-dismiss="offcanvas"
-                            aria-label="Close"
-                        >
-                            <a class="nav-link" href="/braille/new"
-                                >Ir para o jogo</a
-                            >
-                        </li>
-                        <li
-                            class="nav-item"
-                            data-bs-dismiss="offcanvas"
-                            aria-label="Close"
-                        >
-                            <a class="nav-link" href="/braille/instructions"
-                                >Como Jogar</a
-                            >
-                        </li>
-                        <li
-                            class="nav-item"
-                            data-bs-dismiss="offcanvas"
-                            aria-label="Close"
-                        >
-                            <a class="nav-link" href="/braille/terms"
-                                >Termo de uso</a
-                            >
-                        </li>
-                    </ul>
-                    <hr />
-                    <section class="section-social-medias-footer mt-4">
-                        <ul class="list-group flex-row">
-                            <li class="mx-3">
-                                <a
-                                    href="https://www.facebook.com/CanalInclunet"
-                                    target="_blank"
-                                    ><img
-                                        src="/img/facebook.png"
-                                        alt="Facebook"
-                                        class="social-media-img list-group-item list-group-item-action"
-                                    /></a
-                                >
-                            </li>
-                            <li class="mx-3">
-                                <a
-                                    href="https://www.youtube.com/@Inclunet"
-                                    target="_blank"
-                                    ><img
-                                        src="/img/youtube.png"
-                                        alt="YouTube"
-                                        class="social-media-img list-group-item list-group-item-action"
-                                    /></a
-                                >
-                            </li>
-                            <li class="mx-3">
-                                <a
-                                    href="https://www.instagram.com/inclunet/"
-                                    target="_blank"
-                                    ><img
-                                        src="/img/instagram.png"
-                                        alt="Instagram"
-                                        class="social-media-img list-group-item list-group-item-action"
-                                    /></a
-                                >
-                            </li>
-                            <li class="mx-3">
-                                <a
-                                    href="https://www.linkedin.com/company/inclunet/"
-                                    target="_blank"
-                                    ><img
-                                        src="/img/linkedin.png"
-                                        alt="Linkedin"
-                                        class="social-media-img list-group-item list-group-item-action"
-                                    /></a
-                                >
-                            </li>
-                            <li class="mx-3">
-                                <a
-                                    href="https://www.twitter.com/inclunet"
-                                    target="_blank"
-                                    ><img
-                                        src="/img/twitter.png"
-                                        alt="Twitter"
-                                        class="social-media-img list-group-item list-group-item-action"
-                                    /></a
-                                >
-                            </li>
-                        </ul>
-                    </section>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div>
+        <MenuHeader title="IncluBraille">
+            <MenuItem href="/braille">Início</MenuItem>
+            <MenuItem href="/braille/new">Jogar</MenuItem>
+            <MenuItem href="/braille/instructions">Como Jogar</MenuItem>
+            <MenuItem href="/braille/terms">Termo de Uso</MenuItem>
+            <MenuItem href="/braille/terms" mobile={true}>Qualquer</MenuItem>
+            <MenuSocial>
+                <ItemSocial
+                    href="https://www.facebook.com/CanalInclunet"
+                    src="/img/facebook.png"
+                    alt="Facebook"
+                />
+                <ItemSocial
+                    href="https://www.youtube.com/@Inclunet"
+                    src="/img/youtube.png"
+                    alt="YouTube"
+                />
+                <ItemSocial
+                    href="https://www.instagram.com/inclunet/"
+                    src="/img/instagram.png"
+                    alt="Instagram"
+                />
+                <ItemSocial
+                    href="https://www.linkedin.com/company/inclunet/"
+                    src="/img/linkedin.png"
+                    alt="Linkedin"
+                />
+                <ItemSocial
+                    href="https://www.twitter.com/inclunet"
+                    src="/img/twitter.png"
+                    alt="Twitter"
+                />
+            </MenuSocial>
+        </MenuHeader>
+    </div>
 </header>
-<MenuTop>
-    <Links href="/braille">Início</Links>
-</MenuTop>
 <main class="content">
     <slot></slot>
 </main>
@@ -272,28 +175,14 @@
         --setenary-color: #5799f5;
         --octonary-color: #006aff;
     }
-    .container-nav-inner,
-    .menu-navbar,
-    .menu-navbar a,
-    .copyright-footer p,
-    .social-media-img,
-    ul,
-    ul.list-group,
-    .container-nav-inner ul li a,
-    .social-medias-nav-img .copyright-footer p,
-    .social-media-img,
-    ul,
-    ul.list-group {
-        margin: 0;
-    }
 
     header {
+        display: flex;
+        flex-direction: column;
         background-color: var(--primary-color);
         background-image: url("/img/fundo.png");
         background-repeat: repeat;
         background-size: 50%;
-        padding: 25px 50px 10px 50px;
-        align-items: center;
     }
     header h1 {
         width: 600px;
@@ -308,45 +197,10 @@
             1px 0px 0px var(--quaternary-color);
         border-radius: 10px;
     }
-    header .navbar {
-        display: none;
-    }
-    .menu-navbar {
-        background-color: var(--primary-color);
-        border-top: 1px solid var(--quaternary-color);
+    .top-header_container {
         display: flex;
-        justify-content: center;
+        margin: 2.5em 0 3em 0;
     }
-    .container-nav-inner {
-        height: 48px;
-        width: 80%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-    .menu-navbar a {
-        height: 48px;
-        line-height: 48px;
-        padding: 0 30px;
-        color: var(--quinary-color);
-        font-weight: 600;
-    }
-    .menu-navbar a:hover {
-        background-color: var(--setenary-color);
-        color: var(--quaternary-color);
-        text-shadow:
-            -1px -1px 1px var(--senary-color),
-            -1px 1px 1px var(--senary-color),
-            1px -1px 0px var(--senary-color),
-            1px 0px 0px var(--senary-color);
-    }
-
-    .menu-navbar a:active {
-        background-color: var(--octonary-color);
-        color: var(--senary-color);
-    }
-
     .section-social-medias-nav ul li {
         margin: 0 8px 0 8px;
     }
@@ -408,12 +262,6 @@
         background-color: var(--tertiary-color);
     }
     @media (max-width: 838px) {
-        .menu-navbar a {
-            padding: 0 10px;
-        }
-        .container-nav-inner {
-            padding: 0 25px 0 25px;
-        }
         .section-social-medias-footer ul li {
             margin: 0 3px 0 3px;
         }
@@ -444,9 +292,6 @@
         }
     }
     @media (max-width: 745px) {
-        .container-nav-inner {
-            padding: 0 10px 0 10px;
-        }
         .content-footer {
             flex-wrap: wrap;
         }
@@ -465,24 +310,9 @@
             font-size: 3.7em;
         }
     }
-    @media (max-width: 650px) {
-        .menu-navbar a {
-            padding: 7px;
-        }
-    }
     @media (max-width: 640px) {
         header {
             padding: 25px 15px 10px 15px;
-        }
-        .container-nav-inner {
-            padding: 0;
-        }
-        .navbar-ul-primary {
-            width: 100%;
-            justify-content: center;
-        }
-        .container-nav-inner .navbar-ul-primary a {
-            padding: 0 20px 0 20px;
         }
     }
     @media (max-width: 571px) {
@@ -498,9 +328,6 @@
         header img {
             width: 80%;
         }
-        .container-nav-inner .navbar-ul-primary a {
-            padding: 0 12px 0 12px;
-        }
     }
     @media (max-width: 565px) {
         .section-blog-footer {
@@ -509,35 +336,20 @@
     }
     @media (max-width: 450px) {
         header {
-            padding: 0 10px 5px 10px;
-            justify-content: space-between;
+            flex-direction: row;
+            padding: 0.2em 10px;
+            align-items: center;
             background-image: none;
         }
-        header a {
-            position: 0;
-            display: flex;
-            justify-content: center;
-        }
-        header img {
+        .top-header_container {
             margin: 0;
-            padding: 0;
-            width: 80%;
+        }
+        header a {
+            display: none;
         }
         header h1 {
-            height: auto;
-            width: 5%;
-            margin: 0;
             width: 100%;
             font-size: 2.5em;
-        }
-        header .navbar {
-            display: flex;
-        }
-        header .button-menu {
-            background: var(--senary-color);
-        }
-        .menu-navbar {
-            display: none;
         }
         p {
             font-size: 1.3em;

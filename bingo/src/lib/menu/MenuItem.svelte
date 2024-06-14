@@ -1,10 +1,28 @@
 <script>
+    import MediaQuery from "$lib/MediaQuery.svelte";
     export let href;
+    export let mobile = false;
 </script>
 
-<li class="nav-item">
-    <a {href} class="nav-link navbar-brand"><slot></slot></a>
-</li>
+<MediaQuery query="(min-width: 481px)" let:matches>
+    {#if matches && !mobile}
+        <li class="nav-item">
+            <a {href} class="nav-link navbar-brand">
+                <slot></slot>
+            </a>
+        </li>
+    {/if}
+</MediaQuery>
+
+<MediaQuery query="(max-width: 480px)" let:matches>
+    {#if matches}
+        <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+            <a class="nav-link" aria-current="page" {href}>
+                <slot></slot>
+            </a>
+        </li>
+    {/if}
+</MediaQuery>
 
 <style>
     :root {
@@ -36,9 +54,16 @@
             1px -1px 0px var(--senary-color),
             1px 0px 0px var(--senary-color);
     }
-
     .nav-link:active {
         background-color: var(--octonary-color);
         color: var(--senary-color);
+    }
+    @media (max-width: 480px) {
+        .nav-link {
+            color: var(--quaternary-color);
+        }
+        .nav-item {
+            text-align: center;
+        }
     }
 </style>
