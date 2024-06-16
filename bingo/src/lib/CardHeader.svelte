@@ -38,6 +38,7 @@
                         autoplay={$card.Autoplay}
                         on:click={handleDispatchAutoplayEvent}
                     />
+
                     <Button
                         color="dark"
                         on:click={handleDispatchOpenConfig}
@@ -56,15 +57,7 @@
             {/if}
 
             {#if $card.Card == 1 && $card.Checked < $card.Type}
-                <div class="container-botao">
-                    <Button on:click={handleDispatchDraw}>Sortear</Button>
-                    <Button
-                        color="dark"
-                        on:click={handleDispatchOpenConfig}
-                        data_bs_toggle="modal"
-                        data_bs_target="#exampleModal">Config</Button
-                    >
-                </div>
+                <Button on:click={handleDispatchDraw}>Sortear</Button>
             {/if}
         </div>
         <div></div>

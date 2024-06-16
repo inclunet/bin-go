@@ -27,13 +27,7 @@ func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusInternalServerError, errors.New("new card cannot be added"))
 	}
 
-	main, err := round.GetCard(0)
-
-	if err != nil {
-		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
-	}
-
-	server.Logger.Info("Added Bingo Card", "round", card.Round, "card", card.Card, "checked", card.CheckDrawedNumbers(main))
+	b.Log("Add Bingo Card", card)
 
 	return server.NewResponse(card)
 }
@@ -49,19 +43,19 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusInternalServerError, errors.New("round cannot be added"))
 	}
 
-	old, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
-
-	if err == nil {
-		server.Logger.Info("Redirect players", "from", old.Round, "to", round.Round, "players", old.SetNextRoundForAll(round.Round))
-	}
-
 	card, err := round.GetCard(0)
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	server.Logger.Info("Added Bingo Round", "round", round.Round, "card", card.Card)
+	old, err := b.GetRound(server.GetURLParamHasInt(r, "round") - 1)
+
+	if err == nil {
+		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", old.SetNextRoundForAll(round.Round))
+	}
+
+	b.Log("Add Bingo Round", card)
 
 	return server.NewResponse(card)
 }
@@ -81,7 +75,7 @@ func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
 
 	card.CancelAlert()
 
-	server.Logger.Info("Cancel Alert", "round", card.Round, "card", card.Card, "bingo", card.Bingo)
+	b.Log("Cancel Bingo Alert", card)
 
 	return server.NewResponse(card)
 }
@@ -103,7 +97,7 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 
 	checked, Unchecked := round.ToggleNumberForAll(number)
 
-	server.Logger.Info("Draw", "round", card.Round, "card", card.Card, "number", number, "checked", checked, "unchecked", Unchecked)
+	b.Log("Draw new Random Bingo Number", card, "number", number, "checked", checked, "unchecked", Unchecked)
 
 	return server.NewResponse(card)
 }
@@ -121,7 +115,7 @@ func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
-	server.Logger.Info("Get Bingo Card", "round", card.Round, "card", card.Card, "checked", card.Checked)
+	b.Log("Get Bingo Card", card)
 
 	return server.NewResponse(card)
 }
@@ -133,9 +127,15 @@ func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
+	card, err := round.GetCard(0)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
+	}
+
 	qr := server.NewQRCode(fmt.Sprintf("https://%s/api/bingo/%d/new", r.Host, round.Round))
 
-	server.Logger.Info("Get Bingo QR", "round", round.Round, "qr", qr.Content)
+	b.Log("Get Bingo Round QR", card, "qr", qr.Content)
 
 	return server.NewResponse(qr)
 }
@@ -155,7 +155,13 @@ func (b *Bingo) GetRoundsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
 
-	server.Logger.Info("Get Bingo Round", "round", round.Round, "cards", len(round.Cards))
+	card, err := round.GetCard(0)
+
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
+	}
+
+	b.Log("Get Bingo Round", card, "cards", len(round.Cards))
 
 	return server.NewResponse(round)
 }
@@ -201,6 +207,25 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 	card.UpdateCard()
 }
 
+func (b *Bingo) Log(msg string, card *Card, complement ...any) {
+	info := []any{
+		"round", card.Round,
+		"card", card.Card,
+		"checked", card.Checked,
+		"lastnumber", card.LastNumber,
+		"autoplay", card.Autoplay,
+		"bingo", card.Bingo,
+		"lastcompletion", card.LastCompletion,
+		"type", card.Type,
+	}
+
+	if len(complement) > 1 && len(complement)%2 == 0 {
+		info = append(info, complement...)
+	}
+
+	server.Logger.Info(msg, info...)
+}
+
 func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error) {
 	round, err := b.GetRound(server.GetURLParamHasInt(h, "round") - 1)
 
@@ -228,7 +253,7 @@ func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error)
 		return server.NewResponseError(http.StatusInternalServerError, err)
 	}
 
-	server.Logger.Info("Set Completions", "round", card.Round, "card", card.Card, "completions", card.Completions, "counter", counter, "bingo", card.Bingo)
+	b.Log("Set new Completions Values for the bingo Round", card, "counter", counter, "completions", card.Completions)
 
 	return server.NewResponse(card)
 }
@@ -248,7 +273,7 @@ func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, e
 
 	card.ToggleAutoplay()
 
-	server.Logger.Info("Toggle Autoplay", "round", card.Round, "card", card.Card, "checked", card.Checked, "autoplay", card.Autoplay, "bingo", card.Bingo)
+	b.Log("Toggle Bingo Card Autoplay", card)
 
 	return server.NewResponse(card)
 }
@@ -267,13 +292,13 @@ func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) 
 	}
 
 	if card.ToggleNumber(server.GetURLParamHasInt(r, "number")) && card.Card > 1 {
-		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", server.GetURLParamHasInt(r, "number"), "checked", card.Checked, "bingo", card.Bingo)
+		b.Log("Toggle Bingo Card Number", card, "number", server.GetURLParamHasInt(r, "number"))
 	}
 
 	if card.Card == 1 {
 		checked, unchecked := round.ToggleNumberForAll(server.GetURLParamHasInt(r, "number"))
 
-		server.Logger.Info("Toggle Number", "round", card.Round, "card", card.Card, "number", server.GetURLParamHasInt(r, "number"), "checked", checked, "unchecked", unchecked)
+		b.Log("Toggle Bingo Card Number for All", card, "number", server.GetURLParamHasInt(r, "number"), "checked", checked, "unchecked", unchecked)
 	}
 
 	return server.NewResponse(card)
