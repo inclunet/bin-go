@@ -47,6 +47,9 @@
 {/if}
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
     img {
         width: 72px;
         height: 72px;
@@ -61,7 +64,7 @@
         width: 52px;
         color: black;
         font-weight: 900;
-        font-size: 1.4em;
+        font-size: 2.5rem;
     }
     .button-card-client {
         margin: 6px;
@@ -69,7 +72,7 @@
         height: 54px;
         color: black;
         font-weight: 900;
-        font-size: 1.5em;
+        font-size: 2.5em;
     }
 
     @media (max-width: 1132px) {
@@ -134,14 +137,13 @@
             margin: 0.5em;
             width: 50px;
             height: 50px;
-            font-size: 1.5em;
+            font-size: 2rem;
         }
     }
 
     @media (max-width: 400px) {
         .button-card-client {
-            margin: 0.3em;
-            font-size: 1.3em;
+            margin: 0.3rem;
         }
     }
 
@@ -154,7 +156,7 @@
             margin: 0.2em;
             width: 45px;
             height: 45px;
-            font-size: 1.1em;
+            font-size: 2rem;
         }
     }
 </style>

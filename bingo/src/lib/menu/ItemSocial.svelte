@@ -21,9 +21,9 @@
 
 <style>
     a {
-        border-radius: 0.2em;
+        border-radius: 0.3rem;
     }
     img {
-        padding: 0.1em;
+        padding: 0.16rem;
     }
 </style>

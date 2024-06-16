@@ -241,10 +241,10 @@
 
     <section class="mt-4">
         <p>
-            Pronto para Jogar? Vamos Começar! Escolha a sua velocidade,
-            personalize suas opções e convide amigos e familiares para
-            participar desta jornada inclusiva no IncluBingo. A diversão está
-            apenas a um clique de distância.
+            Pronto para Jogar? Vamos Começar!
+            <br />Escolha a sua velocidade, personalize suas opções e convide
+            amigos e familiares para participar desta jornada inclusiva no
+            IncluBingo. A diversão está apenas a um clique de distância.
         </p>
 
         <h2>
@@ -271,34 +271,41 @@
 </div>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
+    header h2 {
+        font-size: 2.8rem;
+    }
     section h2:nth-child(1n) {
-        font-size: 1.6em;
+        font-size: 2.6rem;
     }
     h3 {
-        font-size: 1.4em;
+        font-size: 2.2rem;
     }
     .card {
         border: none;
     }
 
     .card-title {
-        margin: 10px 0px 20px 0px;
-        line-height: 40px;
+        margin: 1rem 0 2rem 0;
+        line-height: 4rem;
     }
     .main-features-img {
-        margin: 0 10px 0 10px;
+        margin: 0 1rem 0 1rem;
     }
     .card-text {
         text-align: justify;
     }
     p,
     section p {
-        font-size: 1.2em;
+        font-size: 1.8rem;
+        line-height: 3.6rem;
     }
     a,
     section a,
     section p a {
-        font-size: 1.2em;
+        font-size: 2.2rem;
     }
     .text-link {
         color: #000;
@@ -307,42 +314,48 @@
         color: #fff;
     }
     .term {
-        padding: 3px 5px 3px 5px;
+        padding: 0.3rem 0.5rem;
         margin: 0;
-        font-size: 1em;
+        font-size: 1.6rem;
     }
 
     @media (max-width: 573px) {
         .container {
-            padding: 0 20px 0 20px;
+            padding: 0 2rem 0 2rem;
         }
         header h2 {
-            margin-top: -20px;
-            line-height: 40px;
+            margin-top: -2rem;
+            line-height: 4rem;
             text-align: center;
         }
         h3 {
-            line-height: 40px;
+            line-height: 4rem;
         }
         header p:nth-child(n + 3):nth-child(-n + 4) {
             text-align: justify;
         }
         .row {
-            padding: 0px;
+            padding: 0;
         }
         .card {
-            border-radius: 10px;
-            box-shadow: 5px 5px 5px #e2e2e2;
+            border-radius: 1rem;
+            box-shadow: 0.5rem 0.5rem 0.5rem #e2e2e2;
         }
 
         .main-features-img {
-            margin-left: 10px;
+            margin-left: 1rem;
         }
         p {
-            line-height: 37px;
+            line-height: 3.7rem;
         }
         section p {
             text-align: justify;
+        }
+    }
+    @media (max-width: 450px) {
+        header h2 {
+            font-size: 2.3rem;
+            line-height: 3.5rem;
         }
     }
 </style>

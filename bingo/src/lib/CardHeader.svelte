@@ -32,23 +32,21 @@
 <div class="container d-flex flex-column">
     <div class="container-header">
         <div class="container-header-inner">
-            <div class="container-botao">
-                {#if $card.Card > 1 && !$card.Bingo}
+            {#if $card.Card > 1 && !$card.Bingo}
+                <div class="container-botao">
                     <Autoplay
                         autoplay={$card.Autoplay}
                         on:click={handleDispatchAutoplayEvent}
                     />
-                {/if}
 
-                {#if $card.Card == 1}
-                <Button
-                    color="dark"
-                    on:click={handleDispatchOpenConfig}
-                    data_bs_toggle="modal"
-                    data_bs_target="#exampleModal">Config</Button
-                >
-                {/if}
-            </div>
+                    <Button
+                        color="dark"
+                        on:click={handleDispatchOpenConfig}
+                        data_bs_toggle="modal"
+                        data_bs_target="#exampleModal">Config</Button
+                    >
+                </div>
+            {/if}
 
             {#if $card.Card > 1 && $card.Bingo}
                 <Bingo on:click={handleDispatchStopBingoAlert} />
@@ -59,11 +57,19 @@
             {/if}
 
             {#if $card.Card == 1 && $card.Checked < $card.Type}
-                <Button on:click={handleDispatchDraw} accesskey="s">Sortear</Button>
+                <div class="container-botao">
+                    <Button on:click={handleDispatchDraw}>Sortear</Button>
+                    <Button
+                        color="dark"
+                        on:click={handleDispatchOpenConfig}
+                        data_bs_toggle="modal"
+                        data_bs_target="#exampleModal">Config</Button
+                    >
+                </div>
             {/if}
         </div>
         <div></div>
-        <div aria-live="polite">
+        <div aria-live="polite" class="container-status">
             <p><strong>{$card.Checked}</strong> Bolas Sorteadas</p>
             <p><strong>{$card.LastNumber}</strong> Última sorteada</p>
         </div>
@@ -71,6 +77,9 @@
 </div>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
     .container {
         padding: 0;
     }
@@ -84,9 +93,9 @@
         margin-bottom: 50px;
     }
     .container-botao {
+        width: 25rem;
         margin: 0;
         padding: 0;
-        width: 18em;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -115,7 +124,10 @@
             font-size: 1em;
         }
         .container-botao {
-            width: 12em;
+            width: 17.5rem;
+        }
+        .container-status p {
+            font-size: 1.5rem;
         }
     }
 </style>

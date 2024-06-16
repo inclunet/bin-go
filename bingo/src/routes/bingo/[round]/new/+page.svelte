@@ -12,14 +12,14 @@
         $card = await callApi(
             $card,
             `/api/bingo/${data.Round}/${data.Card}`,
-            "GET",
+            "GET"
         );
     };
 
     onMount(loadCard);
 </script>
 
-<PageTitle title="Nova cartela, rodada {$card.Round}" game="Inclubingo"/>
+<PageTitle title="Nova cartela, rodada {$card.Round}" game="Inclubingo" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2>Rodada #{$card.Round}</h2>
@@ -29,19 +29,23 @@
 </div>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
+
     h2 {
         margin-top: 40px;
-        font-size: 2em;
+        font-size: 2.8rem;
     }
     p {
         padding: 0 10px 0 10px;
-        font-size: 1.2em;
+        font-size: 1.8rem;
     }
     @media (max-width: 450px) {
         h2 {
             margin: 0;
             padding: 10px 0 10px 0;
-            font-size: 1.5em;
+            font-size: 2.3rem;
         }
         p {
             margin: 0;

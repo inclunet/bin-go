@@ -33,26 +33,29 @@
         --senary-color: #1d1d1d;
         --setenary-color: #5799f5;
         --octonary-color: #006aff;
+
+        font-size: 62.5%;
     }
     .nav-link,
     .nav-item {
         margin: 0;
     }
     .nav-link {
-        height: 48px;
-        line-height: 48px;
-        padding: 0 30px;
+        height: 4.8rem;
+        line-height: 4.8rem;
+        padding: 0 3rem;
         color: var(--quinary-color);
+        font-size: 2rem;
         font-weight: 600;
     }
     .nav-link:hover {
         background-color: var(--setenary-color);
         color: var(--quaternary-color);
         text-shadow:
-            -1px -1px 1px var(--senary-color),
-            -1px 1px 1px var(--senary-color),
-            1px -1px 0px var(--senary-color),
-            1px 0px 0px var(--senary-color);
+            -0.1rem -0.1rem 0.1rem var(--senary-color),
+            -0.1rem 0.1rem 0.1rem var(--senary-color),
+            0.1rem -0.1rem 0 var(--senary-color),
+            0.1rem 0 0 var(--senary-color);
     }
     .nav-link:active {
         background-color: var(--octonary-color);
