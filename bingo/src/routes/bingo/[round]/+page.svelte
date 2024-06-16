@@ -20,7 +20,10 @@
     onMount(loadCard);
 </script>
 
-<PageTitle title="Sorteio de Cartelas, rodada {$card.Round}" game="Inclubingo" />
+<PageTitle
+    title="Sorteio de Cartelas, rodada {$card.Round}"
+    game="Inclubingo"
+/>
 
 <div class="container-fluid d-flex align-items-center flex-column">
     <h2 class="text-center">Rodada #{$card.Round}</h2>
@@ -33,22 +36,22 @@
         </strong>
     </p>
     <div id="qr_code" class="d-flex">
-        <img
-            src="/qr/bingo/{$card.Round}"
-            alt="QR-Code"
-        />
+        <img src="/qr/bingo/{$card.Round}" alt="QR-Code" />
     </div>
     <StartRound on:callToAction={handleCallToAction} />
 </div>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
     h2 {
-        margin-top: 40px;
-        font-size: 2em;
+        margin-top: 4rem;
+        font-size: 2.8rem;
     }
     p {
-        padding: 0 10px 0 10px;
-        font-size: 1.2em;
+        padding: 0 1rem 0 1rem;
+        font-size: 1.8rem;
     }
 
     a#link_jogo {
@@ -56,22 +59,22 @@
     }
 
     #qr_code {
-        margin: 10px 0px 15px 0px;
+        margin: 1rem 0 1.5rem 0;
     }
     img {
-        width: 248px;
-        height: 208px;
+        width: 24.8rem;
+        height: 20.8rem;
     }
 
     @media (max-width: 450px) {
         h2 {
             margin: 0;
-            padding: 10px 0 10px 0;
-            font-size: 1.5em;
+            padding: 1rem 0 1rem 0;
+            font-size: 2.3rem;
         }
         p {
             margin: 0;
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
         }
     }
 </style>

@@ -32,8 +32,14 @@
 </div>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
     .table-draw {
         align-items: center;
+    }
+    th {
+        font-size: 2rem;
     }
     @media (max-width: 991px) {
         .table-draw {
@@ -43,6 +49,9 @@
     @media (max-width: 767px) {
         .table-draw {
             align-items: center;
+        }
+        th {
+            font-size: 1.3rem;
         }
     }
 </style>

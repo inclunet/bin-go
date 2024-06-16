@@ -121,17 +121,25 @@
         --senary-color: #1d1d1d;
         --setenary-color: #5799f5;
         --octonary-color: #006aff;
+
+        font-size: 62.5%;
+    }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
     .section-social-medias-nav ul li {
-        margin: 0 8px 0 8px;
+        margin: 0 0.8rem 0 0.8rem;
     }
     p {
-        margin-top: 30px;
-        padding: 0 10px 0 10px;
-        font-size: 1.6em;
+        margin-top: 2rem;
+        padding: 0 1rem 0 1rem;
+        font-size: 2.5rem;
     }
     .copyright-footer p {
-        font-size: 1.3em;
+        margin: 0;
+        font-size: 2rem;
     }
     footer {
         display: flex;
@@ -142,11 +150,11 @@
         min-height: 30vh;
         background-color: var(--tertiary-color);
         color: var(--quaternary-color);
-        margin-top: 45px;
-        padding-bottom: 30px;
+        margin-top: 4.5rem;
+        padding-bottom: 3rem;
     }
     footer hr {
-        margin: 30px 0 30px 0;
+        margin: 1.5rem 0;
         color: var(--quaternary-color);
         width: 95%;
     }
@@ -160,12 +168,15 @@
         justify-content: space-around;
         align-items: start;
     }
+    .section-useful-links-footer li {
+        line-height: 5rem;
+    }
     .section-social-medias-footer ul li {
-        margin: 0 8px 0 8px;
+        margin: 0 0.8rem 0 0.8rem;
     }
     .social-media-img {
         border-radius: 5px;
-        border: 2px solid var(--quaternary-color);
+        border: 0.2rem solid var(--quaternary-color);
     }
     ul.list-group {
         display: flex;
@@ -177,10 +188,11 @@
     }
     a {
         color: var(--quaternary-color);
+        font-size: 1.8rem;
     }
     @media (max-width: 838px) {
         .section-social-medias-footer ul li {
-            margin: 0 3px 0 3px;
+            margin: 0 0.3rem 0 0.3rem;
         }
     }
     @media (max-width: 794px) {
@@ -196,10 +208,10 @@
         }
         .section-logo-footer img {
             margin: 0;
-            width: 100px;
+            width: 10rem;
         }
         .section-social-medias-nav ul li {
-            margin: 0 3px 0 3px;
+            margin: 0 0.3rem 0 0.3rem;
         }
     }
     @media (max-width: 745px) {
@@ -207,7 +219,7 @@
             flex-wrap: wrap;
         }
         .section-social-medias-footer {
-            margin-top: 50px;
+            margin-top: 5rem;
         }
         .section-social-medias-nav ul li {
             margin-left: 3px;
@@ -215,16 +227,16 @@
     }
     @media (max-width: 565px) {
         .section-blog-footer {
-            margin-top: 50px;
+            margin-top: 5rem;
         }
     }
     @media (max-width: 450px) {
         p {
-            font-size: 1.3em;
+            font-size: 2rem;
         }
         .copyright-footer p {
-            margin-top: 20px;
-            font-size: 1em;
+            margin-top: 2rem;
+            font-size: 1.6rem;
         }
         footer,
         .content-footer {
@@ -236,14 +248,14 @@
             min-height: 26vh;
         }
         .logo-footer {
-            width: 90px;
+            width: 9rem;
         }
         footer hr {
             margin: 0;
         }
         .section-useful-links-footer ul li a {
-            margin: 10px 0 10px 0;
-            padding: 15px;
+            margin: 1rem 0 1rem 0;
+            padding: 1.5rem;
             text-align: center;
         }
         footer hr,
@@ -251,7 +263,10 @@
         .section-useful-links-footer,
         .section-blog-footer,
         .section-social-medias-footer {
-            margin-top: 40px;
+            margin-top: 4rem;
+        }
+        .section-useful-links-footer li {
+            line-height: 1rem;
         }
     }
 </style>

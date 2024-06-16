@@ -12,6 +12,8 @@
         --senary-color: #1d1d1d;
         --setenary-color: #5799f5;
         --octonary-color: #006aff;
+
+        font-size: 62.5%;
     }
     .container-nav-inner,
     .menu-navbar,
@@ -21,7 +23,7 @@
     .menu-navbar {
         width: 100%;
         background-color: var(--primary-color);
-        border-top: 1px solid var(--quaternary-color);
+        border-top: 0.1rem solid var(--quaternary-color);
         display: flex;
         justify-content: center;
     }
@@ -35,12 +37,12 @@
 
     @media (max-width: 838px) {
         .container-nav-inner {
-            padding: 0 25px 0 25px;
+            padding: 0 2.5rem 0 2.5rem;
         }
     }
     @media (max-width: 745px) {
         .container-nav-inner {
-            padding: 0 10px 0 10px;
+            padding: 0 1rem 0 1rem;
         }
     }
     @media (max-width: 640px) {

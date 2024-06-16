@@ -199,15 +199,21 @@
 <audio bind:this={checkAudio} src="/pop.mp3"></audio>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
+    h2 {
+        font-size: 2.8rem;
+    }
+    h3 {
+        font-size: 2.3rem;
+    }
     .info-card,
     .table-card {
         flex-grow: 2;
     }
     .anuncio {
         flex-grow: 1;
-    }
-    .anuncio {
-        padding: 0;
         flex-basis: 21%;
     }
     .container-card {
@@ -240,11 +246,19 @@
         }
     }
     @media (max-width: 450px) {
+        h2,
+        h3 {
+            font-size: 1.8rem;
+        }
         .info-card {
             width: 90%;
         }
         .container-card {
             margin-top: 17px;
+        }
+        .anuncio {
+            display: flex;
+            justify-content: center;
         }
     }
 </style>

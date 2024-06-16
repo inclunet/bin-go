@@ -18,16 +18,19 @@
 </button>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
     button {
-        padding: 10px;
-        font-size: 1.3em;
+        padding: 1rem;
+        font-size: 2rem;
     }
 
     @media (max-width: 450px) {
         button {
-            height: 48px;
-            padding: 7px;
-            font-size: 1em;
+            height: 4.8rem;
+            padding: 0.7rem;
+            font-size: 1.6rem;
         }
     }
 </style>

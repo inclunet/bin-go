@@ -5,9 +5,9 @@
     import { callApi } from "$lib/api";
     import { card } from "$lib/bingo";
 
-    const handleNewRoundEvent = async() => {
-$card = await callApi($card, `/api/bingo/0/new/${$card.Type}`, "GET");
-goto(`/bingo/${$card.Round}`);
+    const handleNewRoundEvent = async () => {
+        $card = await callApi($card, `/api/bingo/0/new/${$card.Type}`, "GET");
+        goto(`/bingo/${$card.Round}`);
     };
 </script>
 
@@ -22,23 +22,26 @@ goto(`/bingo/${$card.Round}`);
 </div>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
     h2 {
-        margin-top: 40px;
-        font-size: 2em;
+        margin-top: 4rem;
+        font-size: 2.8rem;
     }
     p {
-        padding: 0 10px 0 10px;
-        font-size: 1.2em;
+        padding: 0 1rem 0 1rem;
+        font-size: 1.8rem;
     }
     @media (max-width: 450px) {
         h2 {
             margin: 0;
-            padding: 10px 0 10px 0;
-            font-size: 1.5em;
+            padding: 1rem 0 1rem 0;
+            font-size: 2.3rem;
         }
         p {
             margin: 0;
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
         }
     }
 </style>
