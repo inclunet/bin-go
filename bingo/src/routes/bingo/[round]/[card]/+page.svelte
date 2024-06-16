@@ -31,11 +31,11 @@
 
     const handleCheckNumberEvent = async (event = {}) => {
         if (!$card.Autoplay || $card.Card == 1) {
-            if (!event.detail.Checked || $card.Card == 1) {
+            
                 await updateCard(
                     `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`
                 );
-            }
+
         }
     };
 
