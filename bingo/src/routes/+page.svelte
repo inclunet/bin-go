@@ -1,8 +1,10 @@
 <script>
+    import PageTitle from "$lib/PageTitle.svelte";
     import CardPlay from "$lib/CardPlay.svelte";
     import Footer from "$lib/Footer.svelte";
 </script>
 
+<PageTitle title="Inclunet" game="Homepage" />
 <header>
     <img src="/img/inclunet.png" alt="Inclunet" />
 </header>
@@ -27,7 +29,7 @@
         </div>
     </slot>
 </main>
-<Footer>Aprenda Braille brincando.</Footer>
+<Footer />
 
 <style>
     :root {

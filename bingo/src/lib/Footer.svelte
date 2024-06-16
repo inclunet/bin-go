@@ -1,11 +1,11 @@
 <footer>
     <p class="text-center">
-        <strong> <slot></slot> </strong>
+        <strong> Ser igual é mostrar que somos todos diferentes! </strong>
     </p>
     <hr />
     <section class="content-footer">
         <section class="section-logo-footer">
-            <a href="/braille"
+            <a href="/"
                 ><img
                     src="/img/logo.png"
                     alt="Inclunet"

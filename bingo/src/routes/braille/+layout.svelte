@@ -52,7 +52,7 @@
 <main class="content">
     <slot></slot>
 </main>
-<Footer>Aprenda Braille brincando.</Footer>
+<Footer />
 
 <style>
     :root {

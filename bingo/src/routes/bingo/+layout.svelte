@@ -52,9 +52,7 @@
 <main class="content">
     <slot></slot>
 </main>
-<Footer
-    >Jogo de Bingo acessível e inclusivo para pessoas com deficiência.</Footer
->
+<Footer />
 
 <style>
     :root {
