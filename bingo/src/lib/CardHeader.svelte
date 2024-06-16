@@ -57,7 +57,15 @@
             {/if}
 
             {#if $card.Card == 1 && $card.Checked < $card.Type}
-                <Button on:click={handleDispatchDraw}>Sortear</Button>
+                <div class="container-botao">
+                    <Button on:click={handleDispatchDraw}>Sortear</Button>
+                    <Button
+                        color="dark"
+                        on:click={handleDispatchOpenConfig}
+                        data_bs_toggle="modal"
+                        data_bs_target="#exampleModal">Config</Button
+                    >
+                </div>
             {/if}
         </div>
         <div></div>
