@@ -8,7 +8,7 @@
 
 <header>
     <div class="top-header_container">
-        <a href="/braille"><img src="/img/logo.png" alt="Inclunet" /></a>
+        <a href="/"><img src="/img/logo.png" alt="Inclunet" /></a>
         <h1 class="text-center">Inclubraille</h1>
     </div>
 

@@ -1,5 +1,5 @@
 <header class="d-flex flex-row">
-    <a href="/bingo"><img src="/img/logo.png" alt="Inclunet" /></a>
+    <a href="/"><img src="/img/logo.png" alt="Inclunet" /></a>
     <h1 class="text-center">Inclubingo</h1>
 
     <nav class="navbar">
@@ -307,12 +307,12 @@
         background-image: url("/img/fundo.png");
         background-repeat: repeat;
         background-size: 50%;
-        padding: 25px 50px 10px 50px;
+        padding: 2.5rem 2rem 1rem 2rem;
         align-items: center;
     }
     header h1 {
-        width: 600px;
-        font-size: 5em;
+        width: 40rem;
+        font-size: 6rem;
         margin-left: 15%;
         background: var(--secondary-color);
         color: var(--quinary-color);
@@ -321,7 +321,7 @@
             -1px 1px 3px var(--quaternary-color),
             1px -1px 0px var(--quaternary-color),
             1px 0px 0px var(--quaternary-color);
-        border-radius: 10px;
+        border-radius: 1rem;
     }
     header .navbar {
         display: none;
@@ -333,7 +333,7 @@
         justify-content: center;
     }
     .container-nav-inner {
-        height: 48px;
+        height: 3.5rem;
         width: 80%;
         display: flex;
         justify-content: space-between;
@@ -341,9 +341,9 @@
         flex-wrap: wrap;
     }
     .menu-navbar a {
-        height: 48px;
-        line-height: 48px;
-        padding: 0 30px;
+        height: 3.5rem;
+        line-height: 3.5rem;
+        padding: 0 3rem;
         color: var(--quinary-color);
         font-weight: 600;
     }
@@ -363,19 +363,19 @@
     }
 
     .section-social-medias-nav ul li {
-        margin: 0 8px 0 8px;
+        margin: 0 0.8rem 0 0.8rem;
     }
 
     .content {
         flex: 1 0 auto;
     }
     p {
-        margin-top: 30px;
-        padding: 0 10px 0 10px;
-        font-size: 1.6em;
+        margin-top: 1.5rem;
+        padding: 0 1rem 0 1rem;
+        font-size: 1.8rem;
     }
     .copyright-footer p {
-        font-size: 1.3em;
+        font-size: 1.5rem;
     }
     footer {
         display: flex;
@@ -386,11 +386,11 @@
         min-height: 30vh;
         background-color: var(--tertiary-color);
         color: var(--quaternary-color);
-        margin-top: 45px;
-        padding-bottom: 30px;
+        margin-top: 4.5rem;
+        padding-bottom: 2rem;
     }
     footer hr {
-        margin: 30px 0 30px 0;
+        margin: 1.3rem 0 1.3rem 0;
         color: var(--quaternary-color);
         width: 95%;
     }
@@ -405,11 +405,11 @@
         align-items: start;
     }
     .section-social-medias-footer ul li {
-        margin: 0 8px 0 8px;
+        margin: 0 0.8rem 0 0.8rem;
     }
     .social-media-img {
-        border-radius: 5px;
-        border: 2px solid var(--quaternary-color);
+        border-radius: 0.5rem;
+        border: 0.2rem solid var(--quaternary-color);
     }
     ul.list-group {
         display: flex;
@@ -424,18 +424,18 @@
     }
     @media (max-width: 838px) {
         .menu-navbar a {
-            padding: 0 10px;
+            padding: 0 1rem;
         }
         .container-nav-inner {
-            padding: 0 25px 0 25px;
+            padding: 0 2.5rem 0 2.5rem;
         }
         .section-social-medias-footer ul li {
-            margin: 0 3px 0 3px;
+            margin: 0 0.3rem 0 0.3rem;
         }
     }
     @media (max-width: 794px) {
         header h1 {
-            font-size: 4em;
+            font-size: 6.4rem;
         }
         header img {
             width: 100%;
@@ -452,42 +452,42 @@
         }
         .section-logo-footer img {
             margin: 0;
-            width: 100px;
+            width: 10rem;
         }
         .section-social-medias-nav ul li {
-            margin: 0 3px 0 3px;
+            margin: 0 0.3rem 0 0.3rem;
         }
     }
     @media (max-width: 745px) {
         .container-nav-inner {
-            padding: 0 10px 0 10px;
+            padding: 0 1rem 0 1rem;
         }
         .content-footer {
             flex-wrap: wrap;
         }
         .section-social-medias-footer {
-            margin-top: 50px;
+            margin-top: 5rem;
         }
         .section-social-medias-nav ul li {
-            margin-left: 3px;
+            margin-left: 0.3rem;
         }
     }
     @media (max-width: 685px) {
         header {
-            padding: 25px 25px 10px 25px;
+            padding: 2.5rem 2.5rem 1rem 2.5rem;
         }
         header h1 {
-            font-size: 3.7em;
+            font-size: 5.9rem;
         }
     }
     @media (max-width: 650px) {
         .menu-navbar a {
-            padding: 7px;
+            padding: 0.7rem;
         }
     }
     @media (max-width: 640px) {
         header {
-            padding: 25px 15px 10px 15px;
+            padding: 2.5rem 1.5rem 1rem 1.5rem;
         }
         .container-nav-inner {
             padding: 0;
@@ -497,7 +497,7 @@
             justify-content: center;
         }
         .container-nav-inner .navbar-ul-primary a {
-            padding: 0 20px 0 20px;
+            padding: 0 2rem 0 2rem;
         }
     }
     @media (max-width: 571px) {
@@ -514,17 +514,17 @@
             width: 80%;
         }
         .container-nav-inner .navbar-ul-primary a {
-            padding: 0 12px 0 12px;
+            padding: 0 1.2rem 0 1.2rem;
         }
     }
     @media (max-width: 565px) {
         .section-blog-footer {
-            margin-top: 50px;
+            margin-top: 5rem;
         }
     }
     @media (max-width: 450px) {
         header {
-            padding: 0 10px 5px 10px;
+            padding: 0 1rem 0.5rem 1rem;
             justify-content: space-between;
             background-image: none;
         }
@@ -543,7 +543,7 @@
             width: 5%;
             margin: 0;
             width: 100%;
-            font-size: 2.5em;
+            font-size: 4rem;
         }
         header .navbar {
             display: flex;
@@ -555,11 +555,11 @@
             display: none;
         }
         p {
-            font-size: 1.3em;
+            font-size: 2rem;
         }
         .copyright-footer p {
             margin-top: 20px;
-            font-size: 1em;
+            font-size: 1.6rem;
         }
         footer,
         .content-footer {
@@ -571,14 +571,14 @@
             min-height: 26vh;
         }
         .logo-footer {
-            width: 90px;
+            width: 9rem;
         }
         footer hr {
             margin: 0;
         }
         .section-useful-links-footer ul li a {
-            margin: 10px 0 10px 0;
-            padding: 15px;
+            margin: 1rem 0 1rem 0;
+            padding: 1.5rem;
             text-align: center;
         }
         footer hr,
@@ -586,7 +586,7 @@
         .section-useful-links-footer,
         .section-blog-footer,
         .section-social-medias-footer {
-            margin-top: 40px;
+            margin-top: 4rem;
         }
     }
 </style>

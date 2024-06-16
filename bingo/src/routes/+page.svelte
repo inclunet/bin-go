@@ -22,7 +22,7 @@
                 titleButton="Inclubraille"
             >
                 O Braille Personal Trainer te deixará expert na escrita em
-                Braille
+                Braille.
             </CardPlay>
         </div>
     </slot>
