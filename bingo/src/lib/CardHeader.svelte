@@ -40,12 +40,14 @@
                     />
                 {/if}
 
+                {#if $card.Card == 1}
                 <Button
                     color="dark"
                     on:click={handleDispatchOpenConfig}
                     data_bs_toggle="modal"
                     data_bs_target="#exampleModal">Config</Button
                 >
+                {/if}
             </div>
 
             {#if $card.Card > 1 && $card.Bingo}
@@ -57,7 +59,7 @@
             {/if}
 
             {#if $card.Card == 1 && $card.Checked < $card.Type}
-                <Button on:click={handleDispatchDraw}>Sortear</Button>
+                <Button on:click={handleDispatchDraw} accesskey="s">Sortear</Button>
             {/if}
         </div>
         <div></div>
