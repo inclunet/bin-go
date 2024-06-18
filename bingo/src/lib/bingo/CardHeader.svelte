@@ -1,10 +1,10 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import { card } from "./bingo.js";
-    import Autoplay from "./Autoplay.svelte";
-    import NewRound from "./NewRound.svelte";
-    import Bingo from "./Bingo.svelte";
-    import Button from "./Button.svelte";
+    import { card } from "$lib/bingo.js";
+    import Autoplay from "$lib/Autoplay.svelte";
+    import NewRound from "$lib/NewRound.svelte";
+    import Bingo from "$lib/Bingo.svelte";
+    import Button from "$lib/Button.svelte";
 
     const dispatch = createEventDispatcher();
 

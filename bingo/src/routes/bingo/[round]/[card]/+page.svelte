@@ -1,8 +1,8 @@
 <script>
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
-    import CardHeader from "$lib/CardHeader.svelte";
-    import Card from "$lib/Card.svelte";
+    import CardHeader from "$lib/bingo/CardHeader.svelte";
+    import Card from "$lib/bingo/Card.svelte";
     import { card } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
@@ -31,11 +31,9 @@
 
     const handleCheckNumberEvent = async (event = {}) => {
         if (!$card.Autoplay || $card.Card == 1) {
-            
-                await updateCard(
-                    `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`
-                );
-
+            await updateCard(
+                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`,
+            );
         }
     };
 
@@ -68,7 +66,7 @@
         $card = await callApi(
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/cancel`,
-            "GET"
+            "GET",
         );
 
         isBingo();
@@ -79,7 +77,7 @@
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/completions`,
             "POST",
-            $card.Completions
+            $card.Completions,
         );
     };
 
@@ -96,7 +94,7 @@
 
     const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`)
+            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`),
         );
 
         socket.addEventListener("open", (event) => {
@@ -177,6 +175,7 @@
     </div>
     <div class="table-card">
         <Card
+            card={$card}
             on:checkNumber={handleCheckNumberEvent}
             on:playCheckSound={handlePlayCheckSoundEvent}
         />

@@ -1,7 +1,8 @@
 <script>
-    import { card } from "./bingo";
-    import Number from "./Number.svelte";
-</script>
+    import CardNumber from "$lib/bingo/CardNumber.svelte";
+
+    export let card = {Numbers: []};
+    </script>
 
 <div class="container-fluid d-flex text-center flex-column table-draw">
     <!-- <div class="table-draw"> -->
@@ -14,13 +15,13 @@
             <th scope="col">G</th>
             <th scope="col">O</th>
         </tr>
-        {#each $card.Numbers as row}
+        {#each card.Numbers as row}
             <tr>
                 {#each row as number}
                     <td>
-                        <Number
+                        <CardNumber
                             {number}
-                            mainCard={$card.Card == 1}
+                            mainCard={card.Card == 1}
                             on:checkNumber
                             on:playCheckSound
                         />
