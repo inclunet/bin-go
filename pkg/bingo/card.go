@@ -492,7 +492,12 @@ func (c *Card) UncheckNumber(number int) bool {
 			if column.Number == number && column.Checked {
 				c.Numbers[l][col].Checked = false
 				c.Checked--
-				c.IsBingo()
+
+				if c.IsBingo() {
+					c.Bingo = true
+					c.main.UpdateCard()
+				}
+
 				c.UpdateCard()
 				return true
 			}
