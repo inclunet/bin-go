@@ -12,6 +12,8 @@
     <slot>
         <div class="container-card">
             <CardPlay
+                src="/img/chamada_card_inclubingo.png"
+                alt="Inclubingo"
                 href="/bingo"
                 title="Jogo de Bingo Inclusivo"
                 titleButton="Inclubingo"
@@ -19,6 +21,8 @@
                 Explore a emoção de um bingo acessível para todos no IncluBingo.
             </CardPlay>
             <CardPlay
+                src="/img/chamada_card_inclubraille.png"
+                alt="Inclubraille"
                 href="/braille"
                 title="Braille Personal Trainer"
                 titleButton="Inclubraille"
