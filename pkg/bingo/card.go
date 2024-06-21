@@ -9,7 +9,7 @@ import (
 )
 
 type Card struct {
-	main           *Card
+	Main           *Card
 	Completions    *Completions
 	Autoplay       bool
 	Bingo          bool
@@ -28,15 +28,15 @@ func (c *Card) CancelAlert() {
 	if c.Bingo {
 		c.Bingo = false
 		c.LastCompletion = ""
-		c.main.Bingo = false
-		c.main.LastCompletion = ""
+		c.Main.Bingo = false
+		c.Main.LastCompletion = ""
 		c.UpdateCard()
-		c.main.UpdateCard()
+		c.Main.UpdateCard()
 	}
 }
 
 func (c *Card) CheckDrawedNumbers() *Card {
-	if c.main == nil {
+	if c.Main == nil {
 		return c
 	}
 
@@ -44,11 +44,11 @@ func (c *Card) CheckDrawedNumbers() *Card {
 		return c
 	}
 
-	if c.main.Checked == 0 {
+	if c.Main.Checked == 0 {
 		return c
 	}
 
-	for _, line := range c.main.Numbers {
+	for _, line := range c.Main.Numbers {
 		for _, number := range line {
 			if number.Checked {
 				c.CheckNumber(number.Number)
@@ -60,8 +60,8 @@ func (c *Card) CheckDrawedNumbers() *Card {
 }
 
 func (c *Card) CheckNumber(number int) bool {
-	if c.main != nil {
-		if !c.main.IsChecked(number) {
+	if c.Main != nil {
+		if !c.Main.IsChecked(number) {
 			return false
 		}
 	}
@@ -75,7 +75,7 @@ func (c *Card) CheckNumber(number int) bool {
 
 				if c.IsBingo() {
 					c.Bingo = true
-					c.main.UpdateCard()
+					c.Main.UpdateCard()
 				}
 
 				c.UpdateCard()
@@ -170,11 +170,11 @@ func (c *Card) GetEmptyBingoCard() [][5]Number {
 }
 
 func (c *Card) IsBingo() bool {
-	if c.main == nil {
+	if c.Main == nil {
 		return false
 	}
 
-	if c.main.Completions.Total.GetRemaining() == 0 {
+	if c.Main.Completions.Total.GetRemaining() == 0 {
 		return false
 	}
 
@@ -184,25 +184,25 @@ func (c *Card) IsBingo() bool {
 
 	if c.IsFull() {
 		c.LastCompletion = "Full"
-		c.main.LastCompletion = fmt.Sprintf("Full: %d", c.Card)
+		c.Main.LastCompletion = fmt.Sprintf("Full: %d", c.Card)
 		return true
 	}
 
 	if c.IsHorizontal() {
 		c.LastCompletion = "Horizontal"
-		c.main.LastCompletion = fmt.Sprintf("Horizontal: %d", c.Card)
+		c.Main.LastCompletion = fmt.Sprintf("Horizontal: %d", c.Card)
 		return true
 	}
 
 	if c.IsVertical() {
 		c.LastCompletion = "Vertical"
-		c.main.LastCompletion = fmt.Sprintf("Vertical: %d", c.Card)
+		c.Main.LastCompletion = fmt.Sprintf("Vertical: %d", c.Card)
 		return true
 	}
 
 	if c.IsDiagonal() {
 		c.LastCompletion = "Diagonal"
-		c.main.LastCompletion = fmt.Sprintf("Diagonal: %d", c.Card)
+		c.Main.LastCompletion = fmt.Sprintf("Diagonal: %d", c.Card)
 		return true
 	}
 
@@ -210,7 +210,7 @@ func (c *Card) IsBingo() bool {
 }
 
 func (c *Card) IsDiagonal() bool {
-	if c.main.Completions.Diagonal.GetRemaining() == 0 {
+	if c.Main.Completions.Diagonal.GetRemaining() == 0 {
 		return false
 	}
 
@@ -242,7 +242,7 @@ func (c *Card) IsDiagonal() bool {
 		return false
 	}
 
-	if !c.main.Completions.Diagonal.Add() {
+	if !c.Main.Completions.Diagonal.Add() {
 		return false
 	}
 
@@ -250,7 +250,7 @@ func (c *Card) IsDiagonal() bool {
 		return false
 	}
 
-	if !c.main.Completions.Intermediary.Add() {
+	if !c.Main.Completions.Intermediary.Add() {
 		return false
 	}
 
@@ -258,7 +258,7 @@ func (c *Card) IsDiagonal() bool {
 		return false
 	}
 
-	if !c.main.Completions.Total.Add() {
+	if !c.Main.Completions.Total.Add() {
 		return false
 	}
 
@@ -266,7 +266,7 @@ func (c *Card) IsDiagonal() bool {
 }
 
 func (c *Card) IsFull() bool {
-	if c.main.Completions.Full.GetRemaining() == 0 {
+	if c.Main.Completions.Full.GetRemaining() == 0 {
 		return false
 	}
 
@@ -292,7 +292,7 @@ func (c *Card) IsFull() bool {
 		return false
 	}
 
-	if !c.main.Completions.Full.Add() {
+	if !c.Main.Completions.Full.Add() {
 		return false
 	}
 
@@ -300,7 +300,7 @@ func (c *Card) IsFull() bool {
 		return false
 	}
 
-	if !c.main.Completions.Total.Add() {
+	if !c.Main.Completions.Total.Add() {
 		return false
 	}
 
@@ -308,7 +308,7 @@ func (c *Card) IsFull() bool {
 }
 
 func (c *Card) IsHorizontal() bool {
-	if c.main.Completions.Horizontal.GetRemaining() == 0 {
+	if c.Main.Completions.Horizontal.GetRemaining() == 0 {
 		return false
 	}
 
@@ -336,7 +336,7 @@ func (c *Card) IsHorizontal() bool {
 		return false
 	}
 
-	if !c.main.Completions.Horizontal.Add() {
+	if !c.Main.Completions.Horizontal.Add() {
 		return false
 	}
 
@@ -344,7 +344,7 @@ func (c *Card) IsHorizontal() bool {
 		return false
 	}
 
-	if !c.main.Completions.Intermediary.Add() {
+	if !c.Main.Completions.Intermediary.Add() {
 		return false
 	}
 
@@ -352,7 +352,7 @@ func (c *Card) IsHorizontal() bool {
 		return false
 	}
 
-	if !c.main.Completions.Total.Add() {
+	if !c.Main.Completions.Total.Add() {
 		return false
 	}
 
@@ -360,7 +360,7 @@ func (c *Card) IsHorizontal() bool {
 }
 
 func (c *Card) IsVertical() bool {
-	if c.main.Completions.Vertical.GetRemaining() == 0 {
+	if c.Main.Completions.Vertical.GetRemaining() == 0 {
 		return false
 	}
 
@@ -388,7 +388,7 @@ func (c *Card) IsVertical() bool {
 		return false
 	}
 
-	if !c.main.Completions.Vertical.Add() {
+	if !c.Main.Completions.Vertical.Add() {
 		return false
 	}
 
@@ -396,7 +396,7 @@ func (c *Card) IsVertical() bool {
 		return false
 	}
 
-	if !c.main.Completions.Intermediary.Add() {
+	if !c.Main.Completions.Intermediary.Add() {
 		return false
 	}
 
@@ -404,7 +404,7 @@ func (c *Card) IsVertical() bool {
 		return false
 	}
 
-	if !c.main.Completions.Total.Add() {
+	if !c.Main.Completions.Total.Add() {
 		return false
 	}
 
@@ -424,15 +424,15 @@ func (c *Card) IsChecked(drawedNumber int) bool {
 }
 
 func (c *Card) SetCompletions(completions *Completions) error {
-	if c.main == nil && c.NextRound > 0 {
+	if c.Main == nil && c.NextRound > 0 {
 		return fmt.Errorf("round %d is ended", c.Round)
 	}
 
-	if c.main == nil && c.Checked >= c.Type {
+	if c.Main == nil && c.Checked >= c.Type {
 		return fmt.Errorf("round %d is completed", c.Round)
 	}
 
-	if c.main != nil && c.Checked >= 24 {
+	if c.Main != nil && c.Checked >= 24 {
 		return fmt.Errorf("Card %d is already completed", c.Card)
 	}
 
@@ -497,7 +497,7 @@ func (c *Card) UncheckNumber(number int) bool {
 
 				if c.IsBingo() {
 					c.Bingo = true
-					c.main.UpdateCard()
+					c.Main.UpdateCard()
 				}
 
 				c.UpdateCard()
@@ -537,7 +537,7 @@ func NewCard(round *Round) Card {
 
 	if err == nil {
 		card.Completions.Update(main.Completions)
-		card.main = main
+		card.Main = main
 	}
 
 	card.DrawCard()

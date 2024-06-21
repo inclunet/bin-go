@@ -45,7 +45,7 @@ func GenerateFakeHorizontalCardBingo(max int, i ...int) *Card {
 		return nil
 	}
 
-	card.main.Completions.Horizontal = NewDefaultCompletion(max)
+	card.Main.Completions.Horizontal = NewDefaultCompletion(max)
 	card.Completions.Horizontal = NewDefaultCompletion(max)
 
 	for _, l := range i {
@@ -64,7 +64,7 @@ func GenerateFakeVerticalCardBingo(max int, i ...int) *Card {
 		return nil
 	}
 
-	card.main.Completions.Vertical = NewDefaultCompletion(max)
+	card.Main.Completions.Vertical = NewDefaultCompletion(max)
 	card.Completions.Vertical = NewDefaultCompletion(max)
 
 	for _, c := range i {
