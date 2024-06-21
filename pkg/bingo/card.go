@@ -35,26 +35,28 @@ func (c *Card) CancelAlert() {
 	}
 }
 
-func (c *Card) CheckDrawedNumbers(main *Card) (counter int) {
+func (c *Card) CheckDrawedNumbers() *Card {
+	if c.main == nil {
+		return c
+	}
+
 	if !c.Autoplay {
-		return counter
+		return c
 	}
 
-	if main.Checked == 0 {
-		return 0
+	if c.main.Checked == 0 {
+		return c
 	}
 
-	for _, line := range main.Numbers {
+	for _, line := range c.main.Numbers {
 		for _, number := range line {
 			if number.Checked {
-				if c.CheckNumber(number.Number) {
-					counter++
-				}
+				c.CheckNumber(number.Number)
 			}
 		}
 	}
 
-	return counter
+	return c
 }
 
 func (c *Card) CheckNumber(number int) bool {
@@ -539,6 +541,7 @@ func NewCard(round *Round) Card {
 	}
 
 	card.DrawCard()
+	card.CheckDrawedNumbers()
 
 	return card
 }
