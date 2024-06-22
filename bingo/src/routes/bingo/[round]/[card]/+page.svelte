@@ -247,7 +247,7 @@
                 "info-card-header cardHeader"
                 "tableCard tableCard"
                 "anuncio anuncio";
-            gap: 0 5rem;
+            gap: 2rem 5rem;
         }
 
         .table-horizontal .info-card-header {
