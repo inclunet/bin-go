@@ -10,7 +10,7 @@
     import { callApi, getWSEndpoint } from "$lib/api";
     import Completions from "$lib/bingo/Completions.svelte";
     import TableModalCard from "$lib/TableModalCard.svelte";
-
+    import MediaQuery from "$lib/MediaQuery.svelte";
     export let data;
 
     /**
@@ -32,7 +32,7 @@
     const handleCheckNumberEvent = async (event = {}) => {
         if (!$card.Autoplay || $card.Card == 1) {
             await updateCard(
-                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`,
+                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`
             );
         }
     };
@@ -66,7 +66,7 @@
         $card = await callApi(
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/cancel`,
-            "GET",
+            "GET"
         );
 
         isBingo();
@@ -77,7 +77,7 @@
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/completions`,
             "POST",
-            $card.Completions,
+            $card.Completions
         );
     };
 
@@ -94,7 +94,7 @@
 
     const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`),
+            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`)
         );
 
         socket.addEventListener("open", (event) => {
@@ -151,6 +151,11 @@
         isBingo();
     };
 
+    let cardHeader = "";
+    if ($card.Card == 1) {
+        cardHeader = "table-horizontal";
+    }
+
     onMount(loadCard);
 </script>
 
@@ -160,18 +165,22 @@
 />
 
 <div class="container container-card">
-    <div class="mx-3 info-card">
+    <div class="mx-3 info-card {cardHeader}">
         <div class="info-card-header">
             <h2>Cartela de Bingo #{$card.Card}</h2>
-            <h3 class="info-card-header-round">Rodada #{$card.Round}</h3>
+            <h3 class="info-card-header-round">
+                Rodada #{$card.Round}
+            </h3>
         </div>
-        <CardHeader
-            on:autoplay={handleAutoplayEvent}
-            on:openConfig={handleOpenConfigEvent}
-            on:draw={handleDrawEvent}
-            on:newRound={handleNewRoundEvent}
-            on:stopBingoAlert={handleCancelBingoAlertEvent}
-        />
+        <div class="cardHeader">
+            <CardHeader
+                on:autoplay={handleAutoplayEvent}
+                on:openConfig={handleOpenConfigEvent}
+                on:draw={handleDrawEvent}
+                on:newRound={handleNewRoundEvent}
+                on:stopBingoAlert={handleCancelBingoAlertEvent}
+            />
+        </div>
     </div>
     <div class="table-card">
         <Card
@@ -231,6 +240,44 @@
         justify-content: flex-start;
     }
 
+    @media (min-width: 1150px) {
+        .table-horizontal {
+            display: grid;
+            grid-template-areas:
+                "info-card-header cardHeader"
+                "tableCard tableCard"
+                "anuncio anuncio";
+            gap: 0 5rem;
+        }
+
+        .table-horizontal .info-card-header {
+            display: flex;
+            justify-content: space-between;
+        }
+        .table-horizontal .info-card-header h2 {
+            font-size: 2.4rem;
+        }
+        .info-card-header {
+            grid-area: info-card-header;
+        }
+        .cardHeader {
+            grid-area: cardHeader;
+        }
+        .table-card {
+            grid-area: tableCard;
+        }
+        .anuncio {
+            grid-area: anuncio;
+        }
+
+        .table-horizontal .info-card-header {
+            display: flex;
+        }
+        .table-horizontal .info-card-header-round {
+            margin: 0;
+            font-size: 2.4rem;
+        }
+    }
     @media (max-width: 767px) {
         .anuncio {
             flex-basis: 50%;

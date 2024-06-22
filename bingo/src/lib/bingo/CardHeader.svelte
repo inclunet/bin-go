@@ -27,10 +27,17 @@
     const handleDispatchStopBingoAlert = () => {
         dispatch("stopBingoAlert");
     };
+
+    let cardBotao = "";
+    let containerHeader = "";
+    if ($card.Card == 1) {
+        cardBotao = "card-botao_horizontal";
+        containerHeader = "container-header_horizontal";
+    }
 </script>
 
 <div class="container d-flex flex-column">
-    <div class="container-header">
+    <div class="container-header {containerHeader}">
         <div class="container-header-inner">
             {#if $card.Card > 1 && !$card.Bingo}
                 <div class="container-botao">
@@ -57,7 +64,7 @@
             {/if}
 
             {#if $card.Card == 1 && $card.Checked < $card.Type}
-                <div class="container-botao">
+                <div class="container-botao {cardBotao}">
                     <Button on:click={handleDispatchDraw}>Sortear</Button>
                     <Button
                         color="dark"
@@ -68,10 +75,9 @@
                 </div>
             {/if}
         </div>
-        <div></div>
         <div aria-live="polite" class="container-status">
-            <p><strong>{$card.Checked}</strong> Bolas Sorteadas</p>
-            <p><strong>{$card.LastNumber}</strong> Última sorteada</p>
+            <p>Bolas Sorteadas: <strong>{$card.Checked}</strong></p>
+            <p>Última sorteada: <strong>{$card.LastNumber}</strong></p>
         </div>
     </div>
 </div>
@@ -102,6 +108,35 @@
     }
     p {
         font-size: 1.6em;
+    }
+    .container-status {
+        width: 15rem;
+    }
+
+    @media (min-width: 1150px) {
+        .container-header_horizontal {
+            display: grid;
+            grid-template-areas: "container-status card-botao_horizontal ";
+            gap: 0 4rem;
+        }
+        .container-header_horizontal .card-botao_horizontal {
+            grid-area: card-botao_horizontal;
+            width: 21rem;
+        }
+        .container-header_horizontal .container-status {
+            grid-area: container-status;
+            display: flex;
+            width: 35rem;
+            font-size: 1.2rem;
+            justify-content: space-between;
+        }
+
+        .card-botao_horizontal {
+            align-items: start;
+        }
+        .container-header_horizontal .container-header-inner {
+            margin: 0;
+        }
     }
     @media (max-width: 767px) {
         p {
