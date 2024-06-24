@@ -9,18 +9,19 @@ import (
 )
 
 type Card struct {
-	Main           *Card
-	Completions    *Completions
 	Autoplay       bool
 	Bingo          bool
-	Round          int
 	Card           int
-	conn           *websocket.Conn
 	Checked        int
+	conn           *websocket.Conn
+	Completions    *Completions
+	Finished       bool
 	LastCompletion string
 	LastNumber     int
 	NextRound      int
+	Round          int
 	Type           int
+	Main           *Card
 	Numbers        [][5]Number
 }
 
@@ -77,6 +78,8 @@ func (c *Card) CheckNumber(number int) bool {
 					c.Bingo = true
 					c.Main.UpdateCard()
 				}
+
+				c.Finished = c.IsFinished()
 
 				c.UpdateCard()
 				return true
@@ -263,6 +266,24 @@ func (c *Card) IsDiagonal() bool {
 	}
 
 	return true
+}
+
+func (c *Card) IsFinished() bool {
+	if c.Main != nil {
+		if c.Main.Finished {
+			return true
+		}
+	} else {
+		if c.Checked >= c.Type {
+			return true
+		}
+
+		if c.Completions.Total.GetRemaining() == 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (c *Card) IsFull() bool {
