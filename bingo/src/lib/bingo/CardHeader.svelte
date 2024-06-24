@@ -59,11 +59,11 @@
                 <Bingo on:click={handleDispatchStopBingoAlert} />
             {/if}
 
-            {#if $card.Card == 1 && $card.Checked == $card.Type}
+            {#if $card.Card == 1 && $card.Finished}
                 <NewRound on:click={handleDispatchNewRound} />
             {/if}
 
-            {#if $card.Card == 1 && $card.Checked < $card.Type}
+            {#if $card.Card == 1 && !$card.Finished}
                 <div class="container-botao {cardBotao}">
                     <Button on:click={handleDispatchDraw}>Sortear</Button>
                     <Button
