@@ -91,7 +91,7 @@
     }
     .top-header_container {
         display: flex;
-        margin: 4rem 0 4.8rem 0;
+        margin: 3rem 0 3.5rem 0;
     }
 
     .content {
