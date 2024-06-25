@@ -5,6 +5,7 @@
     import NewRound from "$lib/NewRound.svelte";
     import Bingo from "$lib/Bingo.svelte";
     import Button from "$lib/Button.svelte";
+    import MediaQuery from "$lib/MediaQuery.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -27,59 +28,113 @@
     const handleDispatchStopBingoAlert = () => {
         dispatch("stopBingoAlert");
     };
-
-    let cardBotao = "";
-    let containerHeader = "";
-    if ($card.Card == 1) {
-        cardBotao = "card-botao_horizontal";
-        containerHeader = "container-header_horizontal";
-    }
 </script>
 
 <div class="container d-flex flex-column">
-    <div class="container-header {containerHeader}">
-        <div class="container-header-inner">
-            {#if $card.Card > 1 && !$card.Bingo}
-                <div class="container-botao">
-                    <Autoplay
-                        autoplay={$card.Autoplay}
-                        on:click={handleDispatchAutoplayEvent}
-                    />
+    {#if $card.Card == 1}
+        <MediaQuery query="(min-width: 1150px)" let:matches>
+            {#if matches}
+                <div class="container-header container-header_horizontal">
+                    <div class="container-header-inner">
+                        {#if $card.Card > 1 && !$card.Bingo}
+                            <div class="container-botao">
+                                <Autoplay
+                                    autoplay={$card.Autoplay}
+                                    on:click={handleDispatchAutoplayEvent}
+                                />
 
-                    <Button
-                        color="dark"
-                        on:click={handleDispatchOpenConfig}
-                        data_bs_toggle="modal"
-                        data_bs_target="#exampleModal">Config</Button
-                    >
+                                <Button
+                                    color="dark"
+                                    on:click={handleDispatchOpenConfig}
+                                    data_bs_toggle="modal"
+                                    data_bs_target="#exampleModal"
+                                    >Config</Button
+                                >
+                            </div>
+                        {/if}
+
+                        {#if $card.Card > 1 && $card.Bingo}
+                            <Bingo on:click={handleDispatchStopBingoAlert} />
+                        {/if}
+
+                        {#if $card.Card == 1 && $card.Finished}
+                            <NewRound on:click={handleDispatchNewRound} />
+                        {/if}
+
+                        {#if $card.Card == 1 && !$card.Finished}
+                            <div class="container-botao card-botao_horizontal">
+                                <Button on:click={handleDispatchDraw}
+                                    >Sortear</Button
+                                >
+                                <Button
+                                    color="dark"
+                                    on:click={handleDispatchOpenConfig}
+                                    data_bs_toggle="modal"
+                                    data_bs_target="#exampleModal"
+                                    >Config</Button
+                                >
+                            </div>
+                        {/if}
+                    </div>
+                    <div aria-live="polite" class="container-status">
+                        <p>Bolas Sorteadas: <strong>{$card.Checked}</strong></p>
+                        <p>
+                            Última sorteada: <strong>{$card.LastNumber}</strong>
+                        </p>
+                    </div>
                 </div>
             {/if}
+        </MediaQuery>
+    {/if}
+    <MediaQuery query="(max-width: 1149px)" let:matches>
+        {#if matches}
+            <div class="container-header">
+                <div class="container-header-inner">
+                    {#if $card.Card > 1 && !$card.Bingo}
+                        <div class="container-botao">
+                            <Autoplay
+                                autoplay={$card.Autoplay}
+                                on:click={handleDispatchAutoplayEvent}
+                            />
 
-            {#if $card.Card > 1 && $card.Bingo}
-                <Bingo on:click={handleDispatchStopBingoAlert} />
-            {/if}
+                            <Button
+                                color="dark"
+                                on:click={handleDispatchOpenConfig}
+                                data_bs_toggle="modal"
+                                data_bs_target="#exampleModal">Config</Button
+                            >
+                        </div>
+                    {/if}
 
-            {#if $card.Card == 1 && $card.Finished}
-                <NewRound on:click={handleDispatchNewRound} />
-            {/if}
+                    {#if $card.Card > 1 && $card.Bingo}
+                        <Bingo on:click={handleDispatchStopBingoAlert} />
+                    {/if}
 
-            {#if $card.Card == 1 && !$card.Finished}
-                <div class="container-botao {cardBotao}">
-                    <Button on:click={handleDispatchDraw}>Sortear</Button>
-                    <Button
-                        color="dark"
-                        on:click={handleDispatchOpenConfig}
-                        data_bs_toggle="modal"
-                        data_bs_target="#exampleModal">Config</Button
-                    >
+                    {#if $card.Card == 1 && $card.Finished}
+                        <NewRound on:click={handleDispatchNewRound} />
+                    {/if}
+
+                    {#if $card.Card == 1 && !$card.Finished}
+                        <div class="container-botao">
+                            <Button on:click={handleDispatchDraw}
+                                >Sortear</Button
+                            >
+                            <Button
+                                color="dark"
+                                on:click={handleDispatchOpenConfig}
+                                data_bs_toggle="modal"
+                                data_bs_target="#exampleModal">Config</Button
+                            >
+                        </div>
+                    {/if}
                 </div>
-            {/if}
-        </div>
-        <div aria-live="polite" class="container-status">
-            <p>Bolas Sorteadas: <strong>{$card.Checked}</strong></p>
-            <p>Última sorteada: <strong>{$card.LastNumber}</strong></p>
-        </div>
-    </div>
+                <div aria-live="polite" class="container-status">
+                    <p>Bolas Sorteadas: <strong>{$card.Checked}</strong></p>
+                    <p>Última sorteada: <strong>{$card.LastNumber}</strong></p>
+                </div>
+            </div>
+        {/if}
+    </MediaQuery>
 </div>
 
 <style>

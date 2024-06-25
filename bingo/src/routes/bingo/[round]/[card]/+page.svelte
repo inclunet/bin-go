@@ -151,11 +151,6 @@
         isBingo();
     };
 
-    let cardHeader = "";
-    if ($card.Card == 1) {
-        cardHeader = "table-horizontal";
-    }
-
     onMount(loadCard);
 </script>
 
@@ -165,23 +160,51 @@
 />
 
 <div class="container container-card">
-    <div class="mx-3 info-card {cardHeader}">
-        <div class="info-card-header">
-            <h2>Cartela de Bingo #{$card.Card}</h2>
-            <h3 class="info-card-header-round">
-                Rodada #{$card.Round}
-            </h3>
-        </div>
-        <div class="cardHeader">
-            <CardHeader
-                on:autoplay={handleAutoplayEvent}
-                on:openConfig={handleOpenConfigEvent}
-                on:draw={handleDrawEvent}
-                on:newRound={handleNewRoundEvent}
-                on:stopBingoAlert={handleCancelBingoAlertEvent}
-            />
-        </div>
-    </div>
+    {#if $card.Card == 1}
+        <MediaQuery query="(min-width: 1150px)" let:matches>
+            {#if matches}
+                <div class="mx-3 info-card table-horizontal">
+                    <div class="info-card-header">
+                        <h2>Cartela de Bingo #{$card.Card}</h2>
+                        <h3 class="info-card-header-round">
+                            Rodada #{$card.Round}
+                        </h3>
+                    </div>
+                    <div class="cardHeader">
+                        <CardHeader
+                            on:autoplay={handleAutoplayEvent}
+                            on:openConfig={handleOpenConfigEvent}
+                            on:draw={handleDrawEvent}
+                            on:newRound={handleNewRoundEvent}
+                            on:stopBingoAlert={handleCancelBingoAlertEvent}
+                        />
+                    </div>
+                </div>
+            {/if}
+        </MediaQuery>
+    {/if}
+    <MediaQuery query="(max-width: 1149px)" let:matches>
+        {#if matches}
+            <div class="mx-3 info-card">
+                <div class="info-card-header">
+                    <h2>Cartela de Bingo #{$card.Card}</h2>
+                    <h3 class="info-card-header-round">
+                        Rodada #{$card.Round}
+                    </h3>
+                </div>
+                <div class="cardHeader">
+                    <CardHeader
+                        on:autoplay={handleAutoplayEvent}
+                        on:openConfig={handleOpenConfigEvent}
+                        on:draw={handleDrawEvent}
+                        on:newRound={handleNewRoundEvent}
+                        on:stopBingoAlert={handleCancelBingoAlertEvent}
+                    />
+                </div>
+            </div>
+        {/if}
+    </MediaQuery>
+
     <div class="table-card">
         <Card
             card={$card}
