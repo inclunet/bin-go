@@ -165,6 +165,28 @@
         <MediaQuery query="(min-width: 1150px)" let:matches>
             {#if matches}
                 <div class="mx-3 info-card table-horizontal">
+                    <div class="container-qr_code">Qr code aqui</div>
+                    <div class="info-card-header">
+                        <h2>Cartela de Bingo #{$card.Card}</h2>
+                        <h3 class="info-card-header-round">
+                            Rodada #{$card.Round}
+                        </h3>
+                    </div>
+                    <div class="cardHeader">
+                        <CardHeader
+                            on:autoplay={handleAutoplayEvent}
+                            on:openConfig={handleOpenConfigEvent}
+                            on:draw={handleDrawEvent}
+                            on:newRound={handleNewRoundEvent}
+                            on:stopBingoAlert={handleCancelBingoAlertEvent}
+                        />
+                    </div>
+                </div>
+            {/if}
+        </MediaQuery>
+        <MediaQuery query="(max-width: 1149px)" let:matches>
+            {#if matches}
+                <div class="mx-3 info-card">
                     <div class="info-card-header">
                         <h2>Cartela de Bingo #{$card.Card}</h2>
                         <h3 class="info-card-header-round">
@@ -184,27 +206,25 @@
             {/if}
         </MediaQuery>
     {/if}
-    <MediaQuery query="(max-width: 1149px)" let:matches>
-        {#if matches}
-            <div class="mx-3 info-card">
-                <div class="info-card-header">
-                    <h2>Cartela de Bingo #{$card.Card}</h2>
-                    <h3 class="info-card-header-round">
-                        Rodada #{$card.Round}
-                    </h3>
-                </div>
-                <div class="cardHeader">
-                    <CardHeader
-                        on:autoplay={handleAutoplayEvent}
-                        on:openConfig={handleOpenConfigEvent}
-                        on:draw={handleDrawEvent}
-                        on:newRound={handleNewRoundEvent}
-                        on:stopBingoAlert={handleCancelBingoAlertEvent}
-                    />
-                </div>
+    {#if $card.Card > 1}
+        <div class="mx-3 info-card">
+            <div class="info-card-header">
+                <h2>Cartela de Bingo #{$card.Card}</h2>
+                <h3 class="info-card-header-round">
+                    Rodada #{$card.Round}
+                </h3>
             </div>
-        {/if}
-    </MediaQuery>
+            <div class="cardHeader">
+                <CardHeader
+                    on:autoplay={handleAutoplayEvent}
+                    on:openConfig={handleOpenConfigEvent}
+                    on:draw={handleDrawEvent}
+                    on:newRound={handleNewRoundEvent}
+                    on:stopBingoAlert={handleCancelBingoAlertEvent}
+                />
+            </div>
+        </div>
+    {/if}
 
     <div class="table-card">
         <Card
@@ -248,6 +268,7 @@
         flex-grow: 1;
         flex-basis: 21%;
     }
+
     .container-card {
         margin-top: 35px;
         padding: 0;
@@ -268,15 +289,10 @@
         .table-horizontal {
             display: grid;
             grid-template-areas:
-                "info-card-header cardHeader"
-                "tableCard tableCard"
-                "anuncio anuncio";
-            gap: 2rem 5rem;
-        }
-
-        .table-horizontal .info-card-header {
-            display: flex;
-            justify-content: space-between;
+                "container-qr_code info-card-header cardHeader"
+                "tableCard tableCard tableCard"
+                "anuncio anuncio anuncio";
+            gap: 1.4rem 5rem;
         }
         .table-horizontal .info-card-header h2 {
             font-size: 2.4rem;
@@ -293,13 +309,26 @@
         .anuncio {
             grid-area: anuncio;
         }
+        .container-qr_code {
+            grid-area: container-qr_code;
+        }
 
         .table-horizontal .info-card-header {
             display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 23rem;
+            height: 7rem;
         }
         .table-horizontal .info-card-header-round {
             margin: 0;
             font-size: 2.4rem;
+        }
+
+        .table-horizontal .container-qr_code {
+            width: 10rem;
+            height: 7rem;
+            border: 1px solid red;
         }
     }
     @media (max-width: 767px) {
