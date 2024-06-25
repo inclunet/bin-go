@@ -28,6 +28,38 @@
     const handleDispatchStopBingoAlert = () => {
         dispatch("stopBingoAlert");
     };
+
+    const handleToggleFullScreen = () => {
+        if (
+            !document.fullscreenElement && // alternative standard method
+            !document.mozFullScreenElement &&
+            !document.webkitFullscreenElement &&
+            !document.msFullscreenElement
+        ) {
+            // current working methods
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen(
+                    Element.ALLOW_KEYBOARD_INPUT
+                );
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+    };
 </script>
 
 <div class="container d-flex flex-column">
@@ -72,6 +104,11 @@
                                     data_bs_toggle="modal"
                                     data_bs_target="#exampleModal"
                                     >Config</Button
+                                >
+                                <Button
+                                    color="info"
+                                    on:click={handleToggleFullScreen}
+                                    >Tela Cheia</Button
                                 >
                             </div>
                         {/if}
@@ -172,11 +209,11 @@
         .container-header_horizontal {
             display: grid;
             grid-template-areas: "container-status card-botao_horizontal ";
-            gap: 0 4rem;
+            gap: 0 1rem;
         }
         .container-header_horizontal .card-botao_horizontal {
             grid-area: card-botao_horizontal;
-            width: 21rem;
+            width: 33rem;
         }
         .container-header_horizontal .container-status {
             grid-area: container-status;

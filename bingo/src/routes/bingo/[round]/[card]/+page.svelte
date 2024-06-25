@@ -11,6 +11,7 @@
     import Completions from "$lib/bingo/Completions.svelte";
     import TableModalCard from "$lib/TableModalCard.svelte";
     import MediaQuery from "$lib/MediaQuery.svelte";
+    import Button from "$lib/Button.svelte";
     export let data;
 
     /**
