@@ -34,7 +34,7 @@
     const handleCheckNumberEvent = async (event = {}) => {
         if (!$card.Autoplay || $card.Card == 1) {
             await updateCard(
-                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`,
+                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`
             );
         }
     };
@@ -68,7 +68,7 @@
         $card = await callApi(
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/cancel`,
-            "GET",
+            "GET"
         );
 
         isBingo();
@@ -79,7 +79,7 @@
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/completions`,
             "POST",
-            $card.Completions,
+            $card.Completions
         );
     };
 
@@ -96,7 +96,7 @@
 
     const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`),
+            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`)
         );
 
         socket.addEventListener("open", (event) => {
@@ -295,7 +295,7 @@
                 "container-qr_code info-card-header cardHeader"
                 "tableCard tableCard tableCard"
                 "anuncio anuncio anuncio";
-            gap: 1.4rem 5rem;
+            gap: 3.5rem 5rem;
         }
         .table-horizontal .info-card-header h2 {
             font-size: 2.4rem;
@@ -329,9 +329,12 @@
         }
 
         .table-horizontal .container-qr_code {
-            width: 10rem;
+            width: 12rem;
             height: 7rem;
-            border: 1px solid red;
+        }
+
+        .table-horizontal .container-qr_code img {
+            width: 100%;
         }
     }
     @media (max-width: 767px) {
