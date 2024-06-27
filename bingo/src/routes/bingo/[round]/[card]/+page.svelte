@@ -12,6 +12,7 @@
     import TableModalCard from "$lib/TableModalCard.svelte";
     import MediaQuery from "$lib/MediaQuery.svelte";
     import Button from "$lib/Button.svelte";
+
     export let data;
 
     /**
@@ -33,7 +34,7 @@
     const handleCheckNumberEvent = async (event = {}) => {
         if (!$card.Autoplay || $card.Card == 1) {
             await updateCard(
-                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`
+                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`,
             );
         }
     };
@@ -67,7 +68,7 @@
         $card = await callApi(
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/cancel`,
-            "GET"
+            "GET",
         );
 
         isBingo();
@@ -78,7 +79,7 @@
             $card,
             `/api/bingo/${$card.Round}/${$card.Card}/completions`,
             "POST",
-            $card.Completions
+            $card.Completions,
         );
     };
 
@@ -95,7 +96,7 @@
 
     const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`)
+            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`),
         );
 
         socket.addEventListener("open", (event) => {
@@ -165,7 +166,9 @@
         <MediaQuery query="(min-width: 1150px)" let:matches>
             {#if matches}
                 <div class="mx-3 info-card table-horizontal">
-                    <div class="container-qr_code">Qr code aqui</div>
+                    <div class="container-qr_code">
+                        <img src="/qr/bingo/{$card.Round}" alt="QR-Code" />
+                    </div>
                     <div class="info-card-header">
                         <h2>Cartela de Bingo #{$card.Card}</h2>
                         <h3 class="info-card-header-round">
