@@ -1,7 +1,8 @@
 <script>
-    export let title; 
+    export let title;
+    export let game;
 </script>
 
 <svelte:head>
-    <title>{title} - IncluBingo</title>
+    <title>{title} - {game}</title>
 </svelte:head>
