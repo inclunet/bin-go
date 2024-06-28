@@ -20,7 +20,7 @@
             >
                 Explore a emoção de um bingo acessível para todos no IncluBingo.
             </CardPlay>
-            <CardPlay
+            <!-- <CardPlay
                 src="/img/chamada_card_inclubraille.png"
                 alt="Inclubraille"
                 href="/braille"
@@ -29,7 +29,7 @@
             >
                 O Braille Personal Trainer te deixará expert na escrita em
                 Braille.
-            </CardPlay>
+            </CardPlay> -->
         </div>
     </slot>
 </main>
