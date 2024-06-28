@@ -133,7 +133,7 @@ func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	qr := server.NewQRCode(fmt.Sprintf("https://%s/api/bingo/%d/new", r.Host, round.Round))
+	qr := server.NewQRCode(fmt.Sprintf("https://%s/bingo/%d/new", r.Host, round.Round))
 
 	b.Log("Get Bingo Round QR", card, "qr", qr.Content)
 
