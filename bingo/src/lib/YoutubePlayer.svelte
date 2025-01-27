@@ -8,6 +8,7 @@
 </script>
 
 <iframe
+title="Youtube Video Player"
     width={width}
     height={height}
     src={`https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}`}

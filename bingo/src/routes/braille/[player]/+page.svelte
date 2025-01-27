@@ -33,7 +33,7 @@
         <h2>Aula #{$braille.CurrentClass} - Braille Personal Trainer</h2>
     </header>
 
-    <YoutubePlayer videoId="eGuK2wsBL48" />
+    <YoutubePlayer videoId="eGuK2wsBL48" autoplay={true} />
 
     <section>
         <p>{$braille.Description}</p>
