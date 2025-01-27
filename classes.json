@@ -3,6 +3,7 @@
         "Description": "Nesta aula vamos treinar os caracteres Braille da primeira serie que representam as Letras de a até j e usam apenas os pontos 1, 2 4 e 6 e que formam a base do sistema de leitura e escrita",
         "RequiredPunctuation": 40,
         "Rounds": 50,
+        "Video": "",
         "words": [
             "a",
             "b",
@@ -20,6 +21,7 @@
         "Description": "Agora vamos formar pequenas palavras usando as letras de a até j que aprendemos na aula anterior",
         "RequiredPunctuation": 40,
         "Rounds": 50,
+        "Video": "",
         "words": [
             "fada",
             "jaca",
@@ -38,6 +40,66 @@
             "beija",
             "gaga",
             "facada"
+        ]
+    },
+    {
+        "Description": "Nesta aula vamos treinar os caracteres Braille da Segunda serie que representam as Letras de k até t e usam apenas os pontos 1, 2, 3, 4 e 5 e que formam a base do sistema de leitura e escrita",
+        "RequiredPunctuation": 40,
+        "Rounds": 50,
+        "Video": "",
+        "words": [
+            "k",
+            "l",
+            "m",
+            "n",
+            "o",
+            "p",
+            "q",
+            "r",
+            "s",
+            "t"
+        ]
+    },
+    {
+        "Description": "Agora vamos formar pequenas palavras usando as letras de k até t que aprendemos na aula anterior",
+        "RequiredPunctuation": 40,
+        "Rounds": 50,
+        "Video": "",
+        "words": [
+            "toca",
+            "taco",
+            "bebada",
+            "boca",
+            "bota",
+            "batata",
+            "bolacha",
+            "bala",
+            "banana",
+            "casaco",
+            "casa",
+            "cama",
+            "camada",
+            "bolada",
+            "bolo",
+            "dados",
+            "formato",
+            "fato",
+            "falar",
+            "informar",
+            "bater",
+            "morango",
+            "banana",
+            "pera",
+            "pipoca",
+            "patada",
+            "cachorro",
+            "gato",
+            "boi",
+            "boiada",
+            "mesa",
+            "cadeira",
+            "fofoca",
+            "narina"
         ]
     }
 ]

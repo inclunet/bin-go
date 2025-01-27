@@ -3,6 +3,7 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApi } from "$lib/api.js";
     import { braille } from "$lib/braille.js";
+    import YoutubePlayer from "$lib/YoutubePlayer.svelte";
     import { onMount } from "svelte";
 
     export let data;
@@ -31,6 +32,8 @@
     <header class="my-5">
         <h2>Aula #{$braille.CurrentClass} - Braille Personal Trainer</h2>
     </header>
+
+    <YoutubePlayer videoId="eGuK2wsBL48" />
 
     <section>
         <p>{$braille.Description}</p>

@@ -7,26 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.20'
-      - name: Test
-        run: go test -v ./...
-      - name: Build
-        run: go build -v -o bin-go main.go
-      - name: setup-node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Install dependencies
-        run: |
-          cd bingo
-          npm install
-      - name: Build
-        run: |
-          cd bingo
-          npm run build
       - name: setup-qemu
         uses: docker/setup-qemu-action@v2
       - name: setup-docker-buildx
@@ -40,7 +20,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: inclunet/bin-go
+          images: inclunet/inclugames
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
