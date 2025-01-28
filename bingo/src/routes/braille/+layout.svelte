@@ -64,6 +64,8 @@
         --senary-color: #1d1d1d;
         --setenary-color: #5799f5;
         --octonary-color: #006aff;
+
+        font-size: 62.5%;
     }
 
     header {
@@ -75,21 +77,21 @@
         background-size: 50%;
     }
     header h1 {
-        width: 600px;
-        font-size: 5em;
+        width: 60rem;
+        font-size: 8rem;
         margin-left: 15%;
         background: var(--secondary-color);
         color: var(--quinary-color);
         text-shadow:
-            -1px -1px 3px var(--quaternary-color),
-            -1px 1px 3px var(--quaternary-color),
-            1px -1px 0px var(--quaternary-color),
-            1px 0px 0px var(--quaternary-color);
-        border-radius: 10px;
+            -0.1rem -0.1rem 0.3rem var(--quaternary-color),
+            -0.1rem 0.1rem 0.3rem var(--quaternary-color),
+            0.1rem -0.1rem 0 var(--quaternary-color),
+            0.1rem 0 0 var(--quaternary-color);
+        border-radius: 1rem;
     }
     .top-header_container {
         display: flex;
-        margin: 2.5em 0 3em 0;
+        margin: 3rem 0 3.5rem 0;
     }
 
     .content {
@@ -102,7 +104,7 @@
 
     @media (max-width: 794px) {
         header h1 {
-            font-size: 4em;
+            font-size: 6.4rem;
         }
         header img {
             width: 100%;
@@ -111,15 +113,15 @@
 
     @media (max-width: 685px) {
         header {
-            padding: 25px 25px 10px 25px;
+            padding: 2.5rem 2.5rem 1rem 2.5rem;
         }
         header h1 {
-            font-size: 3.7em;
+            font-size: 5.9rem;
         }
     }
     @media (max-width: 640px) {
         header {
-            padding: 25px 15px 10px 15px;
+            padding: 2.5rem 1.5rem 1rem 1.5rem;
         }
     }
     @media (max-width: 571px) {
@@ -128,7 +130,7 @@
         }
 
         header h1 {
-            width: 350px;
+            width: 35rem;
             margin: 0;
             padding: 0;
         }
@@ -140,7 +142,7 @@
     @media (max-width: 450px) {
         header {
             flex-direction: row;
-            padding: 0.2em 10px;
+            padding: 0.3rem 1rem;
             align-items: center;
             background-image: none;
         }
@@ -152,7 +154,7 @@
         }
         header h1 {
             width: 100%;
-            font-size: 2.5em;
+            font-size: 4rem;
         }
     }
 </style>

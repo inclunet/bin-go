@@ -43,22 +43,25 @@
         --secondary-button-color: #2868c2;
         --white: #fff;
         --black: #000;
+
+        font-size: 62.5%;
     }
 
-    h2:nth-child(2n) {
-        font-size: 1.6em;
+    h2 {
+        font-size: 2.8rem;
     }
 
     section p,
     section button {
-        font-size: 1.2em;
+        font-size: 1.8rem;
     }
 
     p {
-        line-height: 32px;
+        line-height: 4rem;
     }
 
     .button-color {
+        margin-top: 10px;
         background-color: var(--primary-button-color);
         color: var(--black);
     }
@@ -85,7 +88,7 @@
         }
 
         p {
-            line-height: 37px;
+            line-height: 3.7rem;
         }
         section p {
             text-align: justify;
