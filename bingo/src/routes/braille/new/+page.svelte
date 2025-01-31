@@ -33,15 +33,15 @@
         --secondary-button-color: #2868c2;
         --white: #fff;
         --black: #000;
+
+        font-size: 62.5%;
     }
 
-    h2:nth-child(2n) {
-        font-size: 1.6em;
+    h2 {
+        font-size: 2.8rem;
     }
-
-    section p,
     section button {
-        font-size: 1.2em;
+        font-size: 1.8rem;
     }
 
     p {
