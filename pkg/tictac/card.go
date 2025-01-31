@@ -43,7 +43,7 @@ func (c *Card) IsDiagonal(s string) bool {
 	counterL := 0
 	counterR := 0
 
-	for i, j := 0, c.Typi-1; i < c.Type; i, j = i+1, j-1 {
+	for i, j := 0, c.Type-1; i < c.Type; i, j = i+1, j-1 {
 		if c.Grid[i][i] == s {
 			counterL++
 		}
