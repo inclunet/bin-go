@@ -1,10 +1,10 @@
 package tictac
 
-typePlayer struct {
-	Card *Card
+type Player struct {
+	Card   *Card
 	Player int
-	Round int
-	s string
+	Round  int
+	s      string
 }
 
 func NewPlayer(id int, s string) *Player {
