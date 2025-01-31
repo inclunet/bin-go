@@ -45,7 +45,7 @@
         display: flex;
     }
     h3 {
-        font-size: 1.4em;
+        font-size: 2.2rem;
     }
     header h3 div {
         display: inline-block;

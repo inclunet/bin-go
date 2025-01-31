@@ -10,7 +10,7 @@
     const dispatch = createEventDispatcher();
 
     const handleKeyDown = (
-        /** @type {{ key: string; preventDefault: () => void; }} */ event,
+        /** @type {{ key: string; preventDefault: () => void; }} */ event
     ) => {
         if (brailleKeyboard) {
             if (event.key === "f") {
@@ -88,9 +88,9 @@
 
     const handleSubmit = () => {
         if (brailleWord.length == 0) {
-        dispatch("enableSpaceTip");
+            dispatch("enableSpaceTip");
         } else {
-        dispatch("submitChallenge");
+            dispatch("submitChallenge");
         }
     };
 </script>
@@ -105,7 +105,11 @@
         on:keyup={handleKeyUp}
         autocomplete="off"
     />
-    <button disabled={brailleWord.length == 0 && brailleCell == 0} class="btn button-color" on:click={handleSubmit}>Enviar</button>
+    <button
+        disabled={brailleWord.length == 0 && brailleCell == 0}
+        class="btn button-color"
+        on:click={handleSubmit}>Enviar</button
+    >
 </section>
 
 <audio src="/key.mp3" bind:this={audio} />
@@ -116,6 +120,8 @@
         --secondary-button-color: #2868c2;
         --white: #fff;
         --black: #000;
+
+        font-size: 62.5%;
     }
 
     section#answer {
@@ -123,6 +129,7 @@
         width: 40vw;
         margin: 1.5em 0;
         align-items: center;
+        font-size: 1.8rem;
     }
 
     section input {

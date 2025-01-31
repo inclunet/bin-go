@@ -166,6 +166,8 @@
         --tooltip: #fcdd56ef;
         --white: #fff;
         --black: #000;
+
+        font-size: 62.5%;
     }
     #container-keyboard {
         width: 55vw;
@@ -232,5 +234,9 @@
     }
     #backspace:active {
         background-color: var(--primary-button-backspace-color);
+    }
+
+    button {
+        font-size: 1.8rem;
     }
 </style>
