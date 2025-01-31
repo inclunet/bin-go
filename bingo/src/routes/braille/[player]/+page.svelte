@@ -66,7 +66,7 @@
     }
 
     p {
-        line-height: 32px;
+        line-height: 4rem;
     }
 
     .button-color {
