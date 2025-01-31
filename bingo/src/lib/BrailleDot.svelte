@@ -18,12 +18,16 @@
 </button>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
     button {
         margin: 0 0.4em;
         padding: 1em;
         border-radius: 2em;
         border: 1px solid black;
         background-color: #fcdcc0;
+        font-size: 1.8rem;
     }
 
     button[aria-pressed="true"] {
