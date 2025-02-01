@@ -72,9 +72,10 @@
         display: flex;
         flex-direction: column;
         background-color: var(--primary-color);
-        background-image: url("/img/fundo.png");
-        background-repeat: repeat;
-        background-size: 50%;
+        background-image: url("/img/banner_braille.png");
+        background-repeat: no-repeat;
+        background-size: 75vw;
+        background-position: top 0% center;
     }
     header h1 {
         width: 60rem;
