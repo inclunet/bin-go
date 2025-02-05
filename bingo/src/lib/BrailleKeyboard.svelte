@@ -50,93 +50,92 @@
 </script>
 
 <div role="region" aria-label="Resposta" class="container">
-    <div role="region" aria-label="Teclado Braille" class="container-keyboard">
-        <div>
+    <div role="region" aria-label="Teclado Braille" class="container_keyboard">
+        <div class="container_numbers">
+            <div class="brailleDot_numbers">
+                <div class="sete-oito">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={7}
+                    />
+                </div>
+                <div class="tres-seis">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={3}
+                    />
+                </div>
+                <div class="dois-cinco">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={2}
+                    />
+                </div>
+                <div class="um-quatro">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={1}
+                    />
+                </div>
+            </div>
+
+            <div class="brailleDot_numbers">
+                <div class="um-quatro">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={4}
+                    />
+                </div>
+                <div class="dois-cinco">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={5}
+                    />
+                </div>
+                <div class="tres-seis">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={6}
+                    />
+                </div>
+                <div class="sete-oito">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={8}
+                    />
+                </div>
+            </div>
+        </div>
+        <div class="container_buttons">
             <button on:click={handleClearKey} class="btn" id="limpar"
                 >Limpar</button
             >
-        </div>
 
-        <div class="brailleDot-numbers">
-            <div class="sete-oito">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={7}
-                />
+            <div class="container_button-tooltip">
+                <button
+                    bind:this={spacebar}
+                    on:click={handleSpaceKey}
+                    on:click={handleDisableSpaceTip}
+                    class="btn"
+                    id="espaco">Espaço</button
+                >
+                <Tooltip {enableSpaceTip} marginTop="4.5rem">
+                    <p class="texto_tip">Ei, não se esqueça!</p>
+                    <p class="texto_tip">
+                        Pressione espaço para confirmar a letra que você quer
+                        enviar.
+                    </p>
+                </Tooltip>
             </div>
-            <div class="tres-seis">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={3}
-                />
-            </div>
-            <div class="dois-cinco">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={2}
-                />
-            </div>
-            <div class="um-quatro">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={1}
-                />
-            </div>
-        </div>
 
-        <div>
-            <button
-                bind:this={spacebar}
-                on:click={handleSpaceKey}
-                on:click={handleDisableSpaceTip}
-                class="btn"
-                id="espaco">Espaço</button
-            >
-            <Tooltip {enableSpaceTip}>
-                <p class="texto_tip">Ei, não se esqueça!</p>
-                <p class="texto_tip">
-                    Pressione espaço para confirmar a letra que você quer
-                    enviar.
-                </p>
-            </Tooltip>
-        </div>
-
-        <div class="brailleDot-numbers">
-            <div class="um-quatro">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={4}
-                />
-            </div>
-            <div class="dois-cinco">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={5}
-                />
-            </div>
-            <div class="tres-seis">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={6}
-                />
-            </div>
-            <div class="sete-oito">
-                <BrailleDot
-                    on:brailleKey={handleBrailleKey}
-                    bind:brailleCell
-                    brailleDot={8}
-                />
-            </div>
-        </div>
-
-        <div>
             <button on:click={handleBackspaceKey} class="btn" id="backspace"
                 >Backspace</button
             >
@@ -174,21 +173,22 @@
         display: flex;
         flex-direction: column;
     }
-    .container-keyboard {
+    .container_keyboard {
         width: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         margin-top: 1em;
         margin-bottom: 2em;
     }
 
-    .brailleDot-numbers {
+    .brailleDot_numbers {
         display: flex;
     }
     .btn {
         color: var(--black);
-        margin-top: 4.5em;
+        padding: 1rem 5rem;
     }
     .sete-oito {
         display: block;
@@ -217,6 +217,8 @@
     }
     #espaco {
         background-color: var(--primary-button-espaco-color);
+        padding-left: 15rem;
+        padding-right: 15rem;
     }
     #espaco:hover {
         background-color: var(--secondary-button-espaco-color);
@@ -243,5 +245,20 @@
 
     button {
         font-size: 1.8rem;
+    }
+
+    .container_numbers {
+        display: flex;
+        gap: 5rem;
+    }
+    .container_buttons {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+    }
+    .container_button-tooltip {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 </style>
