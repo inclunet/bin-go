@@ -1,9 +1,10 @@
 <script>
     export let enableSpaceTip = false;
+    export let marginTop = "0rem";
 </script>
 
 {#if enableSpaceTip}
-    <div id="container-texto_botao-espaco">
+    <div id="container-texto_botao" style="margin-top: {marginTop};">
         <div class="seta"></div>
         <div class="texto_tip-container" role="alert">
             <slot></slot>
@@ -12,11 +13,13 @@
 {/if}
 
 <style>
-    #container-texto_botao-espaco {
+    :root {
+        font-size: 62.5%;
+    }
+    #container-texto_botao {
         position: absolute;
         width: 15em;
         margin-top: 0.6em;
-        margin-left: -3em;
     }
     .texto_tip-container {
         background-color: var(--tooltip);
