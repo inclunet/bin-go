@@ -3,7 +3,9 @@
     import BrailleChallenge from "$lib/BrailleChallenge.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApi } from "$lib/api.js";
+    import Card from "$lib/bingo/Card.svelte";
     import { braille } from "$lib/braille.js";
+    import CardPoints from "$lib/braille/CardPoints.svelte";
     import { onMount } from "svelte";
 
     export let data;
@@ -24,37 +26,6 @@
      * @type {HTMLAudioElement}
      */
     let startClassAudio;
-
-    let items_points = [
-        {
-            name: "Exercício",
-            value: $braille.CurrentClass + 1,
-            color: "#1E90FF",
-        },
-        {
-            name: "Rodada",
-            value: $braille.CurrentRound,
-            color: "#FF4500",
-        },
-        {
-            name: "Pontuação do Exercício",
-            value: $braille.CurrentPunctuation,
-            color: "#42CD42",
-        },
-        {
-            name: "Pontuação Total",
-            value: $braille.TotalPunctuation,
-            color: "#8A2BE2",
-        },
-    ];
-
-    const upCardsPoints = () => {
-        items_points[0].value = $braille.CurrentClass + 1;
-        items_points[1].value = $braille.CurrentRound;
-        items_points[2].value = $braille.CurrentPunctuation;
-        items_points[3].value = $braille.TotalPunctuation;
-        items_points = items_points;
-    };
 
     const LoadBrailleClass = async () => {
         $braille = await callApi(
@@ -87,8 +58,6 @@
         } else {
             wrongAudio.play();
         }
-
-        upCardsPoints();
     };
 
     onMount(LoadBrailleClass);
@@ -110,19 +79,26 @@
 
     <section>
         <div class="container_card">
-            {#each items_points as item, index}
-                <div class="card text-center" style="width: 18rem;">
-                    <div class="card-body">
-                        <div
-                            class="card-points"
-                            style="background-color: {item.color};"
-                        >
-                            <p>{item.value}</p>
-                        </div>
-                        <h4 class="card-title">{item.name}</h4>
-                    </div>
-                </div>
-            {/each}
+            <CardPoints
+                pointBackgroundColor="blue"
+                pointValue={$braille.CurrentClass + 1}
+                pointTitle="Exercício"
+            />
+            <CardPoints
+                pointBackgroundColor="orange"
+                pointValue={$braille.CurrentRound}
+                pointTitle="Rodada"
+            />
+            <CardPoints
+                pointBackgroundColor="green"
+                pointValue={$braille.CurrentPunctuation}
+                pointTitle="Pontuação do Exercício"
+            />
+            <CardPoints
+                pointBackgroundColor="purple"
+                pointValue={$braille.TotalPunctuation}
+                pointTitle="Pontuação Total"
+            />
         </div>
     </section>
 
@@ -151,35 +127,10 @@
         font-size: 2.8rem;
     }
 
-    h4 {
-        font-size: 2rem;
-    }
-
     .container_card {
         margin: 50px 0;
         display: flex;
         justify-content: space-between;
-    }
-
-    .card {
-        border: 1px solid rgb(102, 102, 102);
-    }
-    .card-body {
-        padding: 0;
-    }
-
-    .card-points {
-        font-weight: bold;
-    }
-    .card-points p {
-        font-size: 4rem;
-        color: var(--white);
-        padding: 25px 0;
-    }
-
-    .card-title {
-        font-weight: 600;
-        padding: 8px;
     }
     .paragraph-description {
         font-size: 1.8rem;
