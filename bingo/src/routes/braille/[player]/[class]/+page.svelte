@@ -25,6 +25,37 @@
      */
     let startClassAudio;
 
+    let items_points = [
+        {
+            name: "Exercício",
+            value: $braille.CurrentClass + 1,
+            color: "#1E90FF",
+        },
+        {
+            name: "Rodada",
+            value: $braille.CurrentRound,
+            color: "#FF4500",
+        },
+        {
+            name: "Pontuação do Exercício",
+            value: $braille.CurrentPunctuation,
+            color: "#42CD42",
+        },
+        {
+            name: "Pontuação Total",
+            value: $braille.TotalPunctuation,
+            color: "#8A2BE2",
+        },
+    ];
+
+    const upCardsPoints = () => {
+        items_points[0].value = $braille.CurrentClass + 1;
+        items_points[1].value = $braille.CurrentRound;
+        items_points[2].value = $braille.CurrentPunctuation;
+        items_points[3].value = $braille.TotalPunctuation;
+        items_points = items_points;
+    };
+
     const LoadBrailleClass = async () => {
         $braille = await callApi(
             $braille,
@@ -56,6 +87,8 @@
         } else {
             wrongAudio.play();
         }
+
+        upCardsPoints();
     };
 
     onMount(LoadBrailleClass);
@@ -72,16 +105,25 @@
     </header>
 
     <section>
-        <p>{$braille.Description}</p>
+        <p class="paragraph-description">{$braille.Description}</p>
     </section>
 
     <section>
-        <ul>
-            <li>Exercício: {$braille.CurrentClass + 1}</li>
-            <li>Rodada: {$braille.CurrentRound}</li>
-            <li>Pontuação do exercício: {$braille.CurrentPunctuation}</li>
-            <li>Pontuação total: {$braille.TotalPunctuation}</li>
-        </ul>
+        <div class="container_card">
+            {#each items_points as item, index}
+                <div class="card text-center" style="width: 18rem;">
+                    <div class="card-body">
+                        <div
+                            class="card-points"
+                            style="background-color: {item.color};"
+                        >
+                            <p>{item.value}</p>
+                        </div>
+                        <h4 class="card-title">{item.name}</h4>
+                    </div>
+                </div>
+            {/each}
+        </div>
     </section>
 
     <BrailleChallenge
@@ -109,35 +151,45 @@
         font-size: 2.8rem;
     }
 
-    section p,
-    li {
+    h4 {
+        font-size: 2rem;
+    }
+
+    .container_card {
+        margin: 50px 0;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .card {
+        border: 1px solid rgb(102, 102, 102);
+    }
+    .card-body {
+        padding: 0;
+    }
+
+    .card-points {
+        font-weight: bold;
+    }
+    .card-points p {
+        font-size: 4rem;
+        color: var(--white);
+        padding: 25px 0;
+    }
+
+    .card-title {
+        font-weight: 600;
+        padding: 8px;
+    }
+    .paragraph-description {
         font-size: 1.8rem;
     }
 
-    li {
-        margin-bottom: 0.5rem;
-    }
-    p {
+    .paragraph-description {
         line-height: 4rem;
     }
 
-    .button-color {
-        background-color: var(--primary-button-color);
-        color: var(--black);
-    }
-
-    .button-color:hover {
-        background-color: var(--secondary-button-color);
-        color: var(--white);
-    }
-
-    .term {
-        padding: 3px 5px 3px 5px;
-        margin: 0;
-        font-size: 1em;
-    }
-
-    @media (max-width: 573px) {
+    @media (max-width: 470px) {
         .container {
             padding: 0 20px 0 20px;
         }
@@ -148,7 +200,7 @@
         }
 
         p {
-            line-height: 3.7rem;
+            line-height: 4.7rem;
         }
         section p {
             text-align: justify;

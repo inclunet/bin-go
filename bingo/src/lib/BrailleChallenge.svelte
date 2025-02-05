@@ -26,18 +26,20 @@
         {/if}
     </header>
 
-    {#if brailleChallenge.Challenge == "braille"}
-        <BrailleWord
-            bind:brailleWord={brailleChallenge.Repply}
-            brailleKeyboard={false}
-            on:submitChallenge
-        />
-    {:else}
-        <BrailleKeyboard
-            bind:brailleWord={brailleChallenge.Repply}
-            on:submitChallenge
-        />
-    {/if}
+    <div class="container_write">
+        {#if brailleChallenge.Challenge == "braille"}
+            <BrailleWord
+                bind:brailleWord={brailleChallenge.Repply}
+                brailleKeyboard={false}
+                on:submitChallenge
+            />
+        {:else}
+            <BrailleKeyboard
+                bind:brailleWord={brailleChallenge.Repply}
+                on:submitChallenge
+            />
+        {/if}
+    </div>
 </div>
 
 <style>
@@ -60,14 +62,18 @@
     }
 
     .desafio-texto {
-        width: 1.3em;
-        height: 1.5em;
-        font-size: 1.8em;
+        height: 5rem;
+        padding: 0 3rem;
+        font-size: 3rem;
         align-content: center;
         text-align: center;
         background: #00f279;
         color: #000;
         font-weight: 500;
-        border-radius: 0.7em;
+        border-radius: 1.2rem;
+    }
+
+    .container_write {
+        display: flex;
     }
 </style>

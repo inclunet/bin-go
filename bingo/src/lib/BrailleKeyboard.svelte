@@ -49,8 +49,8 @@
     };
 </script>
 
-<div role="region" aria-label="Resposta">
-    <div role="region" aria-label="Teclado Braille" id="container-keyboard">
+<div role="region" aria-label="Resposta" class="container">
+    <div role="region" aria-label="Teclado Braille" class="container-keyboard">
         <div>
             <button on:click={handleClearKey} class="btn" id="limpar"
                 >Limpar</button
@@ -169,13 +169,18 @@
 
         font-size: 62.5%;
     }
-    #container-keyboard {
-        width: 55vw;
+
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+    .container-keyboard {
+        width: 100%;
         display: flex;
         align-items: center;
-        justify-content: space-around;
-        margin-top: 2em;
-        margin-bottom: 7em;
+        justify-content: center;
+        margin-top: 1em;
+        margin-bottom: 2em;
     }
 
     .brailleDot-numbers {

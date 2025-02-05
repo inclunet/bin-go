@@ -126,14 +126,14 @@
 
     section#answer {
         display: flex;
-        width: 40vw;
+        width: 100%;
         margin: 1.5em 0;
         align-items: center;
         font-size: 1.8rem;
     }
 
     section input {
-        width: 60%;
+        width: 100%;
         margin-left: 0.8em;
         padding: 0.2em 0;
         padding-left: 0.8em;
