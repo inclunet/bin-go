@@ -8,11 +8,14 @@
 
 <header>
     <div class="top-header_container">
-        <a href="/"><img src="/img/logo.png" alt="Inclunet" /></a>
+        <a href="/"
+            ><img class="img_logo" src="/img/logo.png" alt="Inclunet" /></a
+        >
         <h1 class="text-center">
             <span> Inclubraille </span>
-            <span class="img_inclubraille"
+            <span
                 ><img
+                    class="img_inclubraille"
                     src="/img/inclubraille-braille.png"
                     alt="Nome Inclubraille na escrita Braille"
                 /></span
@@ -111,28 +114,76 @@
         color: var(--quaternary-color);
     }
 
+    @media (max-width: 1182px) {
+        header {
+            background-size: 80vw;
+        }
+    }
+
+    @media (max-width: 1040px) {
+        header {
+            background-size: 85vw;
+            background-position: 80% 10%;
+        }
+    }
+    @media (max-width: 867px) {
+        header {
+            background-size: 90rem;
+            background-position: -250% 20%;
+        }
+    }
+
     @media (max-width: 794px) {
         header h1 {
             font-size: 6.4rem;
         }
-        header img {
+        header .img_logo {
             width: 100%;
+        }
+    }
+    @media (max-width: 768px) {
+        header {
+            background-position: -70% 20%;
+        }
+    }
+    @media (max-width: 743px) {
+        header {
+            background-image: none;
+        }
+        header h1 {
+            margin-left: 0;
+        }
+        header .img_logo {
+            width: 15vw;
+        }
+        header .img_inclubraille {
+            width: 60vw;
         }
     }
 
     @media (max-width: 685px) {
         header {
-            padding: 2.5rem 2.5rem 1rem 2.5rem;
+            padding: 0;
         }
         header h1 {
             font-size: 5.9rem;
         }
     }
-    @media (max-width: 640px) {
-        header {
-            padding: 2.5rem 1.5rem 1rem 1.5rem;
+    @media (max-width: 650px) {
+        header h1 {
+            width: 40rem;
+            margin: 0;
+            margin-left: 5rem;
+            padding: 0;
+        }
+        header .img_logo {
+            width: 110%;
+        }
+        .img_inclubraille {
+            width: 40rem;
         }
     }
+
     @media (max-width: 571px) {
         header {
             justify-content: space-between;
@@ -143,8 +194,13 @@
             margin: 0;
             padding: 0;
         }
-        header img {
+        header .img_logo {
             width: 80%;
+        }
+    }
+    @media (max-width: 520px) {
+        .img_inclubraille {
+            width: 100%;
         }
     }
 
