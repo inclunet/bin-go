@@ -24,7 +24,7 @@
     };
 </script>
 
-<div class="card text-center" style="width: 18rem;">
+<div class="card text-center">
     <div class="card-body">
         <div class="card-points" style="background-color: {choiceColor()};">
             <p>{pointValue}</p>
@@ -44,6 +44,7 @@
     }
 
     .card {
+        width: 18rem;
         border: 1px solid rgb(102, 102, 102);
     }
     .card-body {
@@ -51,16 +52,44 @@
     }
 
     .card-points {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 10rem;
         font-weight: bold;
     }
     .card-points p {
         font-size: 4rem;
         color: var(--white);
-        padding: 25px 0;
     }
 
     .card-title {
         font-weight: 600;
         padding: 8px;
+    }
+
+    @media (max-width: 450px) {
+        h4 {
+            font-size: 1.6rem;
+        }
+        .card {
+            display: flex;
+            align-items: center;
+            width: 18rem;
+            height: 18rem;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .card-points {
+            width: 12rem;
+            height: 12rem;
+            border-radius: 50%;
+            padding: 0;
+        }
+
+        .card-points p {
+            padding: 0;
+        }
     }
 </style>

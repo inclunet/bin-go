@@ -82,7 +82,7 @@
             <CardPoints
                 pointBackgroundColor="blue"
                 pointValue={$braille.CurrentClass + 1}
-                pointTitle="Exercício"
+                pointTitle="Nível"
             />
             <CardPoints
                 pointBackgroundColor="orange"
@@ -92,12 +92,12 @@
             <CardPoints
                 pointBackgroundColor="green"
                 pointValue={$braille.CurrentPunctuation}
-                pointTitle="Pontuação do Exercício"
+                pointTitle="Exercício"
             />
             <CardPoints
                 pointBackgroundColor="purple"
                 pointValue={$braille.TotalPunctuation}
-                pointTitle="Pontuação Total"
+                pointTitle="Total"
             />
         </div>
     </section>
@@ -155,6 +155,11 @@
         }
         section p {
             text-align: justify;
+        }
+
+        .container_card {
+            /* flex-wrap: wrap; */
+            /* agrupa em dois cards por linha no total de duas linhas */
         }
     }
 </style>
