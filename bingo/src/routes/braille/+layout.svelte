@@ -9,7 +9,15 @@
 <header>
     <div class="top-header_container">
         <a href="/"><img src="/img/logo.png" alt="Inclunet" /></a>
-        <h1 class="text-center">Inclubraille</h1>
+        <h1 class="text-center">
+            <span> Inclubraille </span>
+            <span class="img_inclubraille"
+                ><img
+                    src="/img/inclubraille-braille.png"
+                    alt="Nome Inclubraille na escrita Braille"
+                /></span
+            >
+        </h1>
     </div>
 
     <div>
@@ -74,11 +82,11 @@
         background-color: var(--primary-color);
         background-image: url("/img/banner_braille.png");
         background-repeat: no-repeat;
-        background-size: 75vw;
-        background-position: top 0% center;
+        background-size: 75%;
+        background-position: top 10% center;
     }
     header h1 {
-        width: 60rem;
+        width: 70rem;
         font-size: 8rem;
         margin-left: 15%;
         background: var(--secondary-color);
@@ -156,6 +164,9 @@
         header h1 {
             width: 100%;
             font-size: 4rem;
+        }
+        .img_inclubraille {
+            display: none;
         }
     }
 </style>
