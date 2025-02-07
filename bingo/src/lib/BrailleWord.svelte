@@ -92,6 +92,13 @@
         } else {
             dispatch("submitChallenge");
         }
+        console.log("1", brailleWord);
+    };
+
+    const convertToLowerCase = (event) => {
+        // todo: validar se o nível atual é correspondente a letra ou palavra em maiúsculo
+        const value = event.target.value;
+        brailleWord = value.toLowerCase();
     };
 </script>
 
@@ -103,6 +110,7 @@
         bind:value={brailleWord}
         on:keydown={handleKeyDown}
         on:keyup={handleKeyUp}
+        on:input={convertToLowerCase}
         autocomplete="off"
     />
     <button
