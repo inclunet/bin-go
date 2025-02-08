@@ -16,7 +16,7 @@
                 nameColor = "#42CD42";
                 break;
             case "purple":
-                nameColor = "#8A2BE2";
+                nameColor = "#954ed6";
             default:
                 break;
         }
@@ -35,6 +35,7 @@
 
 <style>
     :root {
+        --black: #000;
         --white: #fff;
 
         font-size: 62.5%;
@@ -59,8 +60,10 @@
         font-weight: bold;
     }
     .card-points p {
+        margin: 0;
+        padding: 0;
         font-size: 4rem;
-        color: var(--white);
+        color: var(--black);
     }
 
     .card-title {
@@ -68,22 +71,21 @@
         padding: 8px;
     }
 
-    @media (max-width: 450px) {
+    @media (max-width: 490px) {
         h4 {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
         }
         .card {
             display: flex;
             align-items: center;
-            width: 18rem;
-            height: 18rem;
-            border-radius: 50%;
+            width: 13rem;
+            height: 13rem;
             border: none;
         }
 
         .card-points {
-            width: 12rem;
-            height: 12rem;
+            width: 8rem;
+            height: 8rem;
             border-radius: 50%;
             padding: 0;
         }

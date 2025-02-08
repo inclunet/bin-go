@@ -82,7 +82,7 @@
             <CardPoints
                 pointBackgroundColor="blue"
                 pointValue={$braille.CurrentClass + 1}
-                pointTitle="Nível"
+                pointTitle="Série"
             />
             <CardPoints
                 pointBackgroundColor="orange"
@@ -128,7 +128,7 @@
     }
 
     .container_card {
-        margin: 50px 0;
+        margin: 5rem 0;
         display: flex;
         justify-content: space-between;
     }
@@ -138,6 +138,12 @@
 
     .paragraph-description {
         line-height: 4rem;
+    }
+
+    @media (max-width: 490px) {
+        .container_card {
+            margin: 0;
+        }
     }
 
     @media (max-width: 470px) {

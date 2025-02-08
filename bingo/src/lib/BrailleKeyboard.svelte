@@ -47,6 +47,8 @@
     const handleDisableSpaceTip = () => {
         enableSpaceTip = false;
     };
+
+    //
 </script>
 
 <div role="region" aria-label="Resposta" class="container">
@@ -189,6 +191,9 @@
     .btn {
         color: var(--black);
         padding: 1rem 5rem;
+        border: 1px solid var(--black);
+        border-radius: 10rem;
+        font-weight: 500;
     }
     .sete-oito {
         display: block;
@@ -208,24 +213,20 @@
     #limpar {
         background-color: var(--primary-button-limpar-color);
     }
-    #limpar:hover {
+
+    #limpar:active {
         background-color: var(--secondary-button-limpar-color);
         color: var(--white);
-    }
-    #limpar:active {
-        background-color: var(--primary-button-limpar-color);
     }
     #espaco {
         background-color: var(--primary-button-espaco-color);
         padding-left: 15rem;
         padding-right: 15rem;
     }
-    #espaco:hover {
+
+    #espaco:active {
         background-color: var(--secondary-button-espaco-color);
         color: var(--white);
-    }
-    #espaco:active {
-        background-color: var(--primary-button-espaco-color);
     }
     .texto_tip {
         margin: 0;
@@ -235,12 +236,10 @@
     #backspace {
         background-color: var(--primary-button-backspace-color);
     }
-    #backspace:hover {
+
+    #backspace:active {
         background-color: var(--secondary-button-backspace-color);
         color: var(--white);
-    }
-    #backspace:active {
-        background-color: var(--primary-button-backspace-color);
     }
 
     button {
@@ -253,6 +252,7 @@
     }
     .container_buttons {
         width: 100%;
+        margin-top: 2rem;
         display: flex;
         justify-content: space-around;
     }
@@ -260,5 +260,83 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        font-size: 1.2rem;
+    }
+
+    @media (hover: hover) {
+        #limpar:hover {
+            background-color: var(--secondary-button-limpar-color);
+            color: var(--white);
+        }
+        #espaco:hover {
+            background-color: var(--secondary-button-espaco-color);
+            color: var(--white);
+        }
+        #backspace:hover {
+            background-color: var(--secondary-button-backspace-color);
+            color: var(--white);
+        }
+    }
+    @media (max-width: 767px) {
+        .container_buttons {
+            justify-content: space-between;
+        }
+        .btn {
+            width: 15rem;
+            padding: 1rem 0;
+        }
+        #espaco {
+            padding-left: 5rem;
+            padding-right: 5rem;
+        }
+    }
+
+    @media (max-width: 547px) {
+        .container_numbers {
+            gap: 2rem;
+        }
+    }
+
+    @media (max-width: 518px) {
+        button {
+            margin: 0;
+        }
+        .container_numbers {
+            gap: 0.5rem;
+        }
+    }
+
+    @media (max-width: 490px) {
+        .container_numbers {
+            background-color: #696b6d;
+            border-radius: 8rem;
+            padding: 2rem;
+        }
+        .brailleDot_numbers {
+            flex-direction: column;
+        }
+
+        .brailleDot_numbers:nth-child(1) {
+            flex-direction: column-reverse;
+        }
+
+        .sete-oito {
+            margin-top: 1rem;
+        }
+        .tres-seis {
+            margin-top: 1rem;
+        }
+        .dois-cinco {
+            margin-top: 1rem;
+        }
+        .btn {
+            width: 12rem;
+            font-size: 2rem;
+            padding: 0 1rem;
+            font-weight: 500;
+        }
+        #espaco {
+            padding: 1rem 0;
+        }
     }
 </style>
