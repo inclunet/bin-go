@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import { braille } from "$lib/braille.js";
 
     export let brailleCell = 0;
     export let brailleWord = "";
@@ -92,14 +93,19 @@
         } else {
             dispatch("submitChallenge");
         }
-        console.log("1", brailleWord);
     };
 
     const convertToLowerCase = (event) => {
-        // todo: validar se o nível atual é correspondente a letra ou palavra em maiúsculo
-        const value = event.target.value;
-        brailleWord = value.toLowerCase();
+        /**Todo:
+         * verificar qual é a class (nível, ou conjunto de exercícios) que corresponde ao sinal de letra maiúscula para poder realizar a validação correta
+         * */
+        if ($braille.CurrentClass + 1 != 0) {
+            const value = event.target.value;
+            brailleWord = value.toLowerCase();
+        }
     };
+
+    console.log("oi", $braille.CurrentClass + 2);
 </script>
 
 <section id="answer">
