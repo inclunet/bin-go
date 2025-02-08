@@ -141,7 +141,7 @@
     section#answer {
         display: flex;
         width: 100%;
-        margin: 1.5em 0;
+        margin: 2.5rem 0;
         align-items: center;
         font-size: 1.8rem;
     }
@@ -163,11 +163,21 @@
         color: var(--black);
     }
 
-    .button-color:hover {
-        background-color: var(--secondary-button-color);
-        color: var(--white);
-    }
     .button-color:active {
         background-color: var(--primary-button-color);
+        color: var(--white);
+    }
+
+    @media (hover: hover) {
+        .button-color:hover {
+            background-color: var(--secondary-button-color);
+            color: var(--white);
+        }
+    }
+
+    @media (max-width: 490px) {
+        section#answer {
+            margin: 1rem 0;
+        }
     }
 </style>
