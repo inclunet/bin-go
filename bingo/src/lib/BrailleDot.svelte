@@ -19,6 +19,7 @@
 
 <style>
     :root {
+        --black: #000;
         font-size: 62.5%;
     }
     button {
@@ -28,6 +29,7 @@
         border: 1px solid black;
         background-color: #fcdcc0;
         font-size: 1.8rem;
+        color: var(--black);
     }
 
     button[aria-pressed="true"] {

@@ -78,20 +78,28 @@
         .card {
             display: flex;
             align-items: center;
-            width: 13rem;
+            width: 8rem;
             height: 13rem;
             border: none;
+            flex-wrap: wrap;
         }
 
         .card-points {
-            width: 8rem;
-            height: 8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 7.8rem;
+            height: 7.8rem;
             border-radius: 50%;
             padding: 0;
         }
 
         .card-points p {
             padding: 0;
+        }
+
+        .card-title {
+            padding: 1rem 0;
         }
     }
 </style>

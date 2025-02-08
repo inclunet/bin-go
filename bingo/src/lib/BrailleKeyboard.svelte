@@ -263,6 +263,10 @@
         font-size: 1.2rem;
     }
 
+    .brailleDot_numbers {
+        color: green;
+    }
+
     @media (hover: hover) {
         #limpar:hover {
             background-color: var(--secondary-button-limpar-color);
@@ -337,6 +341,18 @@
         }
         #espaco {
             padding: 1rem 0;
+        }
+    }
+
+    @media (max-width: 424px) {
+        .btn {
+            padding: 0 0.5rem;
+        }
+        #limpar {
+            width: 9rem;
+        }
+        #espaco {
+            width: 10rem;
         }
     }
 </style>
