@@ -146,12 +146,12 @@
         line-height: 4rem;
     }
 
-    .container_play {
-        min-height: 110vw;
-    }
     @media (max-width: 490px) {
         .container_card {
             margin: 0;
+        }
+        .container_play {
+            min-height: 110vw;
         }
     }
 

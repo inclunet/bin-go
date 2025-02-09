@@ -164,6 +164,7 @@
         --secondary-button-espaco-color: #246bb3;
         --primary-button-backspace-color: #9c9c9c;
         --secondary-button-backspace-color: #5a5656;
+        --back-keyboard-color: #696b6d;
         --tooltip: #fcdd56ef;
         --white: #fff;
         --black: #000;
@@ -264,7 +265,7 @@
     }
 
     .brailleDot_numbers {
-        color: green;
+        /* color: green; */
     }
 
     @media (hover: hover) {
@@ -312,7 +313,7 @@
 
     @media (max-width: 490px) {
         .container_numbers {
-            background-color: #696b6d;
+            background-color: var(--back-keyboard-color);
             border-radius: 8rem;
             padding: 2rem;
         }
