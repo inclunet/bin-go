@@ -24,7 +24,6 @@
                 alt="Inclubraille"
                 href="/braille"
                 title="Braille Personal Trainer"
-                titleButton="Inclubraille"
             >
                 O Braille Personal Trainer te deixará expert na escrita em
                 Braille.
@@ -57,6 +56,6 @@
     .container-card {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: space-around;
     }
 </style>

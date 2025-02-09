@@ -1,6 +1,5 @@
 <script>
     export let title;
-    export let titleButton;
     export let href;
     export let src;
     export let alt;
