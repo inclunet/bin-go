@@ -41,7 +41,7 @@
         margin: 0;
     }
     .nav-link {
-        height: 4.8rem;
+        height: 6rem;
         line-height: 4.8rem;
         padding: 0 3rem;
         color: var(--quinary-color);
