@@ -5,10 +5,17 @@
 <MediaQuery query="(max-width: 480px)" let:matches>
     {#if matches}
         <hr />
-        <section class="section-social-medias-footer mt-4">
+        <section class="container_social-medias-footer mt-4">
             <ul class="list-group flex-row">
                 <slot></slot>
             </ul>
         </section>
     {/if}
 </MediaQuery>
+
+<style>
+    .container_social-medias-footer {
+        display: flex;
+        justify-content: center;
+    }
+</style>
