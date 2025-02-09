@@ -123,6 +123,10 @@
         font-size: 62.5%;
     }
 
+    .container {
+        min-height: 60vh;
+    }
+
     h2 {
         font-size: 2.8rem;
     }
