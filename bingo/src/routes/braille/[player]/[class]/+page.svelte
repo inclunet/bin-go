@@ -102,10 +102,12 @@
         </div>
     </section>
 
-    <BrailleChallenge
-        bind:brailleChallenge={$braille.Challenge}
-        on:submitChallenge={handleChallengeSubmit}
-    />
+    <section class="container_play">
+        <BrailleChallenge
+            bind:brailleChallenge={$braille.Challenge}
+            on:submitChallenge={handleChallengeSubmit}
+        />
+    </section>
 </div>
 
 <audio bind:this={correctAudio} src="/correct.wav"></audio>
@@ -144,6 +146,9 @@
         line-height: 4rem;
     }
 
+    .container_play {
+        min-height: 110vw;
+    }
     @media (max-width: 490px) {
         .container_card {
             margin: 0;
