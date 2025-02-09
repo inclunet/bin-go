@@ -25,6 +25,7 @@
 
     <div>
         <MenuHeader title="IncluBraille">
+            <MenuItem href="/">Portal Jogos</MenuItem>
             <MenuItem href="/braille">Início</MenuItem>
             <MenuItem href="/braille/new">Jogar</MenuItem>
             <MenuItem href="/braille/instructions">Como Jogar</MenuItem>

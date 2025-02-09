@@ -14,6 +14,7 @@
 
     <div>
         <MenuHeader title="IncluBingo">
+            <MenuItem href="/">Portal Jogos</MenuItem>
             <MenuItem href="/bingo">Início</MenuItem>
             <MenuItem href="/bingo/new">Jogar</MenuItem>
             <MenuItem href="/bingo/instructions">Como Jogar</MenuItem>
