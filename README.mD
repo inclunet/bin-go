@@ -54,7 +54,7 @@ Para iniciar o servidor de desenvolvimento do SvelteKit para acessá-lo dentro d
 npm run dev -- --host
 ```
 
-Para acessá-lo, utilize as seguintes URLs `http://localhost:5173` na máquina local e `http://<IP do server de desenvolvimento>:5173`
+Para acessá-lo, utilize as seguintes URLs `http://localhost:5173` na máquina local e `http://<IP do server de desenvolvimento>:5173` para acessar de outro dispositivo que esteja na mesma rede.
 
 
 ## Como Contribuir
