@@ -8,6 +8,19 @@
     let enableSpaceTip = false;
     let spacebar;
 
+    /**
+     * @type {String}
+     */
+    let markLetter = "/markLetter.mp3";
+    /**
+     * @type {String}
+     */
+    let cleanLetter = "/cleanLetter.mp3";
+    /**
+     * @type {String}
+     */
+    let backLetter = "/backLetter.mp3";
+
     const handleBrailleKey = (event = { detail: { key: 0 } }) => {
         if (event.detail.key == 0) {
             brailleCell = 0;
@@ -48,7 +61,10 @@
         enableSpaceTip = false;
     };
 
-    //
+    const handleSoundLetter = (/** @type {String} */ srcSound) => {
+        const audio = new Audio(Object.values(srcSound));
+        audio.play();
+    };
 </script>
 
 <div role="region" aria-label="Resposta" class="container">
@@ -117,8 +133,11 @@
             </div>
         </div>
         <div class="container_buttons">
-            <button on:click={handleClearKey} class="btn" id="limpar"
-                >Limpar</button
+            <button
+                on:click={handleClearKey}
+                on:click={() => handleSoundLetter({ cleanLetter })}
+                class="btn"
+                id="limpar">Limpar</button
             >
 
             <div class="container_button-tooltip">
@@ -126,6 +145,7 @@
                     bind:this={spacebar}
                     on:click={handleSpaceKey}
                     on:click={handleDisableSpaceTip}
+                    on:click={() => handleSoundLetter({ markLetter })}
                     class="btn"
                     id="espaco">Espaço</button
                 >
@@ -138,8 +158,11 @@
                 </Tooltip>
             </div>
 
-            <button on:click={handleBackspaceKey} class="btn" id="backspace"
-                >Backspace</button
+            <button
+                on:click={handleBackspaceKey}
+                on:click={() => handleSoundLetter({ backLetter })}
+                class="btn"
+                id="backspace">Backspace</button
             >
         </div>
     </div>
