@@ -2,6 +2,18 @@
 
 IncluGames é uma plataforma de jogos acessíveis e inclusivos criada para oferecer a possibilidade de pessoas com deficiência interagirem com jogos tradicionais como bingo, jogo da forca, Jogo da velha e outros jogos que tradicionalmente são inacessíveis para pessoas com deficiência. A plataforma é inteiramente desenvolvida para o ambiente web e este é o backend que dá suporte para toda a plataforma.
 
+# Desenvolvido em SvelteKit
+
+O Inclugames é inteiramente desenvolvido com SvelteKit que é derivado do Svelte.
+
+<em>"SvelteKit é um framework para desenvolvimento rápido de aplicativos web robustos e de alto desempenho usando Svelte . Se você vem do React, SvelteKit é similar ao Next. Se você vem do Vue, SvelteKit é similar ao Nuxt."</em>
+
+<strong>Documentação do SvelteKit</strong> https://svelte.dev/docs/kit/introduction
+
+<em>"Svelte é um framework de UI que usa um compilador para permitir que você escreva componentes incrivelmente concisos que fazem o mínimo de trabalho no navegador, usando linguagens que você já conhece — HTML, CSS e JavaScript. É uma carta de amor ao desenvolvimento web."</em>
+
+<strong>Documentação do Svelt</strong> https://svelte.dev/
+
 ## Preparando seu ambiente de desenvolvimento
 
 Este projeto requer [Go 1.22](https://golang.org/dl/) e [Node.js 20.17.0](https://nodejs.org/en/download/). Siga os passos abaixo para clonar o repositório e rodar o servidor da API:
