@@ -50,10 +50,14 @@
         brailleWord = "";
     };
 
-    const handleEnableSpaceTip = () => {
+    const handleEnableSpaceTip = (
+        /** @type {String} */ nameSound,
+        /** @type {String} */ preFix
+    ) => {
         if (brailleCell > 0) {
             spacebar.focus();
             enableSpaceTip = true;
+            handleInsertSound(nameSound, preFix);
         }
     };
 
@@ -61,8 +65,11 @@
         enableSpaceTip = false;
     };
 
-    const handleSoundLetter = (/** @type {String} */ srcSound) => {
-        const audio = new Audio(Object.values(srcSound));
+    const handleInsertSound = (
+        /** @type {String} */ nameSound,
+        /** @type {String} */ preFix
+    ) => {
+        const audio = new Audio(`/${nameSound}.${preFix}`);
         audio.play();
     };
 </script>
@@ -135,7 +142,7 @@
         <div class="container_buttons">
             <button
                 on:click={handleClearKey}
-                on:click={() => handleSoundLetter({ cleanLetter })}
+                on:click={() => handleInsertSound("cleanLetter", "mp3")}
                 class="btn"
                 id="limpar">Limpar</button
             >
@@ -145,7 +152,7 @@
                     bind:this={spacebar}
                     on:click={handleSpaceKey}
                     on:click={handleDisableSpaceTip}
-                    on:click={() => handleSoundLetter({ markLetter })}
+                    on:click={() => handleInsertSound("markLetter", "mp3")}
                     class="btn"
                     id="espaco">Espaço</button
                 >
@@ -160,7 +167,7 @@
 
             <button
                 on:click={handleBackspaceKey}
-                on:click={() => handleSoundLetter({ backLetter })}
+                on:click={() => handleInsertSound("backLetter", "mp3")}
                 class="btn"
                 id="backspace">Backspace</button
             >
@@ -171,7 +178,7 @@
             on:brailleKey={handleBrailleKey}
             on:brailleEnter={handleBrailleTypping}
             on:submitChallenge
-            on:enableSpaceTip={handleEnableSpaceTip}
+            on:enableSpaceTip={() => handleEnableSpaceTip("tooltipShow", "mp3")}
             bind:brailleWord
             bind:brailleCell
             brailleKeyboard="true"
@@ -285,10 +292,6 @@
         flex-direction: column;
         align-items: center;
         font-size: 1.2rem;
-    }
-
-    .brailleDot_numbers {
-        /* color: green; */
     }
 
     @media (hover: hover) {
