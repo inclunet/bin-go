@@ -221,15 +221,15 @@
     }
     .sete-oito {
         display: block;
-        margin-top: 2.2em;
+        margin-top: 4rem;
     }
     .tres-seis {
         display: block;
-        margin-top: 1em;
+        margin-top: 2rem;
     }
     .dois-cinco {
         display: block;
-        margin-top: 0.3em;
+        margin-top: 0.5rem;
     }
     .um-quatro {
         display: block;
