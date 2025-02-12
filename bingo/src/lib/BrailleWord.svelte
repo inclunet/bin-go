@@ -1,12 +1,15 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import { braille } from "$lib/braille.js";
+    import { onMount, onDestroy } from "svelte";
 
     export let brailleCell = 0;
     export let brailleWord = "";
     export let brailleKeyboard;
 
     let audio;
+    let isClient = typeof window !== "undefined";
+    let buttonEnviar;
 
     const dispatch = createEventDispatcher();
 
@@ -105,7 +108,24 @@
         }
     };
 
-    console.log("oi", $braille.CurrentClass + 2);
+    const handleHotKeys = (event) => {
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "n") {
+            event.preventDefault();
+            buttonEnviar.click();
+        }
+    };
+
+    onMount(() => {
+        if (isClient) {
+            document.addEventListener("keydown", handleHotKeys);
+        }
+    });
+
+    onDestroy(() => {
+        if (isClient) {
+            document.removeEventListener("keydown", handleHotKeys);
+        }
+    });
 </script>
 
 <section id="answer">
@@ -122,7 +142,8 @@
     <button
         disabled={brailleWord.length == 0 && brailleCell == 0}
         class="btn button-color"
-        on:click={handleSubmit}>Enviar</button
+        on:click={handleSubmit}
+        bind:this={buttonEnviar}>Enviar</button
     >
 </section>
 

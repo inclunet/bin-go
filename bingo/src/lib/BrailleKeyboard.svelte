@@ -2,24 +2,16 @@
     import Tooltip from "./Tooltip.svelte";
     import BrailleDot from "./BrailleDot.svelte";
     import BrailleWord from "./BrailleWord.svelte";
+    import { onMount, onDestroy } from "svelte";
 
     export let brailleWord = "";
+
     let brailleCell = 0;
     let enableSpaceTip = false;
     let spacebar;
-
-    /**
-     * @type {String}
-     */
-    let markLetter = "/markLetter.mp3";
-    /**
-     * @type {String}
-     */
-    let cleanLetter = "/cleanLetter.mp3";
-    /**
-     * @type {String}
-     */
-    let backLetter = "/backLetter.mp3";
+    let isClient = typeof window !== "undefined";
+    let buttonLimpar;
+    let buttonBackSpace;
 
     const handleBrailleKey = (event = { detail: { key: 0 } }) => {
         if (event.detail.key == 0) {
@@ -72,6 +64,38 @@
         const audio = new Audio(`/${nameSound}.${preFix}`);
         audio.play();
     };
+
+    const handleHotKeys = (event) => {
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "e") {
+            event.preventDefault();
+            handleSpaceKey();
+            handleInsertSound("markLetter", "mp3");
+        }
+
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "l") {
+            event.preventDefault();
+            handleInsertSound("cleanLetter", "mp3");
+            buttonLimpar.click();
+        }
+
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "b") {
+            event.preventDefault();
+            handleInsertSound("backLetter", "mp3");
+            buttonBackSpace.click();
+        }
+    };
+
+    onMount(() => {
+        if (isClient) {
+            document.addEventListener("keydown", handleHotKeys);
+        }
+    });
+
+    onDestroy(() => {
+        if (isClient) {
+            document.removeEventListener("keydown", handleHotKeys);
+        }
+    });
 </script>
 
 <div role="region" aria-label="Resposta" class="container">
@@ -143,6 +167,7 @@
             <button
                 on:click={handleClearKey}
                 on:click={() => handleInsertSound("cleanLetter", "mp3")}
+                bind:this={buttonLimpar}
                 class="btn"
                 id="limpar">Limpar</button
             >
@@ -166,6 +191,7 @@
             </div>
 
             <button
+                bind:this={buttonBackSpace}
                 on:click={handleBackspaceKey}
                 on:click={() => handleInsertSound("backLetter", "mp3")}
                 class="btn"
