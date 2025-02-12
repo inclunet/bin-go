@@ -8,7 +8,7 @@
     <div class="card">
         <img {src} class="card-img" {alt} />
         <div class="card-body">
-            <h5 class="card-title">{nameLetter}</h5>
+            <h5 aria-hidden="true" class="card-title">{nameLetter}</h5>
         </div>
     </div>
 </div>

@@ -2,6 +2,7 @@
     export let pointBackgroundColor;
     export let pointValue;
     export let pointTitle;
+    export let pointTitleHidden = "";
 
     const choiceColor = () => {
         let nameColor = "";
@@ -27,9 +28,10 @@
 <div class="card text-center">
     <div class="card-body">
         <div class="card-points" style="background-color: {choiceColor()};">
+            <h4 class="card-title hidden-area">{pointTitleHidden}</h4>
             <p>{pointValue}</p>
         </div>
-        <h4 class="card-title">{pointTitle}</h4>
+        <h4 aria-hidden="true" class="card-title">{pointTitle}</h4>
     </div>
 </div>
 
@@ -39,6 +41,17 @@
         --white: #fff;
 
         font-size: 62.5%;
+    }
+
+    .hidden-area {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
     }
     h4 {
         font-size: 2rem;

@@ -78,26 +78,33 @@
     </section>
 
     <section>
+        <h2 class="hidden-area">
+            Nesta área contém a série atual, rodada e pontos
+        </h2>
         <div class="container_card">
             <CardPoints
                 pointBackgroundColor="blue"
                 pointValue={$braille.CurrentClass + 1}
                 pointTitle="Série"
+                pointTitleHidden="Série"
             />
             <CardPoints
                 pointBackgroundColor="orange"
                 pointValue={$braille.CurrentRound}
                 pointTitle="Rodada"
+                pointTitleHidden="Pontos da Rodada"
             />
             <CardPoints
                 pointBackgroundColor="green"
                 pointValue={$braille.CurrentPunctuation}
                 pointTitle="Exercício"
+                pointTitleHidden="Pontos do exercício"
             />
             <CardPoints
                 pointBackgroundColor="purple"
                 pointValue={$braille.TotalPunctuation}
                 pointTitle="Total"
+                pointTitleHidden="Total de Pontos"
             />
         </div>
     </section>
@@ -129,6 +136,16 @@
         min-height: 60vh;
     }
 
+    .hidden-area {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
     h2 {
         font-size: 2.8rem;
     }

@@ -12,7 +12,7 @@
             data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasNavbar"
             aria-controls="offcanvasNavbar"
-            aria-label="Toggle navigation"
+            aria-label="Regras da composição das letras em braille"
         >
             Regras
         </button>
@@ -28,7 +28,7 @@
                     type="button"
                     class="btn-close button-rules_close"
                     data-bs-dismiss="offcanvas"
-                    aria-label="Close"
+                    aria-label="Fechar"
                 ></button>
             </div>
             <div class="offcanvas-body">
@@ -44,59 +44,14 @@
                             {/each}
                         {/if}
                     {/each}
-                    <!-- <CardLetter
-                        src="/img/letterList/a-j/a.png"
-                        alt="vazio"
-                        nameLetter="a"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/b.png"
-                        alt="vazio"
-                        nameLetter="b"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/c.png"
-                        alt="vazio"
-                        nameLetter="c"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/d.png"
-                        alt="vazio"
-                        nameLetter="d"
-                    />
-
-                    <CardLetter
-                        src="/img/letterList/a-j/e.png"
-                        alt="vazio"
-                        nameLetter="e"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/f.png"
-                        alt="vazio"
-                        nameLetter="f"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/g.png"
-                        alt="vazio"
-                        nameLetter="g"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/h.png"
-                        alt="vazio"
-                        nameLetter="h"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/i.png"
-                        alt="vazio"
-                        nameLetter="i"
-                    />
-                    <CardLetter
-                        src="/img/letterList/a-j/j.png"
-                        alt="vazio"
-                        nameLetter="j"
-                    /> -->
                 </div>
             </div>
+            <button
+                type="button"
+                class=" hidden-are"
+                data-bs-dismiss="offcanvas"
+                aria-label="Fechar"
+            ></button>
         </div>
     </div>
 </nav>
@@ -107,6 +62,17 @@
         --secondary-button-rules-color: #fabc86;
 
         font-size: 62.5%;
+    }
+
+    .hidden-area {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
     }
     .container-fluid {
         padding-left: 0;
