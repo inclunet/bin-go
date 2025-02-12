@@ -77,19 +77,12 @@
 <div role="region" aria-label="Resposta" class="container">
     <div role="region" aria-label="Teclado Braille" class="container_keyboard">
         <div class="container_numbers">
-            <div class="brailleDot_numbers">
-                <div class="sete-oito">
+            <div class="brailleDot_numbers brailleDot_left-numbers">
+                <div class="um-quatro">
                     <BrailleDot
                         on:brailleKey={handleBrailleKey}
                         bind:brailleCell
-                        brailleDot={7}
-                    />
-                </div>
-                <div class="tres-seis">
-                    <BrailleDot
-                        on:brailleKey={handleBrailleKey}
-                        bind:brailleCell
-                        brailleDot={3}
+                        brailleDot={1}
                     />
                 </div>
                 <div class="dois-cinco">
@@ -99,16 +92,23 @@
                         brailleDot={2}
                     />
                 </div>
-                <div class="um-quatro">
+                <div class="tres-seis">
                     <BrailleDot
                         on:brailleKey={handleBrailleKey}
                         bind:brailleCell
-                        brailleDot={1}
+                        brailleDot={3}
+                    />
+                </div>
+                <div class="sete-oito">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={7}
                     />
                 </div>
             </div>
 
-            <div class="brailleDot_numbers">
+            <div class="brailleDot_numbers brailleDot_right-numbers">
                 <div class="um-quatro">
                     <BrailleDot
                         on:brailleKey={handleBrailleKey}
@@ -216,8 +216,12 @@
         margin-bottom: 2em;
     }
 
-    .brailleDot_numbers {
+    .brailleDot_right-numbers {
         display: flex;
+    }
+    .brailleDot_left-numbers {
+        display: flex;
+        flex-direction: row-reverse;
     }
     .btn {
         color: var(--black);
@@ -345,10 +349,6 @@
         }
         .brailleDot_numbers {
             flex-direction: column;
-        }
-
-        .brailleDot_numbers:nth-child(1) {
-            flex-direction: column-reverse;
         }
 
         .sete-oito {

@@ -12,9 +12,13 @@
 </script>
 
 <button
+    aria-label={`Ponto ${brailleDot}`}
     aria-pressed={Boolean(brailleCell & (1 << (brailleDot - 1)))}
     on:click={handleClick}
-    >{brailleDot}
+>
+    <span aria-hidden="true">
+        {brailleDot}
+    </span>
 </button>
 
 <style>
