@@ -28,7 +28,7 @@
 <div class="card text-center">
     <div class="card-body">
         <div class="card-points" style="background-color: {choiceColor()};">
-            <h4 class="card-title hidden-area">{pointTitleHidden}</h4>
+            <p class="card-title hidden-area">{pointTitleHidden}</p>
             <p>{pointValue}</p>
         </div>
         <h4 aria-hidden="true" class="card-title">{pointTitle}</h4>
