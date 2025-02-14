@@ -99,6 +99,17 @@
 </script>
 
 <div role="region" aria-label="Resposta" class="container">
+    <div>
+        <BrailleWord
+            on:brailleKey={handleBrailleKey}
+            on:brailleEnter={handleBrailleTypping}
+            on:submitChallenge
+            on:enableSpaceTip={() => handleEnableSpaceTip("tooltipShow", "mp3")}
+            bind:brailleWord
+            bind:brailleCell
+            brailleKeyboard="true"
+        />
+    </div>
     <div role="region" aria-label="Teclado Braille" class="container_keyboard">
         <div class="container_numbers">
             <div class="brailleDot_numbers brailleDot_left-numbers">
@@ -198,17 +209,6 @@
                 id="backspace">Backspace</button
             >
         </div>
-    </div>
-    <div>
-        <BrailleWord
-            on:brailleKey={handleBrailleKey}
-            on:brailleEnter={handleBrailleTypping}
-            on:submitChallenge
-            on:enableSpaceTip={() => handleEnableSpaceTip("tooltipShow", "mp3")}
-            bind:brailleWord
-            bind:brailleCell
-            brailleKeyboard="true"
-        />
     </div>
 </div>
 
