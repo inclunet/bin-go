@@ -10,6 +10,7 @@
     let audio;
     let isClient = typeof window !== "undefined";
     let buttonEnviar;
+    let elementFocus;
 
     const dispatch = createEventDispatcher();
 
@@ -119,6 +120,7 @@
         if (isClient) {
             document.addEventListener("keydown", handleHotKeys);
         }
+        elementFocus.focus();
     });
 
     onDestroy(() => {
@@ -134,6 +136,7 @@
         type="text"
         id="word"
         bind:value={brailleWord}
+        bind:this={elementFocus}
         on:keydown={handleKeyDown}
         on:keyup={handleKeyUp}
         on:input={convertToLowerCase}
