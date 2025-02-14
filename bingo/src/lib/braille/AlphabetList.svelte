@@ -48,7 +48,7 @@
             </div>
             <button
                 type="button"
-                class=" hidden-are"
+                class="hidden-area"
                 data-bs-dismiss="offcanvas"
                 aria-label="Fechar"
             ></button>

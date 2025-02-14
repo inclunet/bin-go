@@ -9,7 +9,7 @@
         data-bs-toggle="offcanvas"
         data-bs-target="#offcanvasDarkNavbar"
         aria-controls="offcanvasDarkNavbar"
-        aria-label="Toggle navigation"
+        aria-label="Menu de navegação"
     >
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -28,7 +28,7 @@
                     type="button"
                     class="btn-close btn-close-white"
                     data-bs-dismiss="offcanvas"
-                    aria-label="Close"
+                    aria-label="Fechar"
                 ></button>
             </div>
             <div class="offcanvas-body">
@@ -41,12 +41,28 @@
 </nav>
 
 <style>
+    :root {
+        font-size: 62.5%;
+    }
+
+    .btn-close {
+        font-size: 3rem;
+        padding: 2rem;
+    }
+
+    .offcanvas-header h5 {
+        font-size: 2.5rem;
+    }
+
     @media (max-width: 450px) {
         .navbar {
             display: flex;
             padding: 0;
         }
         .button-menu {
+            width: 5rem;
+            height: 4.5rem;
+            font-size: 2rem;
             background-color: var(--senary-color);
         }
         .container-fluid {

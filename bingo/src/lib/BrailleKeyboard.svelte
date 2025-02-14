@@ -2,24 +2,16 @@
     import Tooltip from "./Tooltip.svelte";
     import BrailleDot from "./BrailleDot.svelte";
     import BrailleWord from "./BrailleWord.svelte";
+    import { onMount, onDestroy } from "svelte";
 
     export let brailleWord = "";
+
     let brailleCell = 0;
     let enableSpaceTip = false;
     let spacebar;
-
-    /**
-     * @type {String}
-     */
-    let markLetter = "/markLetter.mp3";
-    /**
-     * @type {String}
-     */
-    let cleanLetter = "/cleanLetter.mp3";
-    /**
-     * @type {String}
-     */
-    let backLetter = "/backLetter.mp3";
+    let isClient = typeof window !== "undefined";
+    let buttonLimpar;
+    let buttonBackSpace;
 
     const handleBrailleKey = (event = { detail: { key: 0 } }) => {
         if (event.detail.key == 0) {
@@ -72,24 +64,49 @@
         const audio = new Audio(`/${nameSound}.${preFix}`);
         audio.play();
     };
+
+    const handleHotKeys = (event) => {
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "e") {
+            event.preventDefault();
+            handleSpaceKey();
+            handleInsertSound("markLetter", "mp3");
+        }
+
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "l") {
+            event.preventDefault();
+            handleInsertSound("cleanLetter", "mp3");
+            buttonLimpar.click();
+        }
+
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "b") {
+            event.preventDefault();
+            handleInsertSound("backLetter", "mp3");
+            buttonBackSpace.click();
+        }
+    };
+
+    onMount(() => {
+        if (isClient) {
+            document.addEventListener("keydown", handleHotKeys);
+        }
+    });
+
+    onDestroy(() => {
+        if (isClient) {
+            document.removeEventListener("keydown", handleHotKeys);
+        }
+    });
 </script>
 
 <div role="region" aria-label="Resposta" class="container">
     <div role="region" aria-label="Teclado Braille" class="container_keyboard">
         <div class="container_numbers">
-            <div class="brailleDot_numbers">
-                <div class="sete-oito">
+            <div class="brailleDot_numbers brailleDot_left-numbers">
+                <div class="um-quatro">
                     <BrailleDot
                         on:brailleKey={handleBrailleKey}
                         bind:brailleCell
-                        brailleDot={7}
-                    />
-                </div>
-                <div class="tres-seis">
-                    <BrailleDot
-                        on:brailleKey={handleBrailleKey}
-                        bind:brailleCell
-                        brailleDot={3}
+                        brailleDot={1}
                     />
                 </div>
                 <div class="dois-cinco">
@@ -99,16 +116,23 @@
                         brailleDot={2}
                     />
                 </div>
-                <div class="um-quatro">
+                <div class="tres-seis">
                     <BrailleDot
                         on:brailleKey={handleBrailleKey}
                         bind:brailleCell
-                        brailleDot={1}
+                        brailleDot={3}
+                    />
+                </div>
+                <div class="sete-oito">
+                    <BrailleDot
+                        on:brailleKey={handleBrailleKey}
+                        bind:brailleCell
+                        brailleDot={7}
                     />
                 </div>
             </div>
 
-            <div class="brailleDot_numbers">
+            <div class="brailleDot_numbers brailleDot_right-numbers">
                 <div class="um-quatro">
                     <BrailleDot
                         on:brailleKey={handleBrailleKey}
@@ -143,6 +167,7 @@
             <button
                 on:click={handleClearKey}
                 on:click={() => handleInsertSound("cleanLetter", "mp3")}
+                bind:this={buttonLimpar}
                 class="btn"
                 id="limpar">Limpar</button
             >
@@ -166,6 +191,7 @@
             </div>
 
             <button
+                bind:this={buttonBackSpace}
                 on:click={handleBackspaceKey}
                 on:click={() => handleInsertSound("backLetter", "mp3")}
                 class="btn"
@@ -216,8 +242,12 @@
         margin-bottom: 2em;
     }
 
-    .brailleDot_numbers {
+    .brailleDot_right-numbers {
         display: flex;
+    }
+    .brailleDot_left-numbers {
+        display: flex;
+        flex-direction: row-reverse;
     }
     .btn {
         color: var(--black);
@@ -345,10 +375,6 @@
         }
         .brailleDot_numbers {
             flex-direction: column;
-        }
-
-        .brailleDot_numbers:nth-child(1) {
-            flex-direction: column-reverse;
         }
 
         .sete-oito {

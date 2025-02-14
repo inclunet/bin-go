@@ -30,7 +30,6 @@
             <MenuItem href="/braille/new">Jogar</MenuItem>
             <MenuItem href="/braille/instructions">Como Jogar</MenuItem>
             <MenuItem href="/braille/terms">Termo de Uso</MenuItem>
-            <MenuItem href="/braille/terms" mobile={true}>Qualquer</MenuItem>
             <MenuSocial>
                 <ItemSocial
                     href="https://www.facebook.com/CanalInclunet"
