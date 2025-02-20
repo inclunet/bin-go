@@ -22,17 +22,14 @@
 </button>
 
 <style>
-    :root {
-        --black: #000;
-        font-size: 62.5%;
-    }
     button {
-        margin: 0 0.4em;
+        height: 8rem;
+        margin: 0.3rem 1.5rem !important;
         padding: 2rem;
         border-radius: 3rem;
-        border: 1px solid black;
+        border: 1px solid var(--black);
         background-color: #fcdcc0;
-        font-size: 1.8rem;
+        font-size: 3rem !important;
         color: var(--black);
     }
 
@@ -42,7 +39,7 @@
 
     @media (max-width: 518px) {
         button {
-            margin: 0 0.3rem;
+            margin: 0 0.3rem !important;
         }
     }
 
@@ -50,7 +47,7 @@
         button {
             width: 8.5rem;
             height: 8.5rem;
-            margin: 0.5rem 2rem;
+            margin: 0.5rem 2rem !important;
             padding: 0;
             font-size: 4rem;
             border-radius: 50%;
