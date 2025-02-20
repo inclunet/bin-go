@@ -153,17 +153,9 @@
 <audio src="/key.mp3" bind:this={audio} />
 
 <style>
-    :root {
-        --primary-button-color: #2b7ef4;
-        --secondary-button-color: #2868c2;
-        --white: #fff;
-        --black: #000;
-
-        font-size: 62.5%;
-    }
-
     section#answer {
         display: flex;
+        align-items: center;
         width: 100%;
         margin: 2.5rem 0;
         align-items: center;
@@ -179,6 +171,7 @@
     section button {
         padding: 0.2em 0.6em;
         font-size: 1.2em;
+        margin: 0;
         margin-left: 2em;
     }
 
