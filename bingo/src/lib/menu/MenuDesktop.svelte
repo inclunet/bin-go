@@ -5,16 +5,6 @@
 </nav>
 
 <style>
-    :root {
-        --primary-color: #2b7ef4;
-        --quaternary-color: #fff;
-        --quinary-color: #000;
-        --senary-color: #1d1d1d;
-        --setenary-color: #5799f5;
-        --octonary-color: #006aff;
-
-        font-size: 62.5%;
-    }
     .container-nav-inner,
     .menu-navbar,
     ul {

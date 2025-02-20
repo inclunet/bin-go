@@ -25,24 +25,15 @@
 </MediaQuery>
 
 <style>
-    :root {
-        --primary-color: #2b7ef4;
-        --secondary-color: #2b7ff4ab;
-        --quaternary-color: #fff;
-        --quinary-color: #000;
-        --senary-color: #1d1d1d;
-        --setenary-color: #5799f5;
-        --octonary-color: #006aff;
-
-        font-size: 62.5%;
-    }
     .nav-link,
     .nav-item {
         margin: 0;
     }
     .nav-link {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         height: 6rem;
-        line-height: 4.8rem;
         padding: 0 3rem;
         color: var(--quinary-color);
         font-size: 2rem;

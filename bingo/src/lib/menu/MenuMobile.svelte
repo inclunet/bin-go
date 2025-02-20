@@ -41,10 +41,6 @@
 </nav>
 
 <style>
-    :root {
-        font-size: 62.5%;
-    }
-
     .btn-close {
         font-size: 3rem;
         padding: 2rem;
@@ -60,10 +56,17 @@
             padding: 0;
         }
         .button-menu {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 5rem;
-            height: 4.5rem;
-            font-size: 2rem;
+            height: 5rem;
+            margin: 0;
+            padding: 0;
             background-color: var(--senary-color);
+        }
+        .navbar-toggler-icon {
+            padding: 1.8rem;
         }
         .container-fluid {
             margin: 0;
