@@ -46,4 +46,10 @@
         flex-wrap: wrap;
         justify-content: space-around;
     }
+
+    @media (max-width: 400px) {
+        .container-card {
+            justify-content: center;
+        }
+    }
 </style>

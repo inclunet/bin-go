@@ -33,4 +33,10 @@
     a {
         text-decoration: none;
     }
+
+    @media (max-width: 380px) {
+        .card {
+            width: 25rem;
+        }
+    }
 </style>
