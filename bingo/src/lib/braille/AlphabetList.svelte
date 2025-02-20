@@ -2,20 +2,60 @@
     import CardLetter from "./CardLetter.svelte";
     import { braille } from "$lib/braille";
     import { lettersList } from "./lettersList";
+    import { onMount, onDestroy } from "svelte";
+    import { HelpIcon } from "./icons";
+
+    let showDiv = false;
+    let triggerPosition = 0;
+    let triggerPositionOff = 400;
+    let divStyle = "display: none;";
+
+    function updateTriggerPosition() {
+        if (window.matchMedia("(max-width: 494px)").matches) {
+            triggerPosition = 200;
+            triggerPositionOff = 500;
+        } else {
+            triggerPosition = 350;
+            triggerPositionOff = 550;
+        }
+    }
+
+    const handleScroll = () => {
+        updateTriggerPosition();
+
+        showDiv =
+            window.scrollY >= triggerPosition &&
+            window.scrollY <= triggerPositionOff;
+
+        divStyle = showDiv ? "display: block;" : "display: none;";
+    };
+
+    if (typeof window !== "undefined") {
+        onMount(() => {
+            window.addEventListener("scroll", handleScroll);
+        });
+
+        onDestroy(() => {
+            window.removeEventListener("scroll", handleScroll);
+        });
+    }
 </script>
 
 <nav class="navbar">
     <div class="container-fluid">
-        <button
-            class="button-rules"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasNavbar"
-            aria-controls="offcanvasNavbar"
-            aria-label="Regras da composição das letras em braille"
-        >
-            Regras
-        </button>
+        <div class="fixed-div" style={divStyle}>
+            <button
+                class="button-rules"
+                type="button"
+                value="bi bi-question-lg"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasNavbar"
+                aria-controls="offcanvasNavbar"
+                aria-label="Regras da composição das letras em braille"
+            >
+                {@html HelpIcon(50)}
+            </button>
+        </div>
         <div
             class="offcanvas offcanvas-start"
             tabindex="-1"
@@ -77,11 +117,17 @@
     .container-fluid {
         padding-left: 0;
     }
+
     .button-rules {
-        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 5rem;
+        height: 5rem;
+        position: fixed;
+        top: 40rem;
+        left: 0.3rem;
         margin: 0;
-        font-size: 2rem;
-        padding: 0.45rem 1rem;
         background-color: var(--primary-button-rules-color);
         border-radius: 0.8rem;
         cursor: pointer;
@@ -117,6 +163,10 @@
     .button-rules_close {
         font-size: 3rem;
         padding: 2rem;
+    }
+
+    .fixed-div {
+        position: fixed;
     }
     @media (hover: hover) {
         .button-rules:hover {
