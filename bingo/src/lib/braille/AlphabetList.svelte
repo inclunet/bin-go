@@ -47,7 +47,6 @@
             <button
                 class="button-rules"
                 type="button"
-                value="bi bi-question-lg"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvasNavbar"
                 aria-controls="offcanvasNavbar"
@@ -100,8 +99,6 @@
     :root {
         --primary-button-rules-color: #f8cfab;
         --secondary-button-rules-color: #fabc86;
-
-        font-size: 62.5%;
     }
 
     .hidden-area {
@@ -128,7 +125,8 @@
         top: 40rem;
         left: 0.3rem;
         margin: 0;
-        background-color: var(--primary-button-rules-color);
+        padding: 0 !important;
+        background-color: var(--setenary-color);
         border-radius: 0.8rem;
         cursor: pointer;
     }
