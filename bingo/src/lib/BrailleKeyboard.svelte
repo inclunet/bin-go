@@ -404,7 +404,6 @@
             width: 90vw;
         }
     }
-
     @media (max-width: 424px) {
         .btn {
             padding: 0 0.5rem;

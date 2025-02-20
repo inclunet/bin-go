@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { braille } from "$lib/braille.js";
     import { onMount, onDestroy } from "svelte";
+    import AlphabetList from "./braille/AlphabetList.svelte";
 
     export let brailleCell = 0;
     export let brailleWord = "";
@@ -130,25 +131,30 @@
     });
 </script>
 
-<section id="answer">
-    <label for="word">Resposta:</label>
-    <input
-        type="text"
-        id="word"
-        bind:value={brailleWord}
-        bind:this={elementFocus}
-        on:keydown={handleKeyDown}
-        on:keyup={handleKeyUp}
-        on:input={convertToLowerCase}
-        autocomplete="off"
-    />
-    <button
-        disabled={brailleWord.length == 0 && brailleCell == 0}
-        class="btn button-color"
-        on:click={handleSubmit}
-        bind:this={buttonEnviar}>Enviar</button
-    >
-</section>
+<div class="d-flex flex-column">
+    <section id="answer">
+        <label for="word">Resposta:</label>
+        <input
+            type="text"
+            id="word"
+            bind:value={brailleWord}
+            bind:this={elementFocus}
+            on:keydown={handleKeyDown}
+            on:keyup={handleKeyUp}
+            on:input={convertToLowerCase}
+            autocomplete="off"
+        />
+        <button
+            disabled={brailleWord.length == 0 && brailleCell == 0}
+            class="btn button-color"
+            on:click={handleSubmit}
+            bind:this={buttonEnviar}>Enviar</button
+        >
+    </section>
+    <div class="position-absolute container_alphabet-list">
+        <AlphabetList />
+    </div>
+</div>
 
 <audio src="/key.mp3" bind:this={audio} />
 
@@ -185,6 +191,10 @@
         color: var(--white);
     }
 
+    .container_alphabet-list {
+        margin-top: 10rem;
+        left: 0;
+    }
     @media (hover: hover) {
         .button-color:hover {
             background-color: var(--secondary-button-color);

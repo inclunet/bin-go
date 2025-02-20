@@ -1,7 +1,6 @@
 <script>
     import BrailleKeyboard from "./BrailleKeyboard.svelte";
     import BrailleWord from "./BrailleWord.svelte";
-    import AlphabetList from "./braille/AlphabetList.svelte";
 
     export let brailleChallenge;
 </script>
@@ -26,9 +25,6 @@
             </h3>
         {/if}
     </header>
-    <div class="container_alphabet-list">
-        <AlphabetList />
-    </div>
     <div class="container_write">
         {#if brailleChallenge.Challenge == "braille"}
             <BrailleWord
