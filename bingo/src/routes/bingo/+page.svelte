@@ -11,9 +11,6 @@
 <LandingPage />
 
 <style>
-    :root {
-        font-size: 62.5%;
-    }
     .term-link {
         font-size: 2.2rem;
         font-weight: 500;

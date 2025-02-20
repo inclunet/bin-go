@@ -34,23 +34,11 @@
 <Footer />
 
 <style>
-    :root {
-        --primary-color: #2b7ef4;
-        --secondary-color: #2b7ff4ab;
-        --tertiary-color: #982a35;
-        --quaternary-color: #fff;
-        --quinary-color: #000;
-        --senary-color: #1d1d1d;
-        --setenary-color: #5799f5;
-        --octonary-color: #006aff;
-
-        font-size: 62.5%;
-    }
-
     header img {
         width: 100%;
     }
     .container {
+        min-height: auto;
         margin-top: 4rem;
     }
     .container-card {

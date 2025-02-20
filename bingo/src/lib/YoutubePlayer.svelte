@@ -1,7 +1,5 @@
 <script>
     export let videoId = "";
-    // export let width = "720";
-    // export let height = "405";
     export let autoplay = false;
     export let controls = true;
     export let loop = false;
@@ -22,6 +20,7 @@
 
 <style>
     .container {
+        min-height: auto;
         width: 70%;
         margin-bottom: 40px;
         padding: 0;

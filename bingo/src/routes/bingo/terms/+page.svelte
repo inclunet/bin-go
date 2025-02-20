@@ -119,9 +119,6 @@
 </section>
 
 <style>
-    :root {
-        font-size: 62.5%;
-    }
     .card {
         border: none;
     }
@@ -135,33 +132,11 @@
     ol {
         padding: 0;
     }
-    h3 {
-        font-size: 2.2rem;
-        margin: 0;
-    }
-    p,
-    section p {
-        margin: 0;
-        font-size: 1.8rem;
-    }
+
     @media (max-width: 573px) {
-        .container {
-            padding: 0 2rem 0 2rem;
-        }
-        h2 {
-            line-height: 4rem;
-            text-align: center;
-        }
         .card {
             border-radius: 1rem;
             box-shadow: 0.5rem 0.5rem 0.5rem #e2e2e2;
-        }
-        h3 {
-            line-height: 4rem;
-        }
-        p {
-            text-align: justify;
-            line-height: 3.7rem;
         }
     }
 </style>

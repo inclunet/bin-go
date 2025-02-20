@@ -271,18 +271,10 @@
 </div>
 
 <style>
-    :root {
-        font-size: 62.5%;
-    }
-    header h2 {
-        font-size: 2.8rem;
-    }
     section h2:nth-child(1n) {
         font-size: 2.6rem;
     }
-    h3 {
-        font-size: 2.2rem;
-    }
+
     .card {
         border: none;
     }
@@ -297,40 +289,15 @@
     .card-text {
         text-align: justify;
     }
-    p,
-    section p {
-        font-size: 1.8rem;
-        line-height: 3.6rem;
-    }
-    a,
-    section a,
-    section p a {
-        font-size: 2.2rem;
-    }
+
     .text-link {
         color: #000;
     }
     .text-link:hover {
         color: #fff;
     }
-    .term {
-        padding: 0.3rem 0.5rem;
-        margin: 0;
-        font-size: 1.6rem;
-    }
 
     @media (max-width: 573px) {
-        .container {
-            padding: 0 2rem 0 2rem;
-        }
-        header h2 {
-            margin-top: -2rem;
-            line-height: 4rem;
-            text-align: center;
-        }
-        h3 {
-            line-height: 4rem;
-        }
         header p:nth-child(n + 3):nth-child(-n + 4) {
             text-align: justify;
         }
@@ -344,18 +311,6 @@
 
         .main-features-img {
             margin-left: 1rem;
-        }
-        p {
-            line-height: 3.7rem;
-        }
-        section p {
-            text-align: justify;
-        }
-    }
-    @media (max-width: 450px) {
-        header h2 {
-            font-size: 2.3rem;
-            line-height: 3.5rem;
         }
     }
 </style>

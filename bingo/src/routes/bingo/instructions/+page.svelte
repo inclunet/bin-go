@@ -552,10 +552,6 @@
 </div>
 
 <style>
-    :root {
-        --primary-button-color: #2b7ef4;
-        font-size: 62.5%;
-    }
     div .container-iframe {
         margin: 60px 0;
         display: flex;
@@ -566,15 +562,7 @@
         height: 80vh;
         border-radius: 1rem;
     }
-    h2 {
-        font-size: 2.8rem;
-    }
-    h3 {
-        font-size: 2.2rem;
-    }
-    h4 {
-        font-size: 1.6rem;
-    }
+
     .creators {
         display: flex;
     }
@@ -618,13 +606,6 @@
     .card-title {
         margin: 1rem 0px 2rem 0px;
         line-height: 4rem;
-    }
-    p,
-    section p {
-        font-size: 1.8rem;
-    }
-    p a {
-        font-size: 2.2rem;
     }
     .space {
         margin-left: 3rem;
@@ -697,26 +678,11 @@
             height: 60vh;
         }
         h2 {
-            margin-top: -2rem;
             line-height: 4rem;
-            text-align: center;
-        }
-        h3 {
-            line-height: 4rem;
-        }
-        p {
-            text-align: justify;
         }
         .card {
             border-radius: 1rem;
             box-shadow: 0.5rem 0.5rem 0.5rem #e2e2e2;
-        }
-
-        p {
-            line-height: 3.7rem;
-        }
-        section p {
-            text-align: justify;
         }
         .container-role {
             margin: 2rem 0;

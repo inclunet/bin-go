@@ -22,22 +22,16 @@
 </div>
 
 <style>
-    :root {
-        font-size: 62.5%;
-    }
     h2 {
         margin-top: 4rem;
-        font-size: 2.8rem;
     }
     p {
         padding: 0 1rem 0 1rem;
-        font-size: 1.8rem;
     }
     @media (max-width: 450px) {
         h2 {
             margin: 0;
             padding: 1rem 0 1rem 0;
-            font-size: 2.3rem;
         }
         p {
             margin: 0;
