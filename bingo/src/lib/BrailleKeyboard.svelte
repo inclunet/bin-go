@@ -395,6 +395,14 @@
         #espaco {
             padding: 1rem 0;
         }
+
+        #backspace {
+            padding: 0 1rem !important;
+        }
+
+        .container_buttons {
+            width: 90vw;
+        }
     }
 
     @media (max-width: 424px) {
