@@ -73,9 +73,9 @@
         <h2>Aula #{$braille.CurrentClass} - Braille Personal Trainer</h2>
     </header>
 
-    <section>
+    <!-- <section>
         <p class="paragraph-description">{$braille.Description}</p>
-    </section>
+    </section> -->
 
     <section>
         <h2 class="hidden-area">
@@ -133,7 +133,7 @@
     }
 
     .container {
-        min-height: 60vh;
+        min-height: 100vh;
     }
 
     h2 {

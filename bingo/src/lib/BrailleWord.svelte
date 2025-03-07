@@ -117,6 +117,10 @@
         }
     };
 
+    $: if (brailleWord.length > 0) {
+        elementFocus.focus();
+    }
+
     onMount(() => {
         if (isClient) {
             document.addEventListener("keydown", handleHotKeys);
