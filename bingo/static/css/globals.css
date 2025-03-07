@@ -93,6 +93,17 @@ button {
     font-size: 1.6rem;
 }
 
+.hidden-area {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
 @media (hover: hover) {
     .button-color:hover {
         background-color: var(--secondary-button-color);
