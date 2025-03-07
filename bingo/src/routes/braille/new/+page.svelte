@@ -11,6 +11,14 @@
             goto(`/braille/${$braille.Player}`);
         }
     };
+
+    const handleConfigNVDA = () => {
+        window.open(
+            "/braille/instructions/nvda",
+            "_blank",
+            "noopener,noreferrer"
+        );
+    };
 </script>
 
 <PageTitle title="Novo Jogo - Braille Personal Trainer" game="Inclubraille" />
@@ -19,6 +27,15 @@
     <header class="my-5">
         <h2>Novo Jogo - Braille Personal Trainer</h2>
     </header>
+
+    <section>
+        <button
+            class="btn button-color hidden-area"
+            on:click={handleConfigNVDA}
+        >
+            <strong>Configurar o NVDA</strong>
+        </button>
+    </section>
 
     <section>
         <button class="btn button-color" on:click={handleStartNewBraillePlayer}>
