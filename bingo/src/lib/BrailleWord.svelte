@@ -117,9 +117,36 @@
         }
     };
 
-    $: if (brailleWord.length > 0) {
-        elementFocus.focus();
+    const handleFocus = (element) => {
+        if (element) {
+            element.focus();
+        }
+    };
+
+    function focusWithoutKeyboard(element) {
+        if (element) {
+            element.focus();
+
+            if (brailleKeyboard === true) {
+                element.readOnly = true;
+            } else {
+                element.readOnly = false;
+            }
+        }
     }
+
+    $: if (brailleKeyboard === true) {
+        focusWithoutKeyboard(elementFocus);
+    }
+
+    $: if (brailleWord.length > 0) {
+        console.log(brailleKeyboard);
+        focusWithoutKeyboard(elementFocus);
+    }
+
+    const handleSend = () => {
+        focusWithoutKeyboard(elementFocus);
+    };
 
     onMount(() => {
         if (isClient) {
@@ -151,6 +178,7 @@
         <button
             disabled={brailleWord.length == 0 && brailleCell == 0}
             class="btn button-color"
+            on:click={handleSend}
             on:click={handleSubmit}
             bind:this={buttonEnviar}>Enviar</button
         >

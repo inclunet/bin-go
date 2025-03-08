@@ -107,7 +107,7 @@
             on:enableSpaceTip={() => handleEnableSpaceTip("tooltipShow", "mp3")}
             bind:brailleWord
             bind:brailleCell
-            brailleKeyboard="true"
+            brailleKeyboard={true}
         />
     </div>
     <div role="region" aria-label="Teclado Braille" class="container_keyboard">

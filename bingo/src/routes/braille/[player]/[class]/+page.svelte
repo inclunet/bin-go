@@ -69,13 +69,20 @@
 />
 
 <div class="container">
-    <header class="my-5">
+    <!-- <header class="my-5">
         <h2>Aula #{$braille.CurrentClass} - Braille Personal Trainer</h2>
-    </header>
+    </header> -->
 
     <!-- <section>
         <p class="paragraph-description">{$braille.Description}</p>
     </section> -->
+
+    <section class="container_play">
+        <BrailleChallenge
+            bind:brailleChallenge={$braille.Challenge}
+            on:submitChallenge={handleChallengeSubmit}
+        />
+    </section>
 
     <section>
         <h2 class="hidden-area">
@@ -107,13 +114,6 @@
                 pointTitleHidden="Total de Pontos"
             />
         </div>
-    </section>
-
-    <section class="container_play">
-        <BrailleChallenge
-            bind:brailleChallenge={$braille.Challenge}
-            on:submitChallenge={handleChallengeSubmit}
-        />
     </section>
 </div>
 
