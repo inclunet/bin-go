@@ -54,6 +54,11 @@
         width: 72px;
         height: 72px;
     }
+
+    button {
+        padding: 1rem 0 !important;
+        text-align: center;
+    }
     button[aria-pressed="true"] {
         background-color: #008000;
         color: white;

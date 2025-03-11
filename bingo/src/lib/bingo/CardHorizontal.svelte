@@ -23,3 +23,9 @@
         {/if}
     {/each}
 </table>
+
+<style>
+    td {
+        padding: 0 !important;
+    }
+</style>

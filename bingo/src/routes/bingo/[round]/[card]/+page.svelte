@@ -153,6 +153,14 @@
         isBingo();
     };
 
+    export let table_client = false;
+
+    $: table_client = $card.Card > 1 ? true : false;
+
+    export let table_draw = false;
+
+    $: table_draw = $card.Card == 1 ? true : false;
+
     onMount(loadCard);
 </script>
 
@@ -160,12 +168,11 @@
     title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}"
     game="Inclubingo"
 />
-
 <div class="container container-card">
     {#if $card.Card == 1}
         <MediaQuery query="(min-width: 1150px)" let:matches>
             {#if matches}
-                <div class="mx-3 info-card table-horizontal">
+                <div class=" info-card table-horizontal" class:table_draw>
                     <div class="container-qr_code">
                         <img src="/qr/bingo/{$card.Round}" alt="QR-Code" />
                     </div>
@@ -189,7 +196,7 @@
         </MediaQuery>
         <MediaQuery query="(max-width: 1149px)" let:matches>
             {#if matches}
-                <div class="mx-3 info-card">
+                <div class=" info-card">
                     <div class="info-card-header">
                         <h2>Cartela de Bingo #{$card.Card}</h2>
                         <h3 class="info-card-header-round">
@@ -210,7 +217,7 @@
         </MediaQuery>
     {/if}
     {#if $card.Card > 1}
-        <div class="mx-3 info-card">
+        <div class="info-card-client" class:table_client class:table_draw>
             <div class="info-card-header">
                 <h2>Cartela de Bingo #{$card.Card}</h2>
                 <h3 class="info-card-header-round">
@@ -229,14 +236,24 @@
         </div>
     {/if}
 
-    <div class="table-card">
+    <div
+        class="table-card"
+        class:table_client
+        class:table_draw
+        data-table_client={table_client}
+    >
         <Card
             card={$card}
             on:checkNumber={handleCheckNumberEvent}
             on:playCheckSound={handlePlayCheckSoundEvent}
         />
     </div>
-    <div class="anuncio">
+    <div
+        class="anuncio"
+        class:table_client
+        class:table_draw
+        data-table_client={table_client}
+    >
         <Adds />
     </div>
 </div>
@@ -258,18 +275,20 @@
         font-size: 62.5%;
     }
     h2 {
+        margin-top: 0;
         font-size: 2.8rem;
     }
     h3 {
         font-size: 2.3rem;
     }
-    .info-card,
-    .table-card {
-        flex-grow: 2;
-    }
-    .anuncio {
+
+    .table_draw {
         flex-grow: 1;
-        flex-basis: 21%;
+    }
+
+    .table_client {
+        width: 30%;
+        flex-grow: 0 !important;
     }
 
     .container-card {
@@ -295,7 +314,7 @@
                 "container-qr_code info-card-header cardHeader"
                 "tableCard tableCard tableCard"
                 "anuncio anuncio anuncio";
-            gap: 3.5rem 5rem;
+            gap: 3.5rem 2rem;
         }
         .table-horizontal .info-card-header h2 {
             font-size: 2.4rem;
@@ -337,6 +356,51 @@
             width: 100%;
         }
     }
+
+    @media (max-width: 1149px) {
+        .table_draw {
+            justify-content: center;
+        }
+        .anuncio {
+            flex-grow: 0;
+            width: 30%;
+        }
+
+        .anuncio[data-table_client="true"] {
+            width: 25%;
+        }
+
+        .table-card[data-table_client="true"] {
+            width: auto;
+        }
+    }
+    @media (max-width: 991px) {
+        .container {
+            min-width: 90vw;
+        }
+    }
+
+    @media (max-width: 970px) {
+        .anuncio[data-table_client="true"] {
+            margin-top: 1rem;
+            flex-basis: 100%;
+        }
+        .info-card-client,
+        .table-card[data-table_client="true"] {
+            flex-basis: 45%;
+        }
+    }
+
+    @media (max-width: 910px) {
+        .table-card {
+            justify-content: center;
+        }
+
+        .anuncio {
+            margin: 0;
+            flex-grow: 1;
+        }
+    }
     @media (max-width: 767px) {
         .anuncio {
             flex-basis: 50%;
@@ -353,10 +417,12 @@
     @media (max-width: 450px) {
         h2,
         h3 {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
+            margin: 0;
         }
         .info-card {
-            width: 90%;
+            width: 100%;
+            margin: 0 1rem;
         }
         .container-card {
             margin-top: 17px;
@@ -364,6 +430,25 @@
         .anuncio {
             display: flex;
             justify-content: center;
+        }
+
+        .table-card[data-table_client="true"],
+        .info-card-client {
+            flex-basis: 100%;
+        }
+
+        .info-card-header {
+            display: flex;
+            margin: 0 1rem;
+        }
+    }
+
+    @media (max-width: 410px) {
+    }
+    @media (max-width: 320px) {
+        h2,
+        h3 {
+            font-size: 1.8rem;
         }
     }
 </style>

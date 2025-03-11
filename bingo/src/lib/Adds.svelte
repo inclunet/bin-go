@@ -6,7 +6,7 @@
     });
 </script>
 
-<section class="container">
+<section class="container-adds">
     <h2>Anúncios</h2>
     <p>
         <em>
@@ -18,7 +18,6 @@
     <!-- Transição do Bingo -->
     <ins
         class="adsbygoogle"
-        style="display:block;"
         data-ad-client="ca-pub-6710397565046630"
         data-ad-slot="7204703685"
         data-ad-format="auto"
@@ -31,7 +30,14 @@
         font-size: 62.5%;
     }
     h2 {
+        margin-top: 0;
         font-size: 2.8rem;
+    }
+    ins {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        overflow: hidden;
     }
     p {
         background-color: #f8f8b4;
@@ -51,10 +57,14 @@
         h2 {
             font-size: 2.3rem;
         }
-        .container {
+        .container-adds {
             margin: 0;
             padding: 0;
             width: 95%;
+        }
+
+        ins {
+            width: 100%;
         }
     }
 </style>

@@ -22,6 +22,7 @@
         font-size: 62.5%;
     }
     button {
+        margin-top: 0;
         padding: 1rem;
         font-size: 2rem;
     }
@@ -29,8 +30,16 @@
     @media (max-width: 450px) {
         button {
             height: 4.8rem;
-            padding: 0.7rem;
-            font-size: 1.6rem;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 410px) {
+        button {
+            height: 4.8rem;
+            padding: 0.5rem 0.3rem;
+            font-size: 1.4rem;
         }
     }
 </style>

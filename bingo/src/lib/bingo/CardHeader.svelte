@@ -178,7 +178,7 @@
         </MediaQuery>
     {/if}
     {#if $card.Card > 1}
-        <div class="container-header">
+        <div class="container-header-client">
             <div class="container-header-inner">
                 {#if $card.Card > 1 && !$card.Bingo}
                     <div class="container-botao">
@@ -234,9 +234,18 @@
         font-size: 62.5%;
     }
     .container {
+        width: 100%;
+        min-height: 0vh;
         padding: 0;
+        margin: 0;
     }
-    .container-header {
+    .container-header,
+    .container-header-client {
+        display: flex;
+        flex-direction: column;
+    }
+    .container-header-client {
+        width: 100%;
         display: flex;
         flex-direction: column;
     }
@@ -246,7 +255,7 @@
         margin-bottom: 50px;
     }
     .container-botao {
-        width: 25rem;
+        width: 100%;
         margin: 0;
         padding: 0;
         display: flex;
@@ -264,11 +273,10 @@
         .container-header_horizontal {
             display: grid;
             grid-template-areas: "container-status card-botao_horizontal ";
-            gap: 0 1rem;
+            gap: 0 2rem;
         }
         .container-header_horizontal .card-botao_horizontal {
             grid-area: card-botao_horizontal;
-            width: 33rem;
         }
         .container-header_horizontal .container-status {
             grid-area: container-status;
@@ -289,6 +297,11 @@
             margin: 0;
         }
     }
+    @media (max-width: 1149px) {
+        .container-header {
+            width: 25rem;
+        }
+    }
     @media (max-width: 767px) {
         p {
             margin: 0;
@@ -306,14 +319,45 @@
     @media (max-width: 450px) {
         p {
             margin: 0;
-            margin: 5px 0 7px 0px;
-            font-size: 1em;
+            padding: 0;
+            font-size: 1.5rem;
         }
         .container-botao {
-            width: 17.5rem;
+            width: auto;
         }
-        .container-status p {
-            font-size: 1.5rem;
+        .container-status {
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container-header-client {
+            width: auto;
+            flex-direction: row;
+            justify-content: space-between;
+            margin: 0 1rem;
+        }
+
+        .container-header {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 410px) {
+        .container-header-client,
+        .container-header {
+            flex-direction: column;
+        }
+        .container-status {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .container-botao {
+            width: 100%;
         }
     }
 </style>
