@@ -3,6 +3,7 @@
     import { braille } from "$lib/braille.js";
     import { onMount, onDestroy } from "svelte";
     import AlphabetList from "./braille/AlphabetList.svelte";
+    import PointsView from "./braille/PointsView.svelte";
 
     export let brailleCell = 0;
     export let brailleWord = "";
@@ -162,30 +163,29 @@
     });
 </script>
 
-<div class="d-flex flex-column">
-    <section id="answer">
-        <label for="word">Resposta:</label>
-        <input
-            type="text"
-            id="word"
-            bind:value={brailleWord}
-            bind:this={elementFocus}
-            on:keydown={handleKeyDown}
-            on:keyup={handleKeyUp}
-            on:input={convertToLowerCase}
-            autocomplete="off"
-        />
-        <button
-            disabled={brailleWord.length == 0 && brailleCell == 0}
-            class="btn button-color"
-            on:click={handleSend}
-            on:click={handleSubmit}
-            bind:this={buttonEnviar}>Enviar</button
-        >
-    </section>
-    <div class="position-absolute container_alphabet-list">
-        <AlphabetList />
-    </div>
+<section id="answer">
+    <label for="word">Resposta:</label>
+    <input
+        type="text"
+        id="word"
+        bind:value={brailleWord}
+        bind:this={elementFocus}
+        on:keydown={handleKeyDown}
+        on:keyup={handleKeyUp}
+        on:input={convertToLowerCase}
+        autocomplete="off"
+    />
+    <button
+        disabled={brailleWord.length == 0 && brailleCell == 0}
+        class="btn button-color"
+        on:click={handleSend}
+        on:click={handleSubmit}
+        bind:this={buttonEnviar}>Enviar</button
+    >
+</section>
+<div class="position-absolute container_menu-helper">
+    <AlphabetList />
+    <PointsView />
 </div>
 
 <audio src="/key.mp3" bind:this={audio} />
@@ -196,15 +196,14 @@
         align-items: center;
         width: 100%;
         margin: 2.5rem 0;
-        align-items: center;
         font-size: 1.8rem;
     }
 
     section input {
         width: 100%;
-        margin-left: 0.8em;
-        padding: 0.2em 0;
-        padding-left: 0.8em;
+        margin-left: 0.8rem;
+        padding: 0.2rem 0;
+        padding-left: 0.8rem;
     }
     section button {
         padding: 0.2em 0.6em;
@@ -223,7 +222,7 @@
         color: var(--white);
     }
 
-    .container_alphabet-list {
+    .container_menu-helper {
         margin-top: 10rem;
         left: 0;
     }
