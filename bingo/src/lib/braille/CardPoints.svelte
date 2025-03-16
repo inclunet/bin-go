@@ -25,7 +25,7 @@
     };
 </script>
 
-<div class="card text-center">
+<div class="card">
     <div class="card-body">
         <div class="card-points" style="background-color: {choiceColor()};">
             <p class="card-title hidden-area">{pointTitleHidden}</p>
@@ -36,83 +36,40 @@
 </div>
 
 <style>
-    :root {
-        --black: #000;
-        --white: #fff;
-
-        font-size: 62.5%;
-    }
-
-    .hidden-area {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        border: 0;
-    }
     h4 {
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+    .card {
+        height: 15rem;
+        border: none;
     }
 
-    .card {
-        width: 18rem;
-        border: 1px solid rgb(102, 102, 102);
-    }
     .card-body {
-        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .card-points {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 10rem;
-        font-weight: bold;
+        width: 7.8rem;
+        height: 7.8rem;
+        border-radius: 8%;
+        padding: 0;
     }
+
     .card-points p {
+        display: flex;
+        align-items: center;
         margin: 0;
         padding: 0;
-        font-size: 4rem;
-        color: var(--black);
+        font-weight: 500;
+        font-size: 5rem;
     }
 
     .card-title {
-        font-weight: 600;
-        padding: 8px;
-    }
-
-    @media (max-width: 490px) {
-        h4 {
-            font-size: 1.8rem;
-        }
-        .card {
-            display: flex;
-            align-items: center;
-            width: 8rem;
-            height: 13rem;
-            border: none;
-            flex-wrap: wrap;
-        }
-
-        .card-points {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 7.8rem;
-            height: 7.8rem;
-            border-radius: 50%;
-            padding: 0;
-        }
-
-        .card-points p {
-            padding: 0;
-        }
-
-        .card-title {
-            padding: 1rem 0;
-        }
+        padding: 1rem 0;
     }
 </style>

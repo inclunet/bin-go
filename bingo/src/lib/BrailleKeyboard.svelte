@@ -192,11 +192,12 @@
                     class="btn"
                     id="espaco">Espaço</button
                 >
-                <Tooltip {enableSpaceTip} marginTop="4.5rem">
-                    <p class="texto_tip">Ei, não se esqueça!</p>
+                <Tooltip {enableSpaceTip} marginTop="9rem">
+                    <!-- <p class="texto_tip">
+                    </p> -->
                     <p class="texto_tip">
-                        Pressione espaço para confirmar a letra que você quer
-                        enviar.
+                        Ei, não se esqueça! <br />
+                        Pressione espaço para confirmar a letra que você quer enviar.
                     </p>
                 </Tooltip>
             </div>
@@ -213,21 +214,6 @@
 </div>
 
 <style>
-    :root {
-        --primary-button-limpar-color: #ffff00;
-        --secondary-button-limpar-color: #ffa500;
-        --primary-button-espaco-color: #1e90ff;
-        --secondary-button-espaco-color: #246bb3;
-        --primary-button-backspace-color: #9c9c9c;
-        --secondary-button-backspace-color: #5a5656;
-        --back-keyboard-color: #696b6d;
-        --tooltip: #fcdd56ef;
-        --white: #fff;
-        --black: #000;
-
-        font-size: 62.5%;
-    }
-
     .container {
         display: flex;
         flex-direction: column;
@@ -292,7 +278,8 @@
     .texto_tip {
         margin: 0;
         padding: 0;
-        font-size: 1.2em;
+        font-size: 1.4rem;
+        line-height: 3rem;
     }
     #backspace {
         background-color: var(--primary-button-backspace-color);

@@ -7,8 +7,13 @@
     --senary-color: #1d1d1d;
     --setenary-color: #5799f5;
     --octonary-color: #006aff;
+
     --primary-button-color: #2b7ef4;
     --secondary-button-color: #2868c2;
+    --tertiary-button-color: #00f279;
+    --quaternary-button-color: #1e90ff;
+    --quinary-button-color: #cacaca;
+
     --white: #fff;
     --black: #000;
 
@@ -82,8 +87,8 @@ button {
 }
 
 .button-color:active {
-    background-color: var(--secondary-button-color);
-    color: var(--white);
+    background-color: var(--secondary-button-color) !important;
+    color: var(--white) !important;
     border: 1px solid var(--black);
 }
 

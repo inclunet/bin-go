@@ -61,8 +61,8 @@
     }
 
     .desafio-texto {
-        height: 5rem;
-        padding: 0 3rem;
+        height: 3.5rem;
+        padding: 0 2.5rem;
         font-size: 3rem;
         align-content: center;
         text-align: center;
