@@ -89,10 +89,13 @@
 					dispatch("brailleEnter", "space");
 					audio.play();
 					break;
-				case "Backspace":
-					dispatch("backspacePress");
-					break;
 			}
+		}
+	};
+
+	const handleBackspaceKey = (event) => {
+		if (event.key === "Backspace") {
+			dispatch("backspacePress"); // Dispara o evento para o Pai
 		}
 	};
 
@@ -155,7 +158,7 @@
 	onMount(() => {
 		if (isClient) {
 			document.addEventListener("keydown", handleHotKeys);
-			document.addEventListener("keydown", handleKeyUp);
+			document.addEventListener("keydown", handleBackspaceKey);
 		}
 		elementFocus.focus();
 	});
@@ -163,6 +166,7 @@
 	onDestroy(() => {
 		if (isClient) {
 			document.removeEventListener("keydown", handleHotKeys);
+			document.addEventListener("keydown", handleBackspaceKey);
 		}
 	});
 </script>

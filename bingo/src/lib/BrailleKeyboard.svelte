@@ -36,6 +36,7 @@
 
 	const handleBackspaceKey = () => {
 		brailleWord = brailleWord.slice(0, -1);
+		console.log("oi");
 	};
 
 	const handleClearKey = () => {
