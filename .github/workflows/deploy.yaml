@@ -1,7 +1,8 @@
 name: Deploy
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - "*"
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -10,23 +11,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.21'
       - name: Test
         run: go test -v ./...
-      - name: Build
-        run: go build -v -o bin-go main.go
-      - name: setup-node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Install dependencies
-        run: |
-          cd bingo
-          npm install
-      - name: Build
-        run: |
-          cd bingo
-          npm run build
       - name: setup-qemu
         uses: docker/setup-qemu-action@v2
       - name: setup-docker-buildx
@@ -40,11 +27,37 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: inclunet/bin-go
+          images: inclunet/inclugames
+      - name: Get short commit hash
+        id: vars
+        run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: "."
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            inclunet/inclugames:${{ github.ref_name == 'main' && 'latest' || 'beta' }}
+            inclunet/inclugames:${{ env.COMMIT_HASH }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Login no Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY }}
+      - name: Project Setup no GCloud
+        run: gcloud config set project protean-aria-398100
+      - name: Cloud Run Deploy
+        run: |
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            gcloud run deploy inclugames \
+                    --image=docker.io/inclunet/inclugames:latest \
+                    --region=us-central1 \
+                    --platform=managed \
+                    --allow-unauthenticated
+          else
+            gcloud run deploy inclugames-staging \
+                    --image=docker.io/inclunet/inclugames:beta \
+                    --region=us-central1 \
+                    --platform=managed \
+                    --allow-unauthenticated
+          fi

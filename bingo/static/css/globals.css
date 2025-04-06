@@ -1,0 +1,143 @@
+:root {
+    --primary-color: #2b7ef4;
+    --secondary-color: #2b7ff4ab;
+    --tertiary-color: #982a35;
+    --quaternary-color: #fff;
+    --quinary-color: #000;
+    --senary-color: #1d1d1d;
+    --setenary-color: #5799f5;
+    --octonary-color: #006aff;
+
+    --primary-button-color: #2b7ef4;
+    --secondary-button-color: #2868c2;
+    --tertiary-button-color: #00f279;
+    --quaternary-button-color: #1e90ff;
+    --quinary-button-color: #cacaca;
+
+    --white: #fff;
+    --black: #000;
+
+    --primary-button-limpar-color: #ffff00;
+    --secondary-button-limpar-color: #ffa500;
+    --primary-button-espaco-color: #1e90ff;
+    --secondary-button-espaco-color: #246bb3;
+    --primary-button-backspace-color: #9c9c9c;
+    --secondary-button-backspace-color: #5a5656;
+    --back-keyboard-color: #696b6d;
+    --tooltip: #fcdd56ef;
+
+    font-size: 62.5%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    display: block;
+    min-height: 60vh;
+}
+
+li {
+    list-style-type: none;
+}
+
+h2 {
+    font-size: 2.8rem;
+    margin: 2rem 0;
+}
+
+h3 {
+    font-size: 2.2rem;
+}
+
+h4 {
+    font-size: 1.6rem;
+}
+
+a {
+    font-size: 2.2rem !important;
+}
+
+p {
+    font-size: 1.8rem;
+    line-height: 4rem;
+}
+
+button {
+    margin-top: 5rem;
+    font-size: 2rem !important;
+    padding: 1rem 2rem !important;
+}
+
+.button-color {
+    background-color: var(--primary-button-color);
+    color: var(--black);
+}
+
+.button-color:active {
+    background-color: var(--secondary-button-color) !important;
+    color: var(--white) !important;
+    border: 1px solid var(--black);
+}
+
+.term {
+    padding: 0.3rem 0.5rem;
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.hidden-area {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+@media (hover: hover) {
+    .button-color:hover {
+        background-color: var(--secondary-button-color);
+        color: var(--white);
+    }
+}
+
+@media (max-width: 573px) {
+    .container {
+        padding: 0 2rem 0 2rem;
+    }
+    h2 {
+        line-height: 4rem;
+        text-align: center;
+    }
+
+    p {
+        line-height: 3.7rem;
+        text-align: justify;
+    }
+
+    h3 {
+        line-height: 4rem;
+    }
+}
+
+@media (max-width: 450px) {
+    header h2 {
+        font-size: 2.3rem;
+        line-height: 3.5rem;
+    }
+}

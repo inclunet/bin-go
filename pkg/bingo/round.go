@@ -13,26 +13,12 @@ type Round struct {
 	upgrader websocket.Upgrader
 }
 
-func (r *Round) AddCard() *Card {
-	card := NewCard(*r)
+func (r *Round) AddCard() (*Card, error) {
+	card := NewCard(r)
 
 	r.Cards = append(r.Cards, card)
 
-	return &card
-}
-
-func (r *Round) CheckNumberForAll(number int) int {
-	counter := 0
-
-	for i, card := range r.Cards {
-		if card.Autoplay && i > 0 {
-			if r.Cards[i].CheckNumber(number) {
-				counter++
-			}
-		}
-	}
-
-	return counter
+	return r.GetCard(card.Card - 1)
 }
 
 func (r Round) Draw() *Card {
@@ -55,7 +41,25 @@ func (r *Round) GetCard(card int) (*Card, error) {
 	return &r.Cards[card], nil
 }
 
-func (r *Round) SetNextRound(nextRound int) int {
+func (r *Round) SetCompletionsForAll(completions *Completions) (int, error) {
+	counter := 0
+
+	if len(r.Cards) == 0 {
+		return counter, fmt.Errorf("no cards found")
+	}
+
+	for i := range r.Cards {
+		if err := r.Cards[i].SetCompletions(completions); err != nil {
+			return counter, err
+		}
+
+		counter++
+	}
+
+	return counter, nil
+}
+
+func (r *Round) SetNextRoundForAll(nextRound int) int {
 	count := 0
 
 	if nextRound < 0 {
@@ -122,16 +126,18 @@ func (r *Round) UncheckNumberForAll(number int) *Round {
 	return r
 }
 
-func NewRound(bingo Bingo, roundType int) (round Round) {
-	round.Round = len(bingo.Rounds) + 1
-	round.Type = roundType
-
-	round.upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
+func NewRound(bingo *Bingo, roundType int) Round {
+	round := Round{
+		Round: len(bingo.Rounds) + 1,
+		Type:  roundType,
+		upgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+		Cards: []Card{},
 	}
 
-	round.Cards = append(round.Cards, NewCard(round))
+	round.AddCard()
 
 	return round
 }
