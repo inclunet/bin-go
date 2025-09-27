@@ -236,6 +236,27 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Card Jogo da Velha Inclusivo -->
+            <div class="col-sm-12 mb-3">
+                <div class="card border-0" style="background:linear-gradient(135deg,#0f1d2a,#1f3d58); color:#fff;">
+                    <div class="card-body d-flex flex-column flex-md-row align-items-md-center gap-4">
+                        <div class="flex-grow-1">
+                            <h3 class="card-title" style="margin:0 0 1.2rem 0; line-height:3.2rem;">
+                                <img src="/img/jogo2.png" alt="Jogo da Velha Inclusivo" width="34" class="main-features-img" />
+                                <span aria-hidden="true">Jogo da Velha Inclusivo</span>
+                            </h3>
+                            <p class="card-text mb-3" style="text-align:justify;">
+                                Experimente partidas rápidas em um tabuleiro acessível com navegação por teclado,
+                                anúncio de turno e atualização em tempo real. Ideal para introduzir novos jogadores ao conceito de acessibilidade em jogos.
+                            </p>
+                        </div>
+                        <div class="text-md-end">
+                            <a href="/tictac" class="btn btn-primary btn-lg fw-semibold">Jogar Tic-Tac-Toe</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 

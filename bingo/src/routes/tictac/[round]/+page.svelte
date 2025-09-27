@@ -1,0 +1,84 @@
+<script>
+	import { page } from '$app/stores';
+	import { get } from 'svelte/store';
+	import { onMount } from 'svelte';
+	import PageTitle from '$lib/PageTitle.svelte';
+
+	const p = get(page);
+	let roundParam = p.params.round;
+	let loading = true;
+	let errorMsg = '';
+	let winner = '';
+	let turn = '';
+	let board = [['','',''],['','',''],['','','']];
+	let playerXBusy = false;
+	let playerOBusy = false;
+	let copyMsg = '';
+
+	async function loadRound() {
+		try {
+			const res = await fetch(`/api/tictac/${roundParam}`);
+			if (res.status === 404) { errorMsg = 'Rodada não encontrada.'; return; }
+			if(!res.ok) { errorMsg = 'Erro ao obter rodada.'; return; }
+			const data = await res.json();
+			board = data.board || board;
+			winner = data.winner || '';
+			turn = data.turn || '';
+			playerXBusy = !!data.playerX;
+			playerOBusy = !!data.playerO;
+		} catch(e){ errorMsg = 'Falha de rede.'; }
+		finally { loading = false; }
+	}
+
+	function shareLink() {
+		const url = `${location.origin}/tictac/${roundParam}`;
+		try {
+			navigator.clipboard.writeText(url);
+			copyMsg = 'Link copiado!';
+			setTimeout(()=> copyMsg='', 2500);
+		} catch { copyMsg = 'Não foi possível copiar.'; }
+	}
+
+	onMount(loadRound);
+</script>
+
+<PageTitle title="Escolher jogador" game="Jogo da velha inclusivo" />
+
+<div class="container py-4" style="max-width:52rem;">
+	<h2 class="h1 mb-3">Rodada {roundParam}</h2>
+	{#if loading}
+		<p>Carregando...</p>
+	{:else if errorMsg}
+		<p class="text-danger">{errorMsg}</p>
+	{:else}
+		<p class="lead">Escolha seu marcador para esta rodada:</p>
+		<div class="d-flex gap-3 flex-wrap mb-3" role="group" aria-label="Escolher marcador">
+			<button class="btn btn-primary btn-lg" disabled={playerXBusy} aria-disabled={playerXBusy} aria-label={playerXBusy ? 'Jogador X já escolhido' : 'Jogar como X'} on:click={()=> !playerXBusy && (location.href=`/tictac/${roundParam}/x`)}>X {#if playerXBusy}<span class="badge bg-dark ms-2">ocupado</span>{/if}</button>
+			<button class="btn btn-warning btn-lg" disabled={playerOBusy} aria-disabled={playerOBusy} aria-label={playerOBusy ? 'Jogador O já escolhido' : 'Jogar como O'} on:click={()=> !playerOBusy && (location.href=`/tictac/${roundParam}/o`)}>O {#if playerOBusy}<span class="badge bg-dark ms-2">ocupado</span>{/if}</button>
+		</div>
+		<div class="mb-4 d-flex align-items-center gap-2 flex-wrap">
+			<button class="btn btn-outline-info" on:click={shareLink}>Copiar link da rodada</button>
+			{#if copyMsg}<span aria-live="polite" class="small text-success">{copyMsg}</span>{/if}
+		</div>
+		<div class="preview" aria-hidden="true">
+			<div class="mini-board">
+				{#each board as rowVals}
+					<div class="mini-row">{#each rowVals as c}<span>{c || '-'}</span>{/each}</div>
+				{/each}
+			</div>
+			<p class="status small mt-2">{winner ? `Resultado: ${winner}` : (turn ? `Vez atual: ${turn}` : (playerXBusy || playerOBusy ? 'Aguardando outro jogador' : 'Aguardando seleção de marcadores'))}</p>
+		</div>
+	{/if}
+	<div class="mt-5">
+		<a href="/tictac" class="btn btn-outline-secondary">Voltar ao início</a>
+	</div>
+</div>
+
+<style>
+	.mini-board { display:inline-flex; flex-direction:column; border:2px solid #444; border-radius:.4rem; overflow:hidden; }
+	.mini-row { display:flex; }
+	.mini-row span { width:2.4rem; height:2.4rem; display:inline-flex; align-items:center; justify-content:center; font-weight:600; background:#1f1f1f; color:#eee; border-right:1px solid #333; border-bottom:1px solid #333; font-size:1.2rem; }
+	.mini-row span:last-child { border-right:none; }
+	.mini-row:last-child span { border-bottom:none; }
+	.badge { font-size:.9rem; }
+</style>

@@ -28,6 +28,14 @@
                 O Braille Personal Trainer te deixará expert na escrita em
                 Braille.
             </CardPlay>
+            <CardPlay
+                src="/img/jogo2.png"
+                alt="Jogo da Velha Inclusivo"
+                href="/tictac"
+                title="Jogo da Velha Inclusivo"
+            >
+                Partidas rápidas, acessíveis e em tempo real. Desafie um amigo agora.
+            </CardPlay>
         </div>
     </slot>
 </main>
