@@ -91,6 +91,20 @@ func (g *Game) getRoundHandler(r *http.Request) (*server.Response, error) {
 	return server.NewResponse(rd)
 }
 
+// Gera QR com link absoluto (ou relativo) para a página da rodada de seleção de símbolo.
+func (g *Game) qrRoundHandler(r *http.Request) (*server.Response, error) {
+	roundNum := server.GetURLParamHasInt(r, "round")
+	if roundNum <= 0 || roundNum > len(g.Rounds) { return server.NewResponseError(http.StatusNotFound, errors.New("round not found")) }
+	// Tentar montar origem (host) se cabecalhos presentes; fallback relativo.
+	host := r.Host
+	scheme := "http"
+	if r.TLS != nil { scheme = "https" }
+	url := fmt.Sprintf("%s://%s/tictac/%d", scheme, host, roundNum)
+	qrb := server.NewQRCode(url)
+	qrb.SetSize(340,340)
+	return &server.Response{StatusCode: http.StatusOK, Body: qrb}, nil
+}
+
 // openRoundsHandler retorna rodadas que ainda aguardam jogadores (ao menos um símbolo não escolhido e não finalizada)
 func (g *Game) openRoundsHandler(r *http.Request) (*server.Response, error) {
 	type openRound struct {
@@ -292,6 +306,7 @@ func New(routes *mux.Router) *Game {
 		r := routes.PathPrefix("/tictac").Subrouter()
 		r.Methods(http.MethodGet).Path("/{round}/new").Handler(server.SendJson(g.newRoundHandler))
 		r.Methods(http.MethodGet).Path("/{round}").Handler(server.SendJson(g.getRoundHandler))
+		r.Methods(http.MethodGet).Path("/{round}/qr").Handler(server.SendQRCode(g.qrRoundHandler))
 		r.Methods(http.MethodGet).Path("/open").Handler(server.SendJson(g.openRoundsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/{player}/{row}/{col}").Handler(server.SendJson(g.moveHandler))
 	}

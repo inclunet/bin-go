@@ -64,6 +64,8 @@ let shareLabel = 'Compartilhar link da rodada';
  	} catch { shareMsg='Não foi possível compartilhar'; }
  	setTimeout(()=> shareMsg='', 2500);
  }
+
+	// QR exibido diretamente (sem modal)
 </script>
 
 <PageTitle title="Escolher jogador" game="Jogo da velha inclusivo" />
@@ -89,9 +91,16 @@ let shareLabel = 'Compartilhar link da rodada';
 			{/if}
 		</div>
 		{#if shareMsg}<div class="small text-success" aria-live="polite">{shareMsg}</div>{/if}
-		<div class="mb-4 d-flex align-items-center gap-2 flex-wrap">
-			<button class="btn btn-outline-info" on:click={shareLink}>Copiar link da rodada</button>
-			{#if copyMsg}<span aria-live="polite" class="small text-success">{copyMsg}</span>{/if}
+		<div class="mb-4 d-flex flex-wrap align-items-start gap-4 qr-share-wrapper">
+			<div class="d-flex flex-column gap-2">
+				<button class="btn btn-outline-info" on:click={shareLink}>Copiar link da rodada</button>
+				{#if copyMsg}<span aria-live="polite" class="small text-success">{copyMsg}</span>{/if}
+			</div>
+			<div class="qr-inline" aria-label="QR Code para convidar outro jogador">
+				<h3 class="h6 text-center mb-2">Entrar na rodada</h3>
+				<img src={`/api/tictac/${roundParam}/qr`} alt="QR Code da rodada {roundParam}" />
+				<p class="small text-muted mt-2 mb-0 text-center">Escaneie para abrir /tictac/{roundParam}</p>
+			</div>
 		</div>
 		<div class="preview" aria-hidden="true">
 			<div class="mini-board">
@@ -118,4 +127,8 @@ let shareLabel = 'Compartilhar link da rodada';
 	.scoreboard .draws { color:#94b8cc; font-weight:500; }
 	.btn-outline-info { --bs-btn-color:#20b3ff; --bs-btn-border-color:#20b3ff; }
 	.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+	.qr-share-wrapper { align-items:stretch; }
+	.qr-inline { background:#152635; border:1px solid #2c4d6b; padding:.9rem .9rem 1rem; border-radius:.75rem; width:160px; display:flex; flex-direction:column; }
+	.qr-inline img { width:100%; height:auto; background:#fff; border-radius:.4rem; padding:.3rem; box-shadow:0 0 0 3px rgba(255,255,255,.05); }
+	@media (max-width:600px){ .qr-share-wrapper{ flex-direction:column; align-items:flex-start; } .qr-inline{ width:180px; } }
 </style>

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
 	import { onMount } from 'svelte';
@@ -35,26 +35,25 @@
 	let visibleInfo = 'Carregando...';
 	let lastPiecePlaced = '';
 	let lastCoordPlaced = '';
-	let tempTimeout = null;
+	let tempTimeout: any = null;
 
 	// Áudio
-	/** @type {HTMLAudioElement} */ let clickAudio;
-	/** @type {HTMLAudioElement} */ let errorAudio;
-	/** @type {HTMLAudioElement} */ let victoryAudio;
-	/** @type {HTMLAudioElement} */ let drawAudio;
-	/** @type {HTMLAudioElement} */ let defeatAudio;
+	let clickAudio: HTMLAudioElement | null = null;
+	let errorAudio: HTMLAudioElement | null = null;
+	let victoryAudio: HTMLAudioElement | null = null;
+	let drawAudio: HTMLAudioElement | null = null;
+	let defeatAudio: HTMLAudioElement | null = null;
 	let lastOutcome = ''; // evita tocar som duplicado (REST + WS)
-	let role = undefined; // usado para injetar role="application" dinamicamente
+	let role: string | undefined = undefined; // usado para injetar role="application" dinamicamente
 	let boardInitialized = false; // evita anunciar carregamento inicial
 	let liveAnnounce = ''; // única região aria-live consolidada
 
-		/** @param {number} r @param {number} c */
-		const cellId = (r,c) => `cell-${r}-${c}`;
+		const cellId = (r: number, c: number) => `cell-${r}-${c}`;
 
 	function announcePosition() { /* mantido para futura expansão */ }
 
 	/** @param {string} v */
-	function normalizeTurn(v){ return (v||'').toString().trim().toUpperCase(); }
+	function normalizeTurn(v: string){ return (v||'').toString().trim().toUpperCase(); }
 	function isMyTurn(){ return normalizeTurn(currentTurn) === localPlayer; }
 
 	async function loadRound() {
@@ -100,7 +99,7 @@
 	}
 
 	/** @param {number} r @param {number} c */
-	async function playMove(r,c) {
+	async function playMove(r: number, c: number) {
 		if (winner) return;
 		if (board[r][c] !== '') { setTemporaryInfo('Casa já ocupada.'); errorAudio?.play(); return; }
 		if (!isMyTurn()) { setTemporaryInfo('Ainda não é sua vez.'); errorAudio?.play(); return; }
@@ -123,20 +122,20 @@
 	}
 
 	/** @param {number} r @param {number} c */
-	function disabledCell(r,c) {
+	function disabledCell(r: number, c: number) {
 		if (winner) return true;
 		if (board[r][c] !== '') return true;
 		return false; // não desabilita mais fora do turno
 	}
 
 		/** @param {KeyboardEvent} e */
-		function handleKey(e) {
+		function handleKey(e: KeyboardEvent) {
 		if (winner) return;
 		const key = e.key;
 		if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End','Enter',' '].includes(key)) return;
-		const target = /** @type {HTMLElement} */(e.currentTarget);
-		const r = parseInt(target.dataset.r || '0');
-		const c = parseInt(target.dataset.c || '0');
+			const target = e.currentTarget as HTMLElement | null;
+			const r = parseInt(target?.dataset.r || '0');
+			const c = parseInt(target?.dataset.c || '0');
 		if (key === 'Enter' || key === ' ') {
 				row = r; col = c; playMove(r,c); e.preventDefault(); return; }
 		let nr = r, nc = c;
@@ -170,8 +169,11 @@
 		return !!(navigator.share) || (touch && (coarse || uaMatch));
 	}
 
-	onMount(async () => {
-		await ensureRound();
+// QR code removido desta tela (deve existir apenas na seleção de símbolo)
+
+	onMount(() => {
+		// executar parte assíncrona sem tornar callback async (evita Promise de cleanup)
+		(async () => { await ensureRound(); })();
 		// garantir que visibleInfo reflita turno inicial mesmo se ainda vazio
 		visibleInfo = computeVisibleInfo(winner, currentTurn);
 		// detectar mobile/share (heurística ampliada)
@@ -199,9 +201,9 @@
 		} catch(e){ console.error('WS error', e); }
 
 		// Atalhos de ajuda
-		const handler = (e) => {
+		const handler = (e: KeyboardEvent) => {
 			if(e.key === '?' || (e.shiftKey && e.key === '/')) { showHelpModal = true; e.preventDefault(); }
-			else if(e.key === 'Escape' && showHelpModal){ showHelpModal = false; e.preventDefault(); forceFocusMode(); }
+			else if(e.key === 'Escape' && showHelpModal){ showHelpModal = false; e.preventDefault(); focusActiveCell(); }
 		};
 		window.addEventListener('keydown', handler);
 		return () => window.removeEventListener('keydown', handler);
@@ -210,7 +212,7 @@
 // debug removido
 
 	/** @param {any} data */
-	function handleMaybeRedirect(data){
+	function handleMaybeRedirect(data: any){
 		const nxt = Number(data?.next);
 		if(!redirecting && nxt && nxt > Number(roundParam)) {
 			redirecting = true;
@@ -238,7 +240,7 @@
 		else { defeatAudio?.play(); }
 	}
 
-	function handleCellClick(r,c){
+	function handleCellClick(r: number, c: number){
 		clickAudio?.play();
 		if (!disabledCell(r,c)) { row = r; col = c; playMove(r,c); focusActiveCell(); }
 	}
@@ -257,7 +259,7 @@
 		setTimeout(()=> shareMsg='', 2500);
 	}
 
-	function buildUnifiedAnnouncement(lastPiecePlaced, coord, winnerNow, turnAfter){
+	function buildUnifiedAnnouncement(lastPiecePlaced: string, coord: string, winnerNow: string, turnAfter: string){
 		if(winnerNow){
 			if(winnerNow === 'Empate') return `Empate. ${scoreSummary}`;
 			return `Fim: vitória de ${winnerNow}. ${scoreSummary}`;
@@ -271,7 +273,7 @@
 		return base.trim();
 	}
 
-	function updateAnnouncement(prevBoard, newBoard, winnerNow, turnAfter){
+	function updateAnnouncement(prevBoard: string[][], newBoard: string[][], winnerNow: string, turnAfter: string){
 		// localizar a nova peça
 		let changed = null; let piece = '';
 		for(let r=0;r<3;r++){
@@ -288,7 +290,7 @@
 		visibleInfo = computeVisibleInfo(winnerNow, turnAfter);
 	}
 
-	function computeVisibleInfo(winnerNow, turnAfter){
+	function computeVisibleInfo(winnerNow: string, turnAfter: string){
 		if(winnerNow){ if(winnerNow==='Empate') return 'Empate.'; return `Vitória de ${winnerNow}.`; }
 		if(lastPiecePlaced && lastCoordPlaced){
 			return `${lastPiecePlaced} em ${lastCoordPlaced}. ${normalizeTurn(turnAfter)===localPlayer ? 'Sua vez.' : 'Vez de '+turnAfter+'.'}`;
@@ -296,13 +298,13 @@
 		return normalizeTurn(turnAfter)===localPlayer ? 'Sua vez.' : `Vez de ${turnAfter}.`;
 	}
 
-	function setTemporaryInfo(msg){
+	function setTemporaryInfo(msg: string){
 		visibleInfo = msg;
 		if(tempTimeout) clearTimeout(tempTimeout);
 		tempTimeout = setTimeout(()=>{ visibleInfo = computeVisibleInfo(winner, currentTurn); }, 2000);
 	}
 
-	function handleBoardContainerKey(e){
+	function handleBoardContainerKey(e: KeyboardEvent){
 		if(['Enter',' '].includes(e.key)) { e.preventDefault(); focusActiveCell(); }
 	}
 </script>
@@ -371,6 +373,8 @@
 			</div>
 		</div>
 	{/if}
+
+<!-- Modal de QR removido: QR apenas na tela de seleção -->
 	<div class="sr-only" aria-live="polite">{liveAnnounce}</div>
 <!-- debug removido -->
 </div>
