@@ -44,38 +44,40 @@ func NewGame() *Game { return &Game{Rounds: []*Round{}} }
 
 func (g *Game) newRoundHandler(r *http.Request) (*server.Response, error) {
 	current := server.GetURLParamHasInt(r, "round")
-
-	// Nenhuma rodada ainda: criar primeira somente se requisitada como 1
+	// Caso base: nenhuma rodada ainda
 	if len(g.Rounds) == 0 {
 		if current != 1 { return server.NewResponseError(http.StatusBadRequest, errors.New("invalid round number")) }
-		// Turno inicial adiado: será definido pelo primeiro jogador que entrar ou fizer a primeira jogada
-		newR := &Round{Round: 1, Turn: ""}
+		first := &Round{Round: 1, Turn: ""}
+		g.Rounds = append(g.Rounds, first)
+		server.Logger.Info("Add TicTac Round", "round", 1, "first", true)
+		g.broadcastOpenRounds()
+		return server.NewResponse(first)
+	}
+
+	nextNumber := len(g.Rounds) + 1
+	if current == nextNumber {
+		// Nova cadeia independente (como bingo): scoreboard zerado, turno adiado
+		newR := &Round{Round: nextNumber, Turn: "", ScoreX: 0, ScoreO: 0, ScoreDraw: 0}
 		g.Rounds = append(g.Rounds, newR)
-		server.Logger.Info("Add TicTac Round", "round", newR.Round, "deferredTurn", true)
+		server.Logger.Info("Add TicTac Round (new sequence)", "round", newR.Round)
+		g.broadcastOpenRounds()
 		return server.NewResponse(newR)
 	}
 
-	last := g.Rounds[len(g.Rounds)-1]
-	// Só pode criar nova rodada se a última tiver vencedor ou empate
-	if last.Winner == "" {
-		return server.NewResponseError(http.StatusPreconditionFailed, errors.New("last round not finished"))
-	}
-
-	// Aceita chamadas tanto com /{last}/new (página da rodada) quanto /{last+1}/new (home)
-	if current != last.Round && current != last.Round+1 {
-		return server.NewResponseError(http.StatusConflict, errors.New("round sequence mismatch"))
-	}
-
-	// Determina quem inicia e herda placar acumulado da anterior
-	startTurn := startingTurnFrom(last)
-	newR := &Round{Round: last.Round + 1, Turn: startTurn, ScoreX: last.ScoreX, ScoreO: last.ScoreO, ScoreDraw: last.ScoreDraw}
-	g.Rounds = append(g.Rounds, newR)
-	last.Next = newR.Round
-	last.broadcastLocked("redirect")
-	server.Logger.Info("Add TicTac Round", "round", newR.Round, "prev", last.Round)
-	// Nova rodada potencialmente aberta -> broadcast
+	// Continuação a partir de uma rodada específica já concluída (source = current)
+	sourceIdx := current - 1
+	if sourceIdx < 0 || sourceIdx >= len(g.Rounds) { return server.NewResponseError(http.StatusNotFound, errors.New("source round not found")) }
+	source := g.Rounds[sourceIdx]
+	if source.Winner == "" { return server.NewResponseError(http.StatusPreconditionFailed, errors.New("source round not finished")) }
+	if source.Next != 0 { return server.NewResponseError(http.StatusConflict, errors.New("round already continued")) }
+	startTurn := startingTurnFrom(source)
+	cont := &Round{Round: nextNumber, Turn: startTurn, ScoreX: source.ScoreX, ScoreO: source.ScoreO, ScoreDraw: source.ScoreDraw}
+	g.Rounds = append(g.Rounds, cont)
+	source.Next = cont.Round
+	source.broadcastLocked("redirect")
+	server.Logger.Info("Add TicTac Round (continue)", "round", cont.Round, "from", source.Round)
 	g.broadcastOpenRounds()
-	return server.NewResponse(newR)
+	return server.NewResponse(cont)
 }
 
 func (g *Game) getRound(idx int) (*Round, error) {
