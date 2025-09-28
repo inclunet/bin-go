@@ -1,18 +1,20 @@
-<script lang="ts">
+<script>
 	import { onMount, onDestroy } from 'svelte';
 	import PageTitle from '$lib/PageTitle.svelte';
 	let creating = false;
 	let lastRound = 0;
 	let loading = true;
 	let errorMsg = '';
-	type OpenRound = { round: number; hasPlayerX: boolean; hasPlayerO: boolean };
-	let openRounds: OpenRound[] = [];
+	/** @typedef {{round:number, hasPlayerX:boolean, hasPlayerO:boolean}} OpenRound */
+	/** @type {OpenRound[]} */
+	let openRounds = [];
 	let scoreX = 0; let scoreO = 0; let scoreDraw = 0;
 	let lastWinner = '';
-	let openWs: WebSocket | null = null;
+	/** @type {WebSocket | null} */
+	let openWs = null;
 	$: scoreSummary = lastRound>0 ? `Placar acumulado até a rodada ${lastRound}: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.` : '';
 
-	function sortOpen() { openRounds = [...openRounds].sort((a: OpenRound,b: OpenRound)=> a.round - b.round); }
+	function sortOpen() { openRounds = [...openRounds].sort((a,b)=> a.round - b.round); }
 
 	async function fetchLatest() {
 		loading = true;
@@ -36,8 +38,8 @@
 	function connectOpenWs(){
 		try {
 			openWs = new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws/tictac/open`);
-			openWs.onmessage = (ev: MessageEvent)=>{
-				try { const data = JSON.parse(ev.data); if(Array.isArray(data.rounds)){ openRounds = data.rounds as OpenRound[]; sortOpen(); } } catch {}
+			openWs.onmessage = (ev)=>{
+				try { const data = JSON.parse(ev.data); if(Array.isArray(data.rounds)){ openRounds = data.rounds; sortOpen(); } } catch {}
 			};
 			openWs.onclose = ()=> { openWs = null; setTimeout(connectOpenWs, 3000); };
 		} catch {}

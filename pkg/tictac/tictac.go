@@ -74,7 +74,7 @@ func (g *Game) newRoundHandler(r *http.Request) (*server.Response, error) {
 	cont := &Round{Round: nextNumber, Turn: startTurn, ScoreX: source.ScoreX, ScoreO: source.ScoreO, ScoreDraw: source.ScoreDraw}
 	g.Rounds = append(g.Rounds, cont)
 	source.Next = cont.Round
-	source.broadcastLocked("redirect")
+	source.broadcastLocked()
 	server.Logger.Info("Add TicTac Round (continue)", "round", cont.Round, "from", source.Round)
 	g.broadcastOpenRounds()
 	return server.NewResponse(cont)
@@ -168,7 +168,7 @@ func (g *Game) moveHandler(r *http.Request) (*server.Response, error) {
 		server.Logger.Info("TicTac Winner", "round", rd.Round, "winner", rd.Winner)
 	}
 	// Log de jogada detalhado removido para reduzir ruído; vencedor continua logado acima.
-	rd.broadcastLocked("state")
+	rd.broadcastLocked()
     // Caso a rodada tenha deixado de estar aberta (ambos jogadores) ou tenha terminado, atualizar lista
     g.broadcastOpenRounds()
 	return server.NewResponse(rd)
@@ -234,7 +234,7 @@ func (r *Round) compactPlayersLocked() {
 	r.players = cleaned
 }
 
-func (r *Round) broadcastLocked(event string) {
+func (r *Round) broadcastLocked() {
 	state, _ := json.Marshal(r)
 	for _, p := range r.players {
 		if p == nil || p.Conn == nil { continue }
@@ -255,7 +255,7 @@ func (g *Game) liveHandler(w http.ResponseWriter, r *http.Request) {
 	// envia estado atual apenas ao novo cliente primeiro
 	if state, mErr := json.Marshal(rd); mErr == nil { conn.WriteMessage(websocket.TextMessage, state) }
 	// depois broadcast geral para sincronizar espectadores
-	rd.lock.Lock(); rd.broadcastLocked("join"); rd.lock.Unlock()
+	rd.lock.Lock(); rd.broadcastLocked(); rd.lock.Unlock()
 	// Pode mudar status de aberta (segundo jogador entrou)
 	g.broadcastOpenRounds()
 	go func(c *websocket.Conn, round *Round) {
