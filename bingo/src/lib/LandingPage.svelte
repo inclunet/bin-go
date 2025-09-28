@@ -236,7 +236,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Card Jogo da Velha Inclusivo -->
             <div class="col-sm-12 mb-3">
                 <div class="card border-0" style="background:linear-gradient(135deg,#0f1d2a,#1f3d58); color:#fff;">
@@ -257,7 +256,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+       </div>
     </section>
 
     <section class="mt-4">
