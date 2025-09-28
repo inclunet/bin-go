@@ -5,6 +5,8 @@
 	let lastRound = 0;
 	let loading = true;
 	let errorMsg = '';
+	let scoreX = 0; let scoreO = 0; let scoreDraw = 0;
+	$: scoreSummary = lastRound>0 ? `Placar acumulado até a rodada ${lastRound}: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.` : '';
 
 	async function fetchLatest() {
 		loading = true;
@@ -18,6 +20,12 @@
 				if(!res.ok) break;
 			}
 			lastRound = r-1;
+			if(lastRound > 0){
+				try {
+					const lastRes = await fetch(`/api/tictac/${lastRound}`);
+					if(lastRes.ok){ const data = await lastRes.json(); scoreX = data.scoreX||0; scoreO = data.scoreO||0; scoreDraw = data.scoreDraw||0; }
+				} catch {}
+			}
 		} catch(e){ errorMsg = 'Falha ao detectar rodadas.'; }
 		finally { loading = false; }
 	}
@@ -56,7 +64,11 @@
 	{:else if lastRound === 0}
 		<p>Nenhuma rodada criada ainda. Clique em "Nova rodada" para iniciar.</p>
 	{:else}
-		<p class="mb-4">Total de {lastRound} {lastRound === 1 ? 'rodada' : 'rodadas'} criadas.</p>
+		<p class="mb-2">Total de {lastRound} {lastRound === 1 ? 'rodada' : 'rodadas'} criadas.</p>
+		{#if lastRound > 0}
+			<div class="scoreboard mb-4" aria-hidden="true"><strong>Placar:</strong> X {scoreX} - {scoreO} O {#if scoreDraw>0}<span class="draws">(Empates {scoreDraw})</span>{/if}</div>
+			<div class="sr-only" aria-live="polite">{scoreSummary}</div>
+		{/if}
 	{/if}
 
 	<div class="info-card p-4 rounded-3 mb-4">
@@ -76,4 +88,7 @@
 	.info-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); backdrop-filter:blur(3px); }
 	.info-card ol { padding-left:1.2rem; }
 	.info-card li { margin:.25rem 0; }
+	.scoreboard { font-size:1rem; background:#142536; padding:.4rem .85rem; border:1px solid #2c4d6b; border-radius:.6rem; display:inline-block; }
+	.scoreboard .draws { color:#94b8cc; font-weight:500; }
+	.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 </style>

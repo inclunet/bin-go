@@ -14,6 +14,8 @@
 	let playerXBusy = false;
 	let playerOBusy = false;
 	let copyMsg = '';
+	let scoreX = 0; let scoreO = 0; let scoreDraw = 0;
+	$: scoreSummary = `Placar acumulado: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.`;
 
 	async function loadRound() {
 		try {
@@ -26,6 +28,7 @@
 			turn = data.turn || '';
 			playerXBusy = !!data.playerX;
 			playerOBusy = !!data.playerO;
+			scoreX = data.scoreX || 0; scoreO = data.scoreO || 0; scoreDraw = data.scoreDraw || 0;
 		} catch(e){ errorMsg = 'Falha de rede.'; }
 		finally { loading = false; }
 	}
@@ -46,6 +49,10 @@
 
 <div class="container py-4" style="max-width:52rem;">
 	<h2 class="h1 mb-3">Rodada {roundParam}</h2>
+	{#if !loading && !errorMsg}
+		<div class="scoreboard mb-3" aria-hidden="true"><strong>Placar:</strong> X {scoreX} - {scoreO} O {#if scoreDraw>0}<span class="draws">(Empates {scoreDraw})</span>{/if}</div>
+		<div class="sr-only" aria-live="polite">{scoreSummary}</div>
+	{/if}
 	{#if loading}
 		<p>Carregando...</p>
 	{:else if errorMsg}
@@ -81,4 +88,7 @@
 	.mini-row span:last-child { border-right:none; }
 	.mini-row:last-child span { border-bottom:none; }
 	.badge { font-size:.9rem; }
+	.scoreboard { font-size:1rem; background:#142536; padding:.35rem .75rem; border:1px solid #2c4d6b; border-radius:.55rem; display:inline-block; }
+	.scoreboard .draws { color:#94b8cc; font-weight:500; }
+	.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 </style>

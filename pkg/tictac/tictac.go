@@ -24,6 +24,10 @@ type Round struct {
 	Turn    string   `json:"turn"` // "X" ou "O"
 	Winner  string   `json:"winner"`
 	Next    int      `json:"next,omitempty"`
+	ScoreX  int      `json:"scoreX,omitempty"`
+	ScoreO  int      `json:"scoreO,omitempty"`
+	ScoreDraw int    `json:"scoreDraw,omitempty"`
+	counted bool     `json:"-"` // evita contagem dupla
 	players []*Player       `json:"-"`
 	lock    sync.Mutex      `json:"-"`
 }
@@ -34,19 +38,55 @@ type Player struct {
 	Spectator bool
 }
 
+// computeScoreForRound recalcula o placar acumulado até (e incluindo) o round index (0-based) e copia para target se fornecido.
+func (g *Game) computeScoreForRound(idx int, target *Round) {
+	if idx < 0 { return }
+	sx, so, sd := 0,0,0
+	for i:=0; i<=idx && i < len(g.Rounds); i++ {
+		rw := g.Rounds[i]
+		if rw.Winner == "X" { sx++ } else if rw.Winner == "O" { so++ } else if rw.Winner == "Empate" { sd++ }
+	}
+	if target != nil { target.ScoreX = sx; target.ScoreO = so; target.ScoreDraw = sd }
+}
+
 func NewGame() *Game { return &Game{Rounds: []*Round{}} }
 
 func (g *Game) newRoundHandler(r *http.Request) (*server.Response, error) {
 	current := server.GetURLParamHasInt(r, "round")
-	newR := &Round{Round: len(g.Rounds) + 1, Turn: "X"}
-	g.Rounds = append(g.Rounds, newR)
-	if current > 0 {
-		if old, err := g.getRound(current - 1); err == nil {
-			old.Next = newR.Round
-			old.broadcastLocked("redirect")
-		}
+
+	// Nenhuma rodada ainda: criar primeira somente se requisitada como 1
+	if len(g.Rounds) == 0 {
+		if current != 1 { return server.NewResponseError(http.StatusBadRequest, errors.New("invalid round number")) }
+		// Turno inicial adiado: será definido pelo primeiro jogador que entrar ou fizer a primeira jogada
+		newR := &Round{Round: 1, Turn: ""}
+		g.Rounds = append(g.Rounds, newR)
+		server.Logger.Info("Add TicTac Round", "round", newR.Round, "deferredTurn", true)
+		return server.NewResponse(newR)
 	}
-	server.Logger.Info("Add TicTac Round", "round", newR.Round)
+
+	last := g.Rounds[len(g.Rounds)-1]
+	// Só pode criar nova rodada se a última tiver vencedor ou empate
+	if last.Winner == "" {
+		return server.NewResponseError(http.StatusPreconditionFailed, errors.New("last round not finished"))
+	}
+
+	// Aceita chamadas tanto com /{last}/new (página da rodada) quanto /{last+1}/new (home)
+	if current != last.Round && current != last.Round+1 {
+		return server.NewResponseError(http.StatusConflict, errors.New("round sequence mismatch"))
+	}
+
+	// Determina quem inicia a próxima rodada:
+	// - Se X venceu: X começa
+	// - Se O venceu: O começa
+	// - Se Empate: começa quem jogaria a seguir (oposto de last.Turn, pois last.Turn mantém o último jogador que fez a jogada final)
+	startTurn := startingTurnFrom(last)
+	newR := &Round{Round: last.Round + 1, Turn: startTurn}
+	// herda placar acumulado até agora
+	g.computeScoreForRound(newR.Round-1, newR)
+	g.Rounds = append(g.Rounds, newR)
+	last.Next = newR.Round
+	last.broadcastLocked("redirect")
+	server.Logger.Info("Add TicTac Round", "round", newR.Round, "prev", last.Round)
 	return server.NewResponse(newR)
 }
 
@@ -58,6 +98,7 @@ func (g *Game) getRound(idx int) (*Round, error) {
 func (g *Game) getRoundHandler(r *http.Request) (*server.Response, error) {
 	rd, err := g.getRound(server.GetURLParamHasInt(r, "round")-1)
 	if err != nil { return server.NewResponseError(http.StatusNotFound, errors.New("round not found")) }
+	g.computeScoreForRound(rd.Round-1, rd)
 	return server.NewResponse(rd)
 }
 
@@ -72,6 +113,8 @@ func (g *Game) moveHandler(r *http.Request) (*server.Response, error) {
 	col := server.GetURLParamHasInt(r, "col")
 	player := server.GetURLParamWithDefault(r, "player", "x")
 	piece := "X"; if player == "o" { piece = "O" }
+	// Se turno ainda não definido (primeiro round antes de qualquer conexão atribuir) assume peça do primeiro movimento
+	if rd.Turn == "" { rd.Turn = piece }
 	// garantir que o jogador que tenta jogar é realmente o dono da peça registrada
 	if piece == "X" && rd.PlayerX == "" { rd.PlayerX = "X" } // fallback caso primeiro movimento venha via REST antes do WS
 	if piece == "O" && rd.PlayerO == "" { rd.PlayerO = "O" }
@@ -83,7 +126,16 @@ func (g *Game) moveHandler(r *http.Request) (*server.Response, error) {
 	if rd.Board[row-1][col-1] != "" { return server.NewResponse(rd) }
 	rd.Board[row-1][col-1] = piece
 	checkWinner(rd)
-	if rd.Winner == "" { toggleTurn(rd) } else { server.Logger.Info("TicTac Winner", "round", rd.Round, "winner", rd.Winner) }
+	if rd.Winner == "" { 
+		toggleTurn(rd) 
+	} else { 
+		if !rd.counted { // registra placar apenas uma vez
+			rd.counted = true
+		}
+		server.Logger.Info("TicTac Winner", "round", rd.Round, "winner", rd.Winner)
+	}
+	// Atualiza placar acumulado no próprio round
+	g.computeScoreForRound(rd.Round-1, rd)
 	server.Logger.Info("TicTac Move", "round", rd.Round, "player", piece, "row", row, "col", col, "turn", rd.Turn, "winner", rd.Winner)
 	rd.broadcastLocked("state")
 	return server.NewResponse(rd)
@@ -104,6 +156,24 @@ func checkWinner(r *Round) {
 	if full { r.Winner = "Empate" }
 }
 
+// startingTurnFrom decide o turno inicial da próxima rodada baseado no resultado da anterior
+// Regras:
+// - Vitória de X => X inicia
+// - Vitória de O => O inicia
+// - Empate => inicia quem jogaria depois (ou seja, o oposto de quem fez a última jogada)
+func startingTurnFrom(last *Round) string {
+ if last == nil { return "X" }
+ if last.Winner == "X" { return "X" }
+ if last.Winner == "O" { return "O" }
+ if last.Winner == "Empate" {
+ 	// Quem jogaria depois? Se último turno registrado foi de X, então próximo seria O, e vice-versa.
+ 	if last.Turn == "X" { return "O" }
+ 	return "X"
+ }
+ // fallback
+ return "X"
+}
+
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 
 func (r *Round) addConnection(conn *websocket.Conn, requested string) {
@@ -120,6 +190,7 @@ func (r *Round) addConnection(conn *websocket.Conn, requested string) {
 	}
 	if piece == "" && !spectator { spectator = true }
 	r.players = append(r.players, &Player{Conn: conn, Piece: piece, Spectator: spectator})
+	if r.Turn == "" && piece != "" { r.Turn = piece }
 	server.Logger.Info("TicTac Connect", "round", r.Round, "piece", piece, "spectator", spectator, "players", len(r.players))
 }
 
