@@ -130,13 +130,7 @@
 		} catch(e){ console.error('Erro jogada', e); }
 	}
 
-	/** @param {number} r @param {number} c */
-	function disabledCell(r, c) {
-		if (winner) return true;
-		if (!bothPlayersPresent()) return true;
-		if (board[r][c] !== '') return true;
-		return false; // não desabilita fora do turno; controle em playMove
-	}
+	// Removido disabledCell: não desabilitamos mais visualmente; validação só em playMove
 
 		/** @param {KeyboardEvent} e */
 		function handleKey(e) {
@@ -265,7 +259,9 @@
 
 	function handleCellClick(r, c){
 		clickAudio?.play();
-		if (!disabledCell(r,c)) { row = r; col = c; playMove(r,c); focusActiveCell(); }
+		row = r; col = c; // foco lógico
+		playMove(r,c); // backend e playMove cuidam das regras (oponente, turno, ocupado)
+		focusActiveCell();
 	}
 
 	async function shareInvite(){
@@ -350,7 +346,6 @@
 						aria-label={board[r][c] ? `${board[r][c]} ${colNames[c]}${r+1}` : `vazio ${colNames[c]}${r+1}`}
 						class="tic-cell {board[r][c] ? `filled-${board[r][c]}`: ''} {row===r && col===c ? 'active' : ''}"
 						on:click={() => handleCellClick(r,c)}
-						disabled={disabledCell(r,c)}
 						on:focus={() => { row = r; col = c; }}
 						on:keydown={handleKey}>{cellVal}</button>
 				{/each}
