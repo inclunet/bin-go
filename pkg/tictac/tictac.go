@@ -152,17 +152,22 @@ func (g *Game) moveHandler(r *http.Request) (*server.Response, error) {
 	if rd.Board[row-1][col-1] != "" { return server.NewResponse(rd) }
 	rd.Board[row-1][col-1] = piece
 	checkWinner(rd)
-	if rd.Winner == "" { 
-		toggleTurn(rd) 
-	} else { 
+	switch rd.Winner {
+	case "":
+		// ninguém venceu ainda, alterna turno
+		toggleTurn(rd)
+	case "X", "O", "Empate":
 		if !rd.counted { // incrementa somente uma vez
 			rd.counted = true
-			if rd.Winner == "X" { rd.ScoreX += 1 } else if rd.Winner == "O" { rd.ScoreO += 1 } else if rd.Winner == "Empate" { rd.ScoreDraw += 1 }
+			switch rd.Winner {
+			case "X": rd.ScoreX += 1
+			case "O": rd.ScoreO += 1
+			case "Empate": rd.ScoreDraw += 1
+			}
 		}
 		server.Logger.Info("TicTac Winner", "round", rd.Round, "winner", rd.Winner)
 	}
-	// Placar incremental já refletido (incrementado ao definir Winner)
-	server.Logger.Info("TicTac Move", "round", rd.Round, "player", piece, "row", row, "col", col, "turn", rd.Turn, "winner", rd.Winner)
+	// Log de jogada detalhado removido para reduzir ruído; vencedor continua logado acima.
 	rd.broadcastLocked("state")
     // Caso a rodada tenha deixado de estar aberta (ambos jogadores) ou tenha terminado, atualizar lista
     g.broadcastOpenRounds()
@@ -209,11 +214,12 @@ func (r *Round) addConnection(conn *websocket.Conn, requested string) {
 	defer r.lock.Unlock()
 	piece := ""
 	spectator := false
-	if requested == "x" || requested == "X" {
+	switch requested {
+	case "x", "X":
 		if r.PlayerX == "" { r.PlayerX = "X"; piece = "X" } else { spectator = true }
-	} else if requested == "o" || requested == "O" {
+	case "o", "O":
 		if r.PlayerO == "" { r.PlayerO = "O"; piece = "O" } else { spectator = true }
-	} else {
+	default:
 		spectator = true
 	}
 	if piece == "" && !spectator { spectator = true }
