@@ -106,14 +106,13 @@
 	/** @param {number} r @param {number} c */
 	async function playMove(r, c) {
 		if (winner) return;
-		if (!bothPlayersPresent()) { setTemporaryInfo('Aguardando oponente.'); errorAudio?.play(); return; }
+		// Não bloquear no front: backend valida oponente / turno
 		if (board[r][c] !== '') { setTemporaryInfo('Casa já ocupada.'); errorAudio?.play(); return; }
-		if (!isMyTurn()) { setTemporaryInfo('Ainda não é sua vez.'); errorAudio?.play(); return; }
 		try {
 			const prev = board.map(rr=>[...rr]);
 			const res = await fetch(`/api/tictac/${roundParam}/${playerParam}/${r+1}/${c+1}`, { cache: 'no-store' });
 			if (!res.ok) {
-				if(res.status === 412){ setTemporaryInfo('Ainda aguardando oponente.'); }
+				if(res.status === 412){ setTemporaryInfo('Aguardando oponente.'); }
 				return;
 			}
 			const data = await res.json();
