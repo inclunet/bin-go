@@ -140,6 +140,10 @@ func (g *Game) moveHandler(r *http.Request) (*server.Response, error) {
 	// garantir que o jogador que tenta jogar é realmente o dono da peça registrada
 	if piece == "X" && rd.PlayerX == "" { rd.PlayerX = "X" } // fallback caso primeiro movimento venha via REST antes do WS
 	if piece == "O" && rd.PlayerO == "" { rd.PlayerO = "O" }
+	// Bloqueia jogadas até ambos jogadores terem entrado
+	if rd.PlayerX == "" || rd.PlayerO == "" {
+		return server.NewResponseError(http.StatusPreconditionFailed, errors.New("waiting opponent"))
+	}
 	if (piece == "X" && rd.PlayerX != "X") || (piece == "O" && rd.PlayerO != "O") {
 		return server.NewResponseError(http.StatusForbidden, errors.New("player not registered for this piece"))
 	}

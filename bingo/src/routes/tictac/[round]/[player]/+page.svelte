@@ -15,6 +15,8 @@
 	let statusMsg = 'Carregando partida...'; // legado (remover depois) – não mais exibido diretamente
 	let winner = '';
 	let scoreX = 0; let scoreO = 0; let scoreDraw = 0; // placar acumulado
+	let hasPlayerX = false; let hasPlayerO = false; // presença dos jogadores
+	let opponentAnnounced = false; // evita anúncios duplicados
 	// Resumo acessível do placar
 	$: scoreSummary = `Placar: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.`;
 	let lastScoreAnnounced = '';
@@ -67,6 +69,7 @@
 				board = data.board;
 				currentTurn = normalizeTurn(data.turn) || currentTurn;
 				winner = data.winner || '';
+				hasPlayerX = !!data.playerX; hasPlayerO = !!data.playerO;
 				scoreX = data.scoreX || 0; scoreO = data.scoreO || 0; scoreDraw = data.scoreDraw || 0;
 				visibleInfo = computeVisibleInfo(winner, currentTurn);
 				if (boardInitialized) updateAnnouncement(prev, board, winner, currentTurn);
@@ -74,6 +77,7 @@
 				boardInitialized = true;
 				// debug removido
 				handleMaybeRedirect(data);
+				maybeAnnounceOpponent();
 			}
 		} catch(e) { console.error('Erro ao carregar rodada', e); }
 	}
@@ -101,12 +105,16 @@
 	/** @param {number} r @param {number} c */
 	async function playMove(r: number, c: number) {
 		if (winner) return;
+		if (!bothPlayersPresent()) { setTemporaryInfo('Aguardando oponente.'); errorAudio?.play(); return; }
 		if (board[r][c] !== '') { setTemporaryInfo('Casa já ocupada.'); errorAudio?.play(); return; }
 		if (!isMyTurn()) { setTemporaryInfo('Ainda não é sua vez.'); errorAudio?.play(); return; }
 		try {
 			const prev = board.map(rr=>[...rr]);
 			const res = await fetch(`/api/tictac/${roundParam}/${playerParam}/${r+1}/${c+1}`, { cache: 'no-store' });
-			if (!res.ok) return;
+			if (!res.ok) {
+				if(res.status === 412){ setTemporaryInfo('Ainda aguardando oponente.'); }
+				return;
+			}
 			const data = await res.json();
 			if (data?.board) {
 				board = data.board;
@@ -124,8 +132,9 @@
 	/** @param {number} r @param {number} c */
 	function disabledCell(r: number, c: number) {
 		if (winner) return true;
+		if (!bothPlayersPresent()) return true;
 		if (board[r][c] !== '') return true;
-		return false; // não desabilita mais fora do turno
+		return false; // não desabilita fora do turno; controle em playMove
 	}
 
 		/** @param {KeyboardEvent} e */
@@ -169,6 +178,17 @@
 		return !!(navigator.share) || (touch && (coarse || uaMatch));
 	}
 
+	function bothPlayersPresent(){ return hasPlayerX && hasPlayerO; }
+	function iAmX(){ return localPlayer === 'X'; }
+	function maybeAnnounceOpponent(){
+		if (bothPlayersPresent() && !opponentAnnounced){
+			const opp = localPlayer === 'X' ? 'O' : 'X';
+			liveAnnounce = `Oponente (${opp}) entrou. ${normalizeTurn(currentTurn)===localPlayer ? 'É a sua vez.' : 'Vez de '+currentTurn+'.'}`;
+			visibleInfo = computeVisibleInfo(winner, currentTurn);
+			opponentAnnounced = true;
+		}
+	}
+
 // QR code removido desta tela (deve existir apenas na seleção de símbolo)
 
 	onMount(() => {
@@ -188,6 +208,7 @@
 						board = data.board;
 						currentTurn = normalizeTurn(data.turn) || currentTurn;
 						winner = data.winner || '';
+						hasPlayerX = !!data.playerX; hasPlayerO = !!data.playerO;
 						scoreX = data.scoreX || 0; scoreO = data.scoreO || 0; scoreDraw = data.scoreDraw || 0;
 						visibleInfo = computeVisibleInfo(winner, currentTurn);
 						if (boardInitialized) updateAnnouncement(prev, board, winner, currentTurn);
@@ -195,6 +216,7 @@
 						// debug removido
 						handleMaybeRedirect(data);
 						processOutcomeSound();
+						maybeAnnounceOpponent();
 					}
 				} catch(e){ console.error('WS parse', e); }
 			};
@@ -260,6 +282,7 @@
 	}
 
 	function buildUnifiedAnnouncement(lastPiecePlaced: string, coord: string, winnerNow: string, turnAfter: string){
+		if(!bothPlayersPresent()) return 'Aguardando oponente.';
 		if(winnerNow){
 			if(winnerNow === 'Empate') return `Empate. ${scoreSummary}`;
 			return `Fim: vitória de ${winnerNow}. ${scoreSummary}`;
@@ -291,6 +314,7 @@
 	}
 
 	function computeVisibleInfo(winnerNow: string, turnAfter: string){
+		if(!bothPlayersPresent()) return 'Aguardando oponente...';
 		if(winnerNow){ if(winnerNow==='Empate') return 'Empate.'; return `Vitória de ${winnerNow}.`; }
 		if(lastPiecePlaced && lastCoordPlaced){
 			return `${lastPiecePlaced} em ${lastCoordPlaced}. ${normalizeTurn(turnAfter)===localPlayer ? 'Sua vez.' : 'Vez de '+turnAfter+'.'}`;
