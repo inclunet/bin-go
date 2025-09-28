@@ -16,6 +16,9 @@
 	let copyMsg = '';
 	let scoreX = 0; let scoreO = 0; let scoreDraw = 0;
 	$: scoreSummary = `Placar acumulado: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.`;
+ let isMobile = false;
+ let shareMsg = '';
+let shareLabel = 'Compartilhar link da rodada';
 
 	async function loadRound() {
 		try {
@@ -43,6 +46,16 @@
 	}
 
 	onMount(loadRound);
+	onMount(()=> { isMobile = typeof window !== 'undefined' && (window.matchMedia('(pointer:coarse)').matches || /Mobi|Android/i.test(navigator.userAgent)); });
+
+ async function shareInvite(){
+ 	const url = `${location.origin}/tictac/${roundParam}`;
+ 	try {
+ 		if(navigator.share){ await navigator.share({ title:'Jogo da Velha', text:'Entre na rodada do jogo da velha inclusivo', url}); shareMsg='Link compartilhado'; }
+ 		else { await navigator.clipboard.writeText(url); shareMsg='Link copiado'; }
+ 	} catch { shareMsg='Não foi possível compartilhar'; }
+ 	setTimeout(()=> shareMsg='', 2500);
+ }
 </script>
 
 <PageTitle title="Escolher jogador" game="Jogo da velha inclusivo" />
@@ -62,7 +75,12 @@
 		<div class="d-flex gap-3 flex-wrap mb-3" role="group" aria-label="Escolher marcador">
 			<button class="btn btn-primary btn-lg" disabled={playerXBusy} aria-disabled={playerXBusy} aria-label={playerXBusy ? 'Jogador X já escolhido' : 'Jogar como X'} on:click={()=> !playerXBusy && (location.href=`/tictac/${roundParam}/x`)}>X {#if playerXBusy}<span class="badge bg-dark ms-2">ocupado</span>{/if}</button>
 			<button class="btn btn-warning btn-lg" disabled={playerOBusy} aria-disabled={playerOBusy} aria-label={playerOBusy ? 'Jogador O já escolhido' : 'Jogar como O'} on:click={()=> !playerOBusy && (location.href=`/tictac/${roundParam}/o`)}>O {#if playerOBusy}<span class="badge bg-dark ms-2">ocupado</span>{/if}</button>
+			{#if isMobile && (!playerXBusy || !playerOBusy)}
+				{@html (()=>{ shareLabel = (playerXBusy || playerOBusy) ? 'Compartilhar link para o segundo jogador' : 'Compartilhar link da rodada'; return '' })()}
+				<button class="btn btn-outline-info btn-lg" aria-label={shareLabel} on:click={shareInvite}>Compartilhar</button>
+			{/if}
 		</div>
+		{#if shareMsg}<div class="small text-success" aria-live="polite">{shareMsg}</div>{/if}
 		<div class="mb-4 d-flex align-items-center gap-2 flex-wrap">
 			<button class="btn btn-outline-info" on:click={shareLink}>Copiar link da rodada</button>
 			{#if copyMsg}<span aria-live="polite" class="small text-success">{copyMsg}</span>{/if}
@@ -90,5 +108,6 @@
 	.badge { font-size:.9rem; }
 	.scoreboard { font-size:1rem; background:#142536; padding:.35rem .75rem; border:1px solid #2c4d6b; border-radius:.55rem; display:inline-block; }
 	.scoreboard .draws { color:#94b8cc; font-weight:500; }
+	.btn-outline-info { --bs-btn-color:#20b3ff; --bs-btn-border-color:#20b3ff; }
 	.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 </style>

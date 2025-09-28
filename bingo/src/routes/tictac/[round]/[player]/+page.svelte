@@ -17,6 +17,12 @@
 	let scoreX = 0; let scoreO = 0; let scoreDraw = 0; // placar acumulado
 	// Resumo acessível do placar
 	$: scoreSummary = `Placar: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.`;
+	let lastScoreAnnounced = '';
+	// Placar em uma única linha acessível
+	$: scoreboardLine = `Placar: X ${scoreX}, O ${scoreO}${scoreDraw>0?`, empates ${scoreDraw}`:''}`;
+	let isMobile = false;
+	$: hasMoves = board.some(r => r.some(c => c !== ''));
+	let shareMsg = '';
 	let showHelp = false;
 	let showHelpModal = false;
 	const colNames = ['a','b','c'];
@@ -65,6 +71,7 @@
 				scoreX = data.scoreX || 0; scoreO = data.scoreO || 0; scoreDraw = data.scoreDraw || 0;
 				visibleInfo = computeVisibleInfo(winner, currentTurn);
 				if (boardInitialized) updateAnnouncement(prev, board, winner, currentTurn);
+				if(scoreSummary !== lastScoreAnnounced){ lastScoreAnnounced = scoreSummary; }
 				boardInitialized = true;
 				// debug removido
 				handleMaybeRedirect(data);
@@ -110,6 +117,7 @@
 				handleMaybeRedirect(data);
 				processOutcomeSound();
 				updateAnnouncement(prev, board, winner, currentTurn);
+				if(scoreSummary !== lastScoreAnnounced){ lastScoreAnnounced = scoreSummary; }
 			}
 		} catch(e){ console.error('Erro jogada', e); }
 	}
@@ -155,6 +163,10 @@
 
 	onMount(async () => {
 		await ensureRound();
+		// garantir que visibleInfo reflita turno inicial mesmo se ainda vazio
+		visibleInfo = computeVisibleInfo(winner, currentTurn);
+		// detectar mobile (heurística simples)
+		isMobile = typeof window !== 'undefined' && (window.matchMedia('(pointer:coarse)').matches || /Mobi|Android/i.test(navigator.userAgent));
 		try {
 			ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/tictac/${roundParam}/${playerParam}`);
 			ws.onmessage = (ev) => {
@@ -222,6 +234,20 @@
 		if (!disabledCell(r,c)) { row = r; col = c; playMove(r,c); focusActiveCell(); }
 	}
 
+	async function shareInvite(){
+		const url = `${location.origin}/tictac/${roundParam}`;
+		try {
+			if(navigator.share){
+				await navigator.share({ title: 'Jogo da Velha', text: 'Entre na rodada do jogo da velha inclusivo', url });
+				shareMsg = 'Link compartilhado';
+			} else {
+				await navigator.clipboard.writeText(url);
+				shareMsg = 'Link copiado';
+			}
+		} catch(e){ shareMsg = 'Não foi possível compartilhar'; }
+		setTimeout(()=> shareMsg='', 2500);
+	}
+
 	function buildUnifiedAnnouncement(lastPiecePlaced, coord, winnerNow, turnAfter){
 		if(winnerNow){
 			if(winnerNow === 'Empate') return `Empate. ${scoreSummary}`;
@@ -275,10 +301,8 @@
 <PageTitle title="Rodada" game="Jogo da Velha" />
 
 <div class="container tic-container py-4 d-flex flex-column align-items-center">
-	<div class="scoreboard mb-3" aria-hidden="true">
-		<strong>Placar:</strong> X {scoreX} - {scoreO} O {#if scoreDraw>0}<span class="draws">(Empates {scoreDraw})</span>{/if}
-	</div>
-	<!-- Removido aria-live separado para placar para reduzir verbosidade -->
+	<div class="scoreboard mb-3" role="status" aria-live="polite" aria-atomic="true">{scoreboardLine}</div>
+	<!-- Placar em um único elemento para leitura linear -->
 	<div class="live-bar mb-2">{visibleInfo}</div>
 	<div class="board-wrapper my-2">
 		<button class="btn btn-sm btn-outline-light" style="margin:0 0 .5rem auto; display:block;" on:click={() => showHelp = !showHelp} aria-expanded={showHelp} aria-controls="help-panel">{showHelp ? 'Ocultar ajuda' : 'Ajuda'}</button>
@@ -313,7 +337,12 @@
 		<p class="mt-2 h5"><strong>Resultado:</strong> {winner}</p>
 	{/if}
 	<div class="mt-3 d-flex gap-2">
-		<button class="btn btn-primary" on:click={newRound} disabled={redirecting || !winner} aria-disabled={!winner} title={!winner ? 'Aguarde terminar (vitória ou empate)' : ''}>Nova rodada</button>
+		{#if isMobile && !hasMoves && !winner}
+			<button class="btn btn-warning" on:click={shareInvite}>Compartilhar convite</button>
+			{#if shareMsg}<span class="small text-success" aria-live="polite">{shareMsg}</span>{/if}
+		{:else}
+			<button class="btn btn-primary" on:click={newRound} disabled={redirecting || !winner} aria-disabled={!winner} title={!winner ? 'Aguarde terminar (vitória ou empate)' : ''}>Nova rodada</button>
+		{/if}
 	</div>
 
 	{#if showHelpModal}
@@ -357,7 +386,8 @@
 	/* Barra unificada de estado */
 	.live-bar { font-weight:600; font-size:1.25rem; background:#142536; padding:.55rem .95rem; border:1px solid #2c4d6b; border-radius:.65rem; min-height:2.4rem; display:flex; align-items:center; }
 	.scoreboard { font-size:1.05rem; background:#142536; padding:.4rem .85rem; border:1px solid #2c4d6b; border-radius:.6rem; box-shadow:0 0 0 2px rgba(43,127,244,.15); }
-	.scoreboard .draws { color:#94b8cc; font-weight:500; }
+	.btn-warning { background:#c98219; border-color:#c98219; }
+	.btn-warning:hover { background:#b87415; }
 	.col-labels { display:grid; grid-template-columns:repeat(3,1fr); position:absolute; top:-1.6rem; left:0; width:100%; font-size:.9rem; text-transform:lowercase; color:#c6d6e5; letter-spacing:.05em; }
 	.col-labels span { text-align:center; }
 	.row-labels { position:absolute; top:0; left:-1.4rem; height:100%; display:grid; grid-template-rows:repeat(3,1fr); font-size:.9rem; color:#c6d6e5; }
