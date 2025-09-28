@@ -16,7 +16,7 @@
 	let copyMsg = '';
 	let scoreX = 0; let scoreO = 0; let scoreDraw = 0;
 	$: scoreSummary = `Placar acumulado: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.`;
- let isMobile = false;
+let isMobile = false; // heurística ampliada
  let shareMsg = '';
 let shareLabel = 'Compartilhar link da rodada';
 
@@ -45,8 +45,16 @@ let shareLabel = 'Compartilhar link da rodada';
 		} catch { copyMsg = 'Não foi possível copiar.'; }
 	}
 
+	function detectMobileShare(){
+		if (typeof window === 'undefined') return false;
+		const ua = navigator.userAgent || '';
+		const touch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+		const coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+		const uaMatch = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+		return !!(navigator.share) || (touch && (coarse || uaMatch));
+	}
 	onMount(loadRound);
-	onMount(()=> { isMobile = typeof window !== 'undefined' && (window.matchMedia('(pointer:coarse)').matches || /Mobi|Android/i.test(navigator.userAgent)); });
+	onMount(()=> { isMobile = detectMobileShare(); });
 
  async function shareInvite(){
  	const url = `${location.origin}/tictac/${roundParam}`;

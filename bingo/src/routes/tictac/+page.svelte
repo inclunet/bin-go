@@ -1,18 +1,20 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import PageTitle from '$lib/PageTitle.svelte';
 	let creating = false;
 	let lastRound = 0;
 	let loading = true;
 	let errorMsg = '';
+	let openRounds = [];
 	let scoreX = 0; let scoreO = 0; let scoreDraw = 0;
+	let openWs;
 	$: scoreSummary = lastRound>0 ? `Placar acumulado até a rodada ${lastRound}: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.` : '';
+
+	function sortOpen() { openRounds = [...openRounds].sort((a,b)=> a.round - b.round); }
 
 	async function fetchLatest() {
 		loading = true;
 		try {
-			// tentativa de descobrir última rodada: pedir rounds sequenciais até falhar (simplês) – assumindo poucas.
-			// Melhor seria um endpoint dedicado; por enquanto brute force até 50.
 			let r = 1;
 			for(; r <= 50; r++) {
 				const res = await fetch(`/api/tictac/${r}`);
@@ -21,27 +23,32 @@
 			}
 			lastRound = r-1;
 			if(lastRound > 0){
-				try {
-					const lastRes = await fetch(`/api/tictac/${lastRound}`);
-					if(lastRes.ok){ const data = await lastRes.json(); scoreX = data.scoreX||0; scoreO = data.scoreO||0; scoreDraw = data.scoreDraw||0; }
-				} catch {}
+				try { const lastRes = await fetch(`/api/tictac/${lastRound}`); if(lastRes.ok){ const data = await lastRes.json(); scoreX = data.scoreX||0; scoreO = data.scoreO||0; scoreDraw = data.scoreDraw||0; } } catch {}
 			}
+			const openRes = await fetch('/api/tictac/open');
+			if(openRes.ok){ openRounds = await openRes.json(); sortOpen(); }
 		} catch(e){ errorMsg = 'Falha ao detectar rodadas.'; }
 		finally { loading = false; }
 	}
 
-	async function newRound() {
-		creating = true;
-		errorMsg='';
+	function connectOpenWs(){
 		try {
-			const next = lastRound + 1 || 1;
-			const res = await fetch(`/api/tictac/${next}/new`);
-			if(!res.ok) { errorMsg='Erro criando rodada'; creating=false; return; }
-			window.location.href = `/tictac/${next}`;
-		} catch(e){ errorMsg='Falha de rede'; creating=false; }
+			openWs = new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws/tictac/open`);
+			openWs.onmessage = (ev)=>{
+				try { const data = JSON.parse(ev.data); if(Array.isArray(data.rounds)){ openRounds = data.rounds; sortOpen(); } } catch {}
+			};
+			openWs.onclose = ()=> { openWs = null; setTimeout(connectOpenWs, 3000); };
+		} catch {}
 	}
 
-	onMount(fetchLatest);
+	async function newRound() {
+		creating = true; errorMsg='';
+		try { const next = lastRound + 1 || 1; const res = await fetch(`/api/tictac/${next}/new`); if(!res.ok){ errorMsg='Erro criando rodada'; creating=false; return; } window.location.href = `/tictac/${next}`; }
+		catch(e){ errorMsg='Falha de rede'; creating=false; }
+	}
+
+	onMount(()=>{ fetchLatest(); connectOpenWs(); });
+	onDestroy(()=> { if(openWs){ openWs.close(); openWs=null; } });
 </script>
 
 <PageTitle title="Início" game="Jogo da Velha" />
@@ -51,23 +58,23 @@
 		<h2 class="h1 mb-0">Partidas</h2>
 		<div class="actions d-flex gap-3 flex-wrap align-items-center">
 			<button class="btn btn-primary btn-lg" on:click={newRound} disabled={creating} aria-busy={creating}>{creating ? 'Criando...' : 'Nova rodada'}</button>
-			{#if !loading && lastRound > 0}
-				<a class="btn btn-outline-light" href={`/tictac/${lastRound}`}>Última ({lastRound})</a>
-			{/if}
 		</div>
 	</div>
 
 	{#if loading}
-		<p>Carregando estatísticas...</p>
+		<p>Carregando...</p>
 	{:else if errorMsg}
 		<p class="text-danger">{errorMsg}</p>
-	{:else if lastRound === 0}
-		<p>Nenhuma rodada criada ainda. Clique em "Nova rodada" para iniciar.</p>
 	{:else}
-		<p class="mb-2">Total de {lastRound} {lastRound === 1 ? 'rodada' : 'rodadas'} criadas.</p>
-		{#if lastRound > 0}
-			<div class="scoreboard mb-4" aria-hidden="true"><strong>Placar:</strong> X {scoreX} - {scoreO} O {#if scoreDraw>0}<span class="draws">(Empates {scoreDraw})</span>{/if}</div>
-			<div class="sr-only" aria-live="polite">{scoreSummary}</div>
+		{#if openRounds.length === 0}
+			<p>Nenhuma rodada aberta aguardando jogadores.</p>
+		{:else}
+			<h3 class="h5">Rodadas aguardando jogadores</h3>
+			<ul class="list-open-rounds mb-4">
+				{#each openRounds as r}
+					<li><a href={`/tictac/${r.round}`}>Rodada {r.round}</a><span class="status small ms-2">{r.hasPlayerX && r.hasPlayerO ? 'quase começando' : (r.hasPlayerX || r.hasPlayerO ? '1 jogador presente' : 'vazia')}</span></li>
+				{/each}
+			</ul>
 		{/if}
 	{/if}
 
@@ -75,10 +82,10 @@
 		<h3 class="h4">Como funciona?</h3>
 		<ol class="mb-0 small">
 			<li>Clique em "Nova rodada".</li>
-			<li>Na página da rodada escolha X ou O.</li>
-			<li>Compartilhe o link da rodada.</li>
+			<li>Escolha X ou O.</li>
+			<li>Compartilhe o link para o outro jogador.</li>
 			<li>O tabuleiro atualiza em tempo real.</li>
-			<li>Use "Nova rodada" para continuar jogando.</li>
+			<li>Use "Nova rodada" para continuar a mesma sequência.</li>
 		</ol>
 	</div>
 </div>
@@ -88,7 +95,9 @@
 	.info-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); backdrop-filter:blur(3px); }
 	.info-card ol { padding-left:1.2rem; }
 	.info-card li { margin:.25rem 0; }
-	.scoreboard { font-size:1rem; background:#142536; padding:.4rem .85rem; border:1px solid #2c4d6b; border-radius:.6rem; display:inline-block; }
-	.scoreboard .draws { color:#94b8cc; font-weight:500; }
-	.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+	.list-open-rounds { list-style:none; padding-left:0; margin:0; }
+	.list-open-rounds li { margin:.4rem 0; }
+	.list-open-rounds a { font-weight:600; text-decoration:none; color:#39a8ff; }
+	.list-open-rounds a:hover { text-decoration:underline; }
+	.status { color:#b4c9d6; }
 </style>

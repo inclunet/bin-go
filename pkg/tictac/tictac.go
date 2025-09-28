@@ -14,39 +14,30 @@ import (
 
 type Game struct {
 	Rounds []*Round `json:"rounds"`
+	openWatchers []*websocket.Conn `json:"-"`
+	openWatchLock sync.Mutex       `json:"-"`
 }
 
 type Round struct {
-	Round   int      `json:"round"`
-	Board   [3][3]string `json:"board"`
-	PlayerX string   `json:"playerX"`
-	PlayerO string   `json:"playerO"`
-	Turn    string   `json:"turn"` // "X" ou "O"
-	Winner  string   `json:"winner"`
-	Next    int      `json:"next,omitempty"`
-	ScoreX  int      `json:"scoreX,omitempty"`
-	ScoreO  int      `json:"scoreO,omitempty"`
-	ScoreDraw int    `json:"scoreDraw,omitempty"`
-	counted bool     `json:"-"` // evita contagem dupla
-	players []*Player       `json:"-"`
-	lock    sync.Mutex      `json:"-"`
+	Round     int         `json:"round"`
+	Board     [3][3]string `json:"board"`
+	PlayerX   string      `json:"playerX"`
+	PlayerO   string      `json:"playerO"`
+	Turn      string      `json:"turn"` // "X" ou "O"
+	Winner    string      `json:"winner"`
+	Next      int         `json:"next,omitempty"`
+	ScoreX    int         `json:"scoreX,omitempty"`
+	ScoreO    int         `json:"scoreO,omitempty"`
+	ScoreDraw int         `json:"scoreDraw,omitempty"`
+	counted   bool        `json:"-"`
+	players   []*Player   `json:"-"`
+	lock      sync.Mutex  `json:"-"`
 }
 
 type Player struct {
 	Conn      *websocket.Conn
 	Piece     string // "X" | "O" | "" (espectador)
 	Spectator bool
-}
-
-// computeScoreForRound recalcula o placar acumulado até (e incluindo) o round index (0-based) e copia para target se fornecido.
-func (g *Game) computeScoreForRound(idx int, target *Round) {
-	if idx < 0 { return }
-	sx, so, sd := 0,0,0
-	for i:=0; i<=idx && i < len(g.Rounds); i++ {
-		rw := g.Rounds[i]
-		if rw.Winner == "X" { sx++ } else if rw.Winner == "O" { so++ } else if rw.Winner == "Empate" { sd++ }
-	}
-	if target != nil { target.ScoreX = sx; target.ScoreO = so; target.ScoreDraw = sd }
 }
 
 func NewGame() *Game { return &Game{Rounds: []*Round{}} }
@@ -75,18 +66,15 @@ func (g *Game) newRoundHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusConflict, errors.New("round sequence mismatch"))
 	}
 
-	// Determina quem inicia a próxima rodada:
-	// - Se X venceu: X começa
-	// - Se O venceu: O começa
-	// - Se Empate: começa quem jogaria a seguir (oposto de last.Turn, pois last.Turn mantém o último jogador que fez a jogada final)
+	// Determina quem inicia e herda placar acumulado da anterior
 	startTurn := startingTurnFrom(last)
-	newR := &Round{Round: last.Round + 1, Turn: startTurn}
-	// herda placar acumulado até agora
-	g.computeScoreForRound(newR.Round-1, newR)
+	newR := &Round{Round: last.Round + 1, Turn: startTurn, ScoreX: last.ScoreX, ScoreO: last.ScoreO, ScoreDraw: last.ScoreDraw}
 	g.Rounds = append(g.Rounds, newR)
 	last.Next = newR.Round
 	last.broadcastLocked("redirect")
 	server.Logger.Info("Add TicTac Round", "round", newR.Round, "prev", last.Round)
+	// Nova rodada potencialmente aberta -> broadcast
+	g.broadcastOpenRounds()
 	return server.NewResponse(newR)
 }
 
@@ -98,8 +86,26 @@ func (g *Game) getRound(idx int) (*Round, error) {
 func (g *Game) getRoundHandler(r *http.Request) (*server.Response, error) {
 	rd, err := g.getRound(server.GetURLParamHasInt(r, "round")-1)
 	if err != nil { return server.NewResponseError(http.StatusNotFound, errors.New("round not found")) }
-	g.computeScoreForRound(rd.Round-1, rd)
 	return server.NewResponse(rd)
+}
+
+// openRoundsHandler retorna rodadas que ainda aguardam jogadores (ao menos um símbolo não escolhido e não finalizada)
+func (g *Game) openRoundsHandler(r *http.Request) (*server.Response, error) {
+	type openRound struct {
+		Round int `json:"round"`
+		PlayerX bool `json:"hasPlayerX"`
+		PlayerO bool `json:"hasPlayerO"`
+	}
+	res := []openRound{}
+	for _, rd := range g.Rounds {
+		if rd == nil { continue }
+		if rd.Winner != "" { continue }
+		// aguardando jogadores se ao menos um símbolo não está definido
+		if rd.PlayerX == "" || rd.PlayerO == "" {
+			res = append(res, openRound{Round: rd.Round, PlayerX: rd.PlayerX != "", PlayerO: rd.PlayerO != ""})
+		}
+	}
+	return server.NewResponse(res)
 }
 
 func (g *Game) moveHandler(r *http.Request) (*server.Response, error) {
@@ -129,15 +135,17 @@ func (g *Game) moveHandler(r *http.Request) (*server.Response, error) {
 	if rd.Winner == "" { 
 		toggleTurn(rd) 
 	} else { 
-		if !rd.counted { // registra placar apenas uma vez
+		if !rd.counted { // incrementa somente uma vez
 			rd.counted = true
+			if rd.Winner == "X" { rd.ScoreX += 1 } else if rd.Winner == "O" { rd.ScoreO += 1 } else if rd.Winner == "Empate" { rd.ScoreDraw += 1 }
 		}
 		server.Logger.Info("TicTac Winner", "round", rd.Round, "winner", rd.Winner)
 	}
-	// Atualiza placar acumulado no próprio round
-	g.computeScoreForRound(rd.Round-1, rd)
+	// Placar incremental já refletido (incrementado ao definir Winner)
 	server.Logger.Info("TicTac Move", "round", rd.Round, "player", piece, "row", row, "col", col, "turn", rd.Turn, "winner", rd.Winner)
 	rd.broadcastLocked("state")
+    // Caso a rodada tenha deixado de estar aberta (ambos jogadores) ou tenha terminado, atualizar lista
+    g.broadcastOpenRounds()
 	return server.NewResponse(rd)
 }
 
@@ -222,11 +230,58 @@ func (g *Game) liveHandler(w http.ResponseWriter, r *http.Request) {
 	if state, mErr := json.Marshal(rd); mErr == nil { conn.WriteMessage(websocket.TextMessage, state) }
 	// depois broadcast geral para sincronizar espectadores
 	rd.lock.Lock(); rd.broadcastLocked("join"); rd.lock.Unlock()
+	// Pode mudar status de aberta (segundo jogador entrou)
+	g.broadcastOpenRounds()
 	go func(c *websocket.Conn, round *Round) {
 		for {
 			if _, _, err := c.ReadMessage(); err != nil { c.Close(); return }
 		}
 	}(conn, rd)
+}
+
+// --- Open rounds (aguardando jogadores) ---
+func (g *Game) collectOpenRounds() []map[string]interface{} {
+	res := []map[string]interface{}{}
+	for _, rd := range g.Rounds {
+		if rd == nil { continue }
+		if rd.Winner != "" { continue }
+		if rd.PlayerX == "" || rd.PlayerO == "" { // ainda aberta
+			res = append(res, map[string]interface{}{
+				"round": rd.Round,
+				"hasPlayerX": rd.PlayerX != "",
+				"hasPlayerO": rd.PlayerO != "",
+			})
+		}
+	}
+	return res
+}
+
+func (g *Game) broadcastOpenRounds() {
+	g.openWatchLock.Lock()
+	defer g.openWatchLock.Unlock()
+	if len(g.openWatchers) == 0 { return }
+	payload := map[string]interface{}{ "rounds": g.collectOpenRounds() }
+	data, _ := json.Marshal(payload)
+	alive := make([]*websocket.Conn, 0, len(g.openWatchers))
+	for _, c := range g.openWatchers {
+		if c == nil { continue }
+		if err := c.WriteMessage(websocket.TextMessage, data); err != nil { c.Close(); continue }
+		alive = append(alive, c)
+	}
+	g.openWatchers = alive
+}
+
+func (g *Game) openLiveHandler(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil { http.Error(w, "upgrade error", http.StatusInternalServerError); return }
+	g.openWatchLock.Lock(); g.openWatchers = append(g.openWatchers, conn); g.openWatchLock.Unlock()
+	// Envia lista inicial
+	g.broadcastOpenRounds()
+	go func(c *websocket.Conn) {
+		for { // ignorar mensagens de entrada
+			if _, _, err := c.ReadMessage(); err != nil { c.Close(); return }
+		}
+	}(conn)
 }
 
 func New(routes *mux.Router) *Game {
@@ -235,6 +290,7 @@ func New(routes *mux.Router) *Game {
 		r := routes.PathPrefix("/tictac").Subrouter()
 		r.Methods(http.MethodGet).Path("/{round}/new").Handler(server.SendJson(g.newRoundHandler))
 		r.Methods(http.MethodGet).Path("/{round}").Handler(server.SendJson(g.getRoundHandler))
+		r.Methods(http.MethodGet).Path("/open").Handler(server.SendJson(g.openRoundsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/{player}/{row}/{col}").Handler(server.SendJson(g.moveHandler))
 	}
 	return g
@@ -243,6 +299,7 @@ func New(routes *mux.Router) *Game {
 func (g *Game) AddWsRoutes(routes *mux.Router) *Game {
 	if routes != nil {
 		r := routes.PathPrefix("/tictac").Subrouter()
+		r.Methods(http.MethodGet).Path("/open").HandlerFunc(g.openLiveHandler)
 		r.Methods(http.MethodGet).Path("/{round}/{player}").HandlerFunc(g.liveHandler)
 	}
 	return g

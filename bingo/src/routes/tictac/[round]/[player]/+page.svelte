@@ -20,7 +20,7 @@
 	let lastScoreAnnounced = '';
 	// Placar em uma única linha acessível
 	$: scoreboardLine = `Placar: X ${scoreX}, O ${scoreO}${scoreDraw>0?`, empates ${scoreDraw}`:''}`;
-	let isMobile = false;
+	let isMobile = false; // heurística ampliada para iOS / dispositivos touch
 	$: hasMoves = board.some(r => r.some(c => c !== ''));
 	let shareMsg = '';
 	let showHelp = false;
@@ -161,12 +161,21 @@
 		el?.focus();
 	}
 
+	function detectMobileShare(){
+		if (typeof window === 'undefined') return false;
+		const ua = navigator.userAgent || '';
+		const touch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+		const coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+		const uaMatch = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+		return !!(navigator.share) || (touch && (coarse || uaMatch));
+	}
+
 	onMount(async () => {
 		await ensureRound();
 		// garantir que visibleInfo reflita turno inicial mesmo se ainda vazio
 		visibleInfo = computeVisibleInfo(winner, currentTurn);
-		// detectar mobile (heurística simples)
-		isMobile = typeof window !== 'undefined' && (window.matchMedia('(pointer:coarse)').matches || /Mobi|Android/i.test(navigator.userAgent));
+		// detectar mobile/share (heurística ampliada)
+		isMobile = detectMobileShare();
 		try {
 			ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/tictac/${roundParam}/${playerParam}`);
 			ws.onmessage = (ev) => {
