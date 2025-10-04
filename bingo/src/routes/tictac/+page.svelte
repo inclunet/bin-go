@@ -63,15 +63,15 @@
 
 <div class="container py-4 tic-home" style="max-width:62rem;">
 	<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
-		<h2 class="h1 mb-0">Partidas</h2>
+		<h2 class="h1 mb-0">Jogo da Velha</h2>
 		<div class="actions d-flex gap-3 flex-wrap align-items-center">
-			<button class="btn btn-primary btn-lg" on:click={newRound} disabled={creating} aria-busy={creating}>{creating ? 'Criando...' : 'Nova rodada'}</button>
+			<button class="btn btn-primary btn-lg" on:click={newRound} disabled={creating} aria-busy={creating}>{creating ? 'Criando...' : 'Nova partida'}</button>
 		</div>
 	</div>
 
 	<!-- Total de rodadas criadas -->
 	{#if !loading && !errorMsg}
-		<p class="total-rounds mb-4" role="status" aria-live="polite">Total de {lastRound} {lastRound === 1 ? 'rodada criada' : 'rodadas criadas'} nesta instância.</p>
+		<p class="total-rounds mb-4" role="status" aria-live="polite">Total de {lastRound} {lastRound === 1 ? 'partida criada' : 'partidas criadas'} nesta sessão.</p>
 	{/if}
 
 	{#if loading}
@@ -80,59 +80,62 @@
 		<p class="text-danger">{errorMsg}</p>
 	{:else}
 		{#if openRounds.length === 0}
-			<p>Nenhuma rodada aberta aguardando jogadores.</p>
+			<p>Nenhuma partida aguardando jogadores no momento.</p>
 		{:else}
-			<h3 class="h5">Rodadas aguardando jogadores</h3>
+			<h3 class="h5">Partidas aguardando jogadores</h3>
 			<ul class="list-open-rounds mb-5">
 				{#each openRounds as r}
-					<li><a href={`/tictac/${r.round}`}>Rodada {r.round}</a><span class="status small ms-2">{r.hasPlayerX && r.hasPlayerO ? 'quase começando' : (r.hasPlayerX || r.hasPlayerO ? '1 jogador presente' : 'vazia')}</span></li>
+					<li><a href={`/tictac/${r.round}`}>Partida {r.round}</a><span class="status small ms-2">{r.hasPlayerX && r.hasPlayerO ? 'pronta para começar' : (r.hasPlayerX || r.hasPlayerO ? '1 jogador aguardando' : 'aguardando jogadores')}</span></li>
 				{/each}
 			</ul>
 		{/if}
 	{/if}
 
 	<div class="info-card p-4 rounded-3 mb-4">
-		<h3 class="h4 mb-3">Como funciona?</h3>
+		<h3 class="h4 mb-3">Como jogar o jogo da velha?</h3>
 		<div class="guide-grid">
 			<section>
-				<h4 class="h6">Fluxo básico</h4>
+				<h4 class="h6">Iniciando uma partida</h4>
 				<ol class="small mb-3">
-					<li>Clique em <strong>Nova rodada</strong>.</li>
-					<li>Na página da rodada escolha X ou O.</li>
-					<li>Compartilhe o link (botão de compartilhar ou copiar).</li>
-					<li>O segundo jogador entra e escolhe o outro símbolo.</li>
-					<li>O tabuleiro inicia automaticamente.</li>
-					<li>Ao terminar (vitória ou empate) use <strong>Nova rodada</strong> dentro da partida.</li>
+					<li>Clique em <strong>Nova partida</strong> para criar uma partida.</li>
+					<li>Na página da partida escolha seu símbolo: X ou O.</li>
+					<li>Compartilhe o link com outra pessoa usando o botão de compartilhar.</li>
+					<li>O segundo jogador entra no link e escolhe o símbolo restante.</li>
+					<li>O jogo da velha inicia automaticamente quando ambos jogadores estão presentes.</li>
+					<li>Ao terminar (vitória ou empate), use <strong>Nova partida</strong> para continuar jogando.</li>
 				</ol>
 			</section>
 			<section>
-				<h4 class="h6">Rodadas abertas</h4>
-				<p class="small mb-2">Uma rodada aparece aqui enquanto pelo menos um dos símbolos ainda não foi escolhido. Assim você pode:</p>
+				<h4 class="h6">Partidas abertas</h4>
+				<p class="small mb-2">Uma partida aparece na lista acima enquanto ainda há vagas para jogadores. Você pode:</p>
 				<ul class="small mb-3">
-					<li>Entrar e escolher um símbolo livre.</li>
-					<li>Pegar o link e enviar para outra pessoa.</li>
-					<li>Ver rapidamente se alguém já está aguardando.</li>
+					<li>Entrar diretamente e escolher um símbolo disponível (X ou O).</li>
+					<li>Copiar o link da partida e enviar para um amigo.</li>
+					<li>Ver quantos jogadores já estão na partida.</li>
+					<li>Aguardar até que os dois jogadores estejam presentes para começar.</li>
 				</ul>
 			</section>
 			<section>
-				<h4 class="h6">Acessibilidade</h4>
+				<h4 class="h6">Controles e acessibilidade</h4>
 				<ul class="small mb-3">
-					<li>Leitores de tela recebem anúncios consolidados (turno, jogada e resultado).</li>
-					<li>Navegação do tabuleiro via setas; Enter ou Espaço marca.</li>
-					<li>Atalhos: ? abre ajuda; Esc fecha a ajuda.</li>
+					<li><strong>Navegação:</strong> Use as setas do teclado para mover entre as casas do tabuleiro.</li>
+					<li><strong>Marcar jogada:</strong> Pressione Enter ou Espaço, ou use os números do teclado numérico (7-9: linha superior, 4-6: meio, 1-3: inferior).</li>
+					<li><strong>Atalhos:</strong> Pressione ? para abrir ajuda; Esc para fechar diálogos.</li>
+					<li><strong>Leitores de tela:</strong> Recebem anúncios automáticos sobre turnos, jogadas e resultados.</li>
 				</ul>
 			</section>
 			<section>
-				<h4 class="h6">Placar</h4>
-				<p class="small mb-0">O placar é acumulado por sequência de rodadas que você continua usando o botão <em>Nova rodada</em>. Ele avança só quando a rodada termina.</p>
+				<h4 class="h6">Sistema de placar</h4>
+				<p class="small mb-0">O placar é mantido ao longo de uma sequência de partidas. Cada vez que você clica em "Nova partida" após terminar um jogo, o placar continua acumulando. O placar mostra quantas vitórias cada símbolo (X e O) conquistou, além dos empates.</p>
 			</section>
 		</div>
 		<details class="mt-3 small more-help">
-			<summary>Mais dicas</summary>
+			<summary>Dicas avançadas</summary>
 			<ul class="mt-2">
-				<li>O primeiro jogador que entra numa nova sequência determina quem começa a primeira rodada.</li>
-				<li>Vitória: o vencedor inicia a próxima rodada; empate inverte o próximo turno.</li>
-				<li>Se recarregar a página, você retoma a mesma rodada pelo número.</li>
+				<li><strong>Primeiro turno:</strong> O primeiro jogador que entra numa nova sequência determina quem começa jogando com X.</li>
+				<li><strong>Próximas partidas:</strong> O vencedor sempre inicia a próxima partida; em caso de empate, alterna quem começa.</li>
+				<li><strong>Reconexão:</strong> Se recarregar a página, você retoma automaticamente a mesma partida pelo número da URL.</li>
+				<li><strong>Teclado numérico:</strong> A disposição dos números segue o layout físico do teclado numérico para facilitar o uso.</li>
 			</ul>
 		</details>
 	</div>

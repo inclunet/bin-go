@@ -27,23 +27,23 @@
 
 {#if showQuickHelp}
 	<div id="help-panel" class="help-box" role="note">
-		<p><strong>Como jogar:</strong> Setas movem; Enter ou Espaço marca; números do teclado numérico marcam diretamente (7-9: linha superior, 4-6: meio, 1-3: inferior); coordenadas: a1..c3.</p>
+		<p><strong>Jogo da velha:</strong> Use as setas para navegar entre as casas. Pressione Enter/Espaço para marcar, ou use números do teclado numérico (7-9: linha superior, 4-6: meio, 1-3: inferior). Objetivo: fazer uma linha de 3 símbolos iguais.</p>
 	</div>
 {/if}
 
 {#if showModal}
 	<div id="help-modal" class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
 		<div class="help-dialog p-3">
-			<h2 id="help-title" class="h5 mb-3">Ajuda do jogo</h2>
+			<h2 id="help-title" class="h5 mb-3">Como jogar o jogo da velha</h2>
 			<ul class="small mb-3">
-				<li>Use as setas para mover o foco entre as casas.</li>
-				<li>Pressione Enter ou Espaço para marcar sua jogada.</li>
-				<li>Use os números do teclado numérico para marcar diretamente: 7,8,9 = linha superior; 4,5,6 = linha do meio; 1,2,3 = linha inferior.</li>
-				<li>Use Home para ir ao canto superior esquerdo, End para canto inferior direito.</li>
-				<li>O anúncio "É a sua vez." indica que você pode jogar.</li>
-				<li>Use o botão Nova rodada para continuar após o fim.</li>
-				<li>Pressione Esc para fechar este diálogo.</li>
-				<li>Pressione ? a qualquer momento para abrir esta ajuda.</li>
+				<li><strong>Objetivo:</strong> Seja o primeiro a fazer uma linha de 3 símbolos iguais (horizontal, vertical ou diagonal).</li>
+				<li><strong>Navegação:</strong> Use as setas do teclado para mover entre as casas do tabuleiro.</li>
+				<li><strong>Marcar jogada:</strong> Pressione Enter ou Espaço na casa desejada.</li>
+				<li><strong>Atalho numérico:</strong> Use os números do teclado numérico para marcar diretamente - 7,8,9: linha superior; 4,5,6: linha do meio; 1,2,3: linha inferior.</li>
+				<li><strong>Navegação rápida:</strong> Home vai para o canto superior esquerdo, End para o inferior direito.</li>
+				<li><strong>Sua vez:</strong> Aguarde o anúncio "É a sua vez" para jogar.</li>
+				<li><strong>Continuar jogando:</strong> Use o botão "Nova partida" após cada jogo.</li>
+				<li><strong>Atalhos:</strong> Pressione ? para esta ajuda; Esc para fechar diálogos.</li>
 			</ul>
 			<button class="btn btn-sm btn-secondary" on:click={closeModal}>Fechar</button>
 		</div>
