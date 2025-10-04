@@ -4,6 +4,12 @@
 	import { get } from 'svelte/store';
 	import { onMount } from 'svelte';
 	import PageTitle from '$lib/PageTitle.svelte';
+	import Scoreboard from '$lib/tictac/Scoreboard.svelte';
+	import StatusBar from '$lib/tictac/StatusBar.svelte';
+	import GameBoard from '$lib/tictac/GameBoard.svelte';
+	import HelpModal from '$lib/tictac/HelpModal.svelte';
+	import NumberKeyHandler from '$lib/tictac/NumberKeyHandler.svelte';
+	import AudioManager from '$lib/tictac/AudioManager.svelte';
 
 	const p = get(page);
 	let roundParam = p.params.round; // poderá ser atualizado via redirect backend
@@ -21,18 +27,16 @@
 	// Resumo acessível do placar
 	$: scoreSummary = `Placar: ${scoreX} vitória${scoreX===1?'':'s'} de X, ${scoreO} vitória${scoreO===1?'':'s'} de O${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.`;
 	let lastScoreAnnounced = '';
-	// Placar em uma única linha acessível
-	$: scoreboardLine = `Placar: X ${scoreX}, O ${scoreO}${scoreDraw>0?`, empates ${scoreDraw}`:''}`;
 	let isMobile = false; // heurística ampliada para iOS / dispositivos touch
 	$: hasMoves = board.some(r => r.some(c => c !== ''));
 	let shareMsg = '';
 	let showHelp = false;
 	let showHelpModal = false;
 	const colNames = ['a','b','c'];
-		const GAME_NAME = 'Jogo da velha inclusivo';
-		let ws;
-		let redirecting = false;
-		// removido role application dinâmico para simplificar e evitar avisos a11y
+	const GAME_NAME = 'Jogo da velha inclusivo';
+	let ws;
+	let redirecting = false;
+	// removido role application dinâmico para simplificar e evitar avisos a11y
 
 	// Barra única visível (Opção C)
 	let visibleInfo = 'Carregando...';
@@ -42,16 +46,12 @@
 	let tempTimeout = null;
 
 	// Áudio
-	let clickAudio = null;
-	let errorAudio = null;
-	let victoryAudio = null;
-	let drawAudio = null;
-	let defeatAudio = null;
+	let audioManager;
 	let lastOutcome = ''; // evita tocar som duplicado (REST + WS)
 	let boardInitialized = false; // evita anunciar carregamento inicial
 	let liveAnnounce = ''; // única região aria-live consolidada
 
-		const cellId = (r, c) => `cell-${r}-${c}`;
+	const cellId = (r, c) => `cell-${r}-${c}`;
 
 	function announcePosition() { /* mantido para futura expansão */ }
 
@@ -107,7 +107,7 @@
 	async function playMove(r, c) {
 		if (winner) return;
 		// Não bloquear no front: backend valida oponente / turno
-		if (board[r][c] !== '') { setTemporaryInfo('Casa já ocupada.'); errorAudio?.play(); return; }
+		if (board[r][c] !== '') { setTemporaryInfo('Casa já ocupada.'); audioManager?.playError(); return; }
 		try {
 			const prev = board.map(rr=>[...rr]);
 			const res = await fetch(`/api/tictac/${roundParam}/${playerParam}/${r+1}/${c+1}`, { cache: 'no-store' });
@@ -130,29 +130,6 @@
 	}
 
 	// Removido disabledCell: não desabilitamos mais visualmente; validação só em playMove
-
-		/** @param {KeyboardEvent} e */
-		function handleKey(e) {
-		if (winner) return;
-		const key = e.key;
-		if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End','Enter',' '].includes(key)) return;
-			const target = e.currentTarget;
-			const r = parseInt(target?.dataset.r || '0');
-			const c = parseInt(target?.dataset.c || '0');
-		if (key === 'Enter' || key === ' ') {
-				row = r; col = c; playMove(r,c); e.preventDefault(); return; }
-		let nr = r, nc = c;
-		switch (key) {
-			case 'ArrowUp': nr = Math.max(0, r-1); break;
-			case 'ArrowDown': nr = Math.min(2, r+1); break;
-			case 'ArrowLeft': nc = Math.max(0, c-1); break;
-			case 'ArrowRight': nc = Math.min(2, c+1); break;
-			case 'Home': nr = 0; nc = 0; break;
-			case 'End': nr = 2; nc = 2; break;
-		}
-		if (nr !== r || nc !== c) { row = nr; col = nc; focusActiveCell(); announcePosition(); }
-		e.preventDefault();
-	}
 
 	function reset() { window.location.reload(); }
 
@@ -251,13 +228,11 @@
 		if(!winner) return;
 		if(winner === lastOutcome) return; // já tocado
 		lastOutcome = winner;
-		if(winner === 'Empate') { drawAudio?.play(); return; }
-		if(winner === localPlayer) { victoryAudio?.play(); }
-		else { defeatAudio?.play(); }
+		audioManager?.playOutcomeSound(winner, localPlayer);
 	}
 
 	function handleCellClick(r, c){
-		clickAudio?.play();
+		audioManager?.playClick();
 		row = r; col = c; // foco lógico
 		playMove(r,c); // backend e playMove cuidam das regras (oponente, turno, ocupado)
 		focusActiveCell();
@@ -324,37 +299,102 @@
 		tempTimeout = setTimeout(()=>{ visibleInfo = computeVisibleInfo(winner, currentTurn); }, 2000);
 	}
 
+	// Handlers dos componentes
+	function handleCellClickFromBoard(event) {
+		const { row: r, col: c } = event.detail;
+		handleCellClick(r, c);
+	}
+
+	function handleCellFocusFromBoard(event) {
+		const { row: r, col: c } = event.detail;
+		row = r; col = c;
+	}
+
+	function handleKeydownFromBoard(event) {
+		handleKey(event.detail.event);
+	}
+
+	/** @param {KeyboardEvent} e */
+	function handleKey(e) {
+		if (winner) return;
+		const key = e.key;
+		if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End','Enter',' '].includes(key)) return;
+		const target = e.currentTarget;
+		const r = parseInt(target?.dataset.r || '0');
+		const c = parseInt(target?.dataset.c || '0');
+		if (key === 'Enter' || key === ' ') {
+			row = r; col = c; playMove(r,c); e.preventDefault(); return; 
+		}
+		
+		// Navegação por setas apenas (números são tratados pelo NumberKeyHandler)
+		let nr = r, nc = c;
+		switch (key) {
+			case 'ArrowUp': nr = Math.max(0, r-1); break;
+			case 'ArrowDown': nr = Math.min(2, r+1); break;
+			case 'ArrowLeft': nc = Math.max(0, c-1); break;
+			case 'ArrowRight': nc = Math.min(2, c+1); break;
+			case 'Home': nr = 0; nc = 0; break;
+			case 'End': nr = 2; nc = 2; break;
+		}
+		if (nr !== r || nc !== c) { row = nr; col = nc; focusActiveCell(); announcePosition(); }
+		e.preventDefault();
+	}
+
+	function handleNumberKeyFromHandler(event) {
+		const { row: r, col: c } = event.detail;
+		row = r; col = c;
+		playMove(r, c);
+		focusActiveCell();
+	}
+
+	function handleHelpToggle() {
+		showHelpModal = true;
+	}
+
+	function handleHelpClose() {
+		showHelpModal = false;
+		focusActiveCell();
+	}
+
+	function handleHelpModalClose() {
+		showHelpModal = false;
+		focusActiveCell();
+	}
+
+	function handleHelpQuickToggle() {
+		showHelp = !showHelp;
+	}
+
 	// container não mais foco direto; interação via células
 </script>
 
 <PageTitle title="Rodada" game="Jogo da Velha" />
 
 <div class="container tic-container py-4 d-flex flex-column align-items-center">
-	<div class="scoreboard mb-3" role="status" aria-live="polite" aria-atomic="true">{scoreboardLine}</div>
+	<div class="scoreboard mb-3" role="status" aria-live="polite" aria-atomic="true">
+		<Scoreboard {scoreX} {scoreO} {scoreDraw} />
+	</div>
 	<!-- Placar em um único elemento para leitura linear -->
-	<div class="live-bar mb-2">{visibleInfo}</div>
+	<div class="mb-2">
+		<StatusBar {visibleInfo} />
+	</div>
 	<div class="board-wrapper my-2">
-		<button class="btn btn-sm btn-outline-light" style="margin:0 0 .5rem auto; display:block;" on:click={() => showHelp = !showHelp} aria-expanded={showHelp} aria-controls="help-panel">{showHelp ? 'Ocultar ajuda' : 'Ajuda'}</button>
-		<div class="col-labels" aria-hidden="true"><span>a</span><span>b</span><span>c</span></div>
-		<div class="row-labels" aria-hidden="true"><span>1</span><span>2</span><span>3</span></div>
-		<div class="tic-board" aria-label="Tabuleiro do jogo da velha, rodada {roundParam}. Jogador local {localPlayer}." bind:this={boardRef}>
-			{#each board as rowVals, r}
-				{#each rowVals as cellVal, c}
-					<button id={cellId(r,c)} data-r={r} data-c={c} tabindex={row===r && col===c ? 0 : -1}
-						aria-pressed={board[r][c] !== ''}
-						aria-label={board[r][c] ? `${board[r][c]} ${colNames[c]}${r+1}` : `vazio ${colNames[c]}${r+1}`}
-						class="tic-cell {board[r][c] ? `filled-${board[r][c]}`: ''} {row===r && col===c ? 'active' : ''}"
-						on:click={() => handleCellClick(r,c)}
-						on:focus={() => { row = r; col = c; }}
-						on:keydown={handleKey}>{cellVal}</button>
-				{/each}
-			{/each}
-		</div>
-		{#if showHelp}
-			<div id="help-panel" class="help-box" role="note">
-				<p><strong>Como jogar:</strong> Setas movem; Enter ou Espaço marca; coordenadas: a1..c3.</p>
-			</div>
-		{/if}
+		<HelpModal 
+			showModal={showHelpModal} 
+			showQuickHelp={showHelp}
+			on:close={handleHelpModalClose}
+			on:toggleQuick={handleHelpQuickToggle}
+		/>
+		<GameBoard 
+			{board} 
+			{row} 
+			{col}
+			{roundParam}
+			localPlayer={localPlayer}
+			on:cellClick={handleCellClickFromBoard}
+			on:cellFocus={handleCellFocusFromBoard}
+			on:keydown={handleKeydownFromBoard}
+		/>
 	</div>
 	<!-- status removido em favor da barra única -->
 	{#if winner}
@@ -392,43 +432,50 @@
 <!-- debug removido -->
 </div>
 
+<!-- Componentes de gerenciamento -->
+<NumberKeyHandler 
+	{showHelpModal} 
+	{winner}
+	on:numberKey={handleNumberKeyFromHandler}
+	on:helpToggle={handleHelpToggle}
+	on:helpClose={handleHelpClose}
+/>
+
 <!-- Áudio: clique, erro, vitória, empate, derrota -->
-<audio bind:this={clickAudio} src="/key.mp3" preload="auto"></audio>
-<audio bind:this={errorAudio} src="/wrong.wav" preload="auto"></audio>
-<audio bind:this={victoryAudio} src="/correct.wav" preload="auto"></audio>
-<audio bind:this={drawAudio} src="/mixkit-cooking-bell-ding-1791.wav" preload="auto"></audio>
-<audio bind:this={defeatAudio} src="/wrong.wav" preload="auto"></audio>
+<AudioManager bind:this={audioManager} {lastOutcome} />
 
 <style>
-	.tic-container { max-width: 640px; }
-	.board-wrapper { position:relative; width:100%; max-width:38rem; }
-	.tic-board { display:grid; grid-template-columns:repeat(3,1fr); width:100%; aspect-ratio:1/1; border:3px solid #3a5f91; border-radius:.9rem; background:#101922; position:relative; box-shadow:0 0 0 3px rgba(43,127,244,.35); }
-	.tic-cell { border:1px solid #24496f; display:flex; align-items:center; justify-content:center; font-size:clamp(2.2rem, 8vw, 4.2rem); font-weight:700; cursor:pointer; user-select:none; background:linear-gradient(#16283a,#1e344b); color:#f5f7fa; transition:background .15s, transform .08s; }
-	.tic-cell:hover { background:#254362; }
-	.tic-cell:active { transform:scale(.96); }
-	.tic-cell.filled-X { color:#2aa9ff; }
-	.tic-cell.filled-O { color:#ff8b54; }
-	.tic-cell.active { box-shadow: inset 0 0 0 3px #ffc107, 0 0 0 2px #000; background:#2d5173; }
-	/* Barra unificada de estado */
-	.live-bar { font-weight:600; font-size:1.25rem; background:#142536; padding:.55rem .95rem; border:1px solid #2c4d6b; border-radius:.65rem; min-height:2.4rem; display:flex; align-items:center; }
-	.scoreboard { font-size:1.05rem; background:#142536; padding:.4rem .85rem; border:1px solid #2c4d6b; border-radius:.6rem; box-shadow:0 0 0 2px rgba(43,127,244,.15); }
-	.btn-warning { background:#c98219; border-color:#c98219; }
-	.btn-warning:hover { background:#b87415; }
-	.col-labels { display:grid; grid-template-columns:repeat(3,1fr); position:absolute; top:-1.6rem; left:0; width:100%; font-size:.9rem; text-transform:lowercase; color:#c6d6e5; letter-spacing:.05em; }
-	.col-labels span { text-align:center; }
-	.row-labels { position:absolute; top:0; left:-1.4rem; height:100%; display:grid; grid-template-rows:repeat(3,1fr); font-size:.9rem; color:#c6d6e5; }
-	.row-labels span { display:flex; align-items:center; justify-content:center; }
-	@media (max-width:480px){ .col-labels{ top:-1.3rem;} .row-labels{ left:-1.1rem;} .turn{ font-size:1.4rem;} }
-	.help-box { margin-top:.5rem; background:#152635; border:1px solid #2c5278; padding:.75rem .9rem; border-radius:.6rem; font-size:.95rem; line-height:1.35rem; color:#d5e4f1; }
-	.help-box strong { color:#fff; }
-	.instructions { font-size:.9rem; color:#9fb9cc; }
-	.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
-/* Modal de ajuda */
-.help-modal { position:fixed; inset:0; background:rgba(0,0,0,.65); display:flex; align-items:center; justify-content:center; z-index:1000; }
-.help-dialog { background:#132433; border:1px solid #2c5278; border-radius:.8rem; width:100%; max-width:32rem; box-shadow:0 10px 28px -4px rgba(0,0,0,.6); }
-.help-dialog ul { padding-left:1.1rem; }
-.help-dialog li { margin:.3rem 0; line-height:1.25rem; }
-/* debug styles removidos */
+	.tic-container { 
+		max-width: 640px; 
+	}
+	
+	.btn-warning { 
+		background: #c98219; 
+		border-color: #c98219; 
+	}
+	
+	.btn-warning:hover { 
+		background: #b87415; 
+	}
+	
+	.sr-only { 
+		position: absolute; 
+		width: 1px; 
+		height: 1px; 
+		padding: 0; 
+		margin: -1px; 
+		overflow: hidden; 
+		clip: rect(0 0 0 0); 
+		white-space: nowrap; 
+		border: 0; 
+	}
+
+	@media (max-width: 480px) {
+		.tic-container { 
+			padding-left: 1rem; 
+			padding-right: 1rem; 
+		}
+	}
 </style>
 
 <!-- EOF -->

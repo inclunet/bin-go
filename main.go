@@ -5,7 +5,7 @@ import (
 	"github.com/inclunet/bin-go/pkg/bingo"
 	"github.com/inclunet/bin-go/pkg/braille"
 	"github.com/inclunet/bin-go/pkg/server"
- "github.com/inclunet/bin-go/pkg/tictac"
+	"github.com/inclunet/bin-go/pkg/tictac"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 
 	bingo.New(api).AddQrRoutes(qr).AddWsRoutes(ws)
 
-  server.Logger.Info("Adding Braille routes...")
+	server.Logger.Info("Adding Braille routes...")
 
 	_, err := braille.New(api)
 
@@ -38,7 +38,7 @@ func main() {
 	server.Logger.Info("Adding TicTac routes...")
 	tictac.New(api).AddWsRoutes(ws)
 
-   server.AddFileServer(r)
+	server.AddFileServer(r)
 
 	server.Logger.Info("Starting server...")
 
