@@ -10,6 +10,9 @@
 	import HelpModal from '$lib/tictac/HelpModal.svelte';
 	import NumberKeyHandler from '$lib/tictac/NumberKeyHandler.svelte';
 	import AudioManager from '$lib/tictac/AudioManager.svelte';
+	import AdManager from '$lib/ads/AdManager.svelte';
+	import AdProtection from '$lib/ads/AdProtection.svelte';
+	import { adConfig } from '$lib/ads/adConfig.js';
 
 	const p = get(page);
 	let roundParam = p.params.round; // poderá ser atualizado via redirect backend
@@ -370,8 +373,19 @@
 
 <PageTitle title="Rodada" game="Jogo da Velha" />
 
-<div class="container tic-container py-4 d-flex flex-column align-items-center">
-	<div class="scoreboard mb-3" role="status" aria-live="polite" aria-atomic="true">
+<!-- Proteção contra anúncios intrusivos -->
+<AdProtection protection="strict" />
+
+<div class="container tic-container py-4 d-flex flex-column align-items-center game-area">
+	<!-- Anúncio no topo (opcional, somente em desktop) -->
+	<AdManager 
+		placement="top" 
+		format="banner" 
+		adSlot={adConfig.slots.topBanner}
+		priority="low"
+	/>
+	
+	<div class="scoreboard-container mb-3">
 		<Scoreboard {scoreX} {scoreO} {scoreDraw} />
 	</div>
 	<!-- Placar em um único elemento para leitura linear -->
@@ -400,7 +414,16 @@
 	{#if winner}
 		<p class="mt-2 h5"><strong>Resultado:</strong> {winner}</p>
 	{/if}
-	<div class="mt-3 d-flex gap-2">
+	
+	<!-- Anúncio retângulo após o resultado -->
+	<AdManager 
+		placement="auto" 
+		format="rectangle" 
+		adSlot={adConfig.slots.rectangle}
+		priority="medium"
+	/>
+	
+	<div class="mt-3 d-flex gap-2 game-controls">
 		{#if isMobile && !hasMoves && !winner}
 			<button class="btn btn-warning" on:click={shareInvite}>Compartilhar convite</button>
 			{#if shareMsg}<span class="small text-success" aria-live="polite">{shareMsg}</span>{/if}
@@ -408,6 +431,14 @@
 			<button class="btn btn-primary" on:click={newRound} disabled={redirecting || !winner} aria-disabled={!winner} title={!winner ? 'Aguarde terminar (vitória ou empate)' : ''}>Nova rodada</button>
 		{/if}
 	</div>
+
+	<!-- Anúncio na parte inferior -->
+	<AdManager 
+		placement="bottom" 
+		format="banner" 
+		adSlot={adConfig.slots.bottomBanner}
+		priority="low"
+	/>
 
 	{#if showHelpModal}
 		<div id="help-modal" class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
@@ -449,6 +480,24 @@
 		max-width: 640px; 
 	}
 	
+	.game-area {
+		background: var(--game-bg, transparent);
+		isolation: isolate;
+		position: relative;
+	}
+	
+	.game-controls {
+		isolation: isolate;
+		position: relative;
+		z-index: 10;
+	}
+	
+	.scoreboard-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+	
 	.btn-warning { 
 		background: #c98219; 
 		border-color: #c98219; 
@@ -474,6 +523,18 @@
 		.tic-container { 
 			padding-left: 1rem; 
 			padding-right: 1rem; 
+		}
+		
+		.scoreboard-container {
+			width: 100%;
+			max-width: none;
+		}
+	}
+	
+	@media (max-width: 360px) {
+		.tic-container {
+			padding-left: 0.75rem;
+			padding-right: 0.75rem;
 		}
 	}
 </style>
