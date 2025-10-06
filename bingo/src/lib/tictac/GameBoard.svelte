@@ -62,14 +62,17 @@
 	.board-wrapper { 
 		position: relative; 
 		width: 100%; 
-		max-width: 38rem; 
+		max-width: 480px; /* Aumentado de 38rem para melhor visibilidade */
+		min-width: 320px; /* Tamanho mínimo garantido */
 	}
 	
 	.tic-board { 
 		display: grid; 
 		grid-template-columns: repeat(3,1fr); 
 		width: 100%; 
-		aspect-ratio: 1/1; 
+		/* Altura fixa em vez de aspect-ratio para consistência */
+		height: 480px;
+		min-height: 320px;
 		border: 3px solid #3a5f91; 
 		border-radius: 0.9rem; 
 		background: #101922; 
@@ -82,18 +85,23 @@
 		display: flex; 
 		align-items: center; 
 		justify-content: center; 
-		font-size: clamp(2.2rem, 8vw, 4.2rem); 
+		/* Tamanho de fonte aumentado */
+		font-size: clamp(3rem, 10vw, 5.5rem); 
 		font-weight: 700; 
 		cursor: pointer; 
 		user-select: none; 
+		/* Altura fixa para evitar achatamento */
+		height: 100%;
+		min-height: 100px;
 		background: linear-gradient(#16283a,#1e344b); 
 		color: #f5f7fa; 
-		transition: background 0.15s, transform 0.08s; 
+		transition: background 0.15s, transform 0.08s, box-shadow 0.2s; 
 		box-shadow: inset 0 0 0 1px rgba(43,127,244,0.2); 
 	}
 	
 	.tic-cell:hover { 
-		background: #254362; 
+		background: #254362;
+		box-shadow: inset 0 0 0 2px rgba(43,127,244,0.4);
 	}
 	
 	.tic-cell:active { 
@@ -101,11 +109,15 @@
 	}
 	
 	.tic-cell.filled-X { 
-		color: #2aa9ff; 
+		color: #2aa9ff;
+		background: linear-gradient(#1a3650, #233e5a);
+		box-shadow: inset 0 0 0 2px rgba(42, 169, 255, 0.3);
 	}
 	
 	.tic-cell.filled-O { 
-		color: #ff8b54; 
+		color: #ff8b54;
+		background: linear-gradient(#4a2f1a, #5a3520);
+		box-shadow: inset 0 0 0 2px rgba(255, 139, 84, 0.3);
 	}
 	
 	.tic-cell.active { 
@@ -117,13 +129,14 @@
 		display: grid; 
 		grid-template-columns: repeat(3,1fr); 
 		position: absolute; 
-		top: -1.6rem; 
+		top: -1.8rem; 
 		left: 0; 
 		width: 100%; 
-		font-size: 0.9rem; 
+		font-size: 1rem; 
 		text-transform: lowercase; 
 		color: #c6d6e5; 
 		letter-spacing: 0.05em; 
+		font-weight: 600;
 	}
 	
 	.col-labels span { 
@@ -133,12 +146,13 @@
 	.row-labels { 
 		position: absolute; 
 		top: 0; 
-		left: -1.4rem; 
+		left: -1.6rem; 
 		height: 100%; 
 		display: grid; 
 		grid-template-rows: repeat(3,1fr); 
-		font-size: 0.9rem; 
-		color: #c6d6e5; 
+		font-size: 1rem; 
+		color: #c6d6e5;
+		font-weight: 600;
 	}
 	
 	.row-labels span { 
@@ -147,12 +161,40 @@
 		justify-content: center; 
 	}
 	
-	@media (max-width: 480px) { 
+	@media (max-width: 480px) {
+		.board-wrapper {
+			max-width: 100%;
+			min-width: 280px;
+		}
+		
+		.tic-board {
+			height: 280px;
+			min-height: 280px;
+		}
+		
+		.tic-cell {
+			font-size: clamp(2.5rem, 8vw, 4rem);
+			min-height: 85px;
+		}
+		
 		.col-labels { 
-			top: -1.3rem; 
+			top: -1.5rem;
+			font-size: 0.9rem;
 		} 
 		.row-labels { 
-			left: -1.1rem; 
+			left: -1.3rem;
+			font-size: 0.9rem;
+		}
+	}
+	
+	@media (max-width: 360px) {
+		.tic-board {
+			height: 260px;
+			min-height: 260px;
+		}
+		
+		.tic-cell {
+			min-height: 80px;
 		}
 	}
 </style>

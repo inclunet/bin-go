@@ -477,7 +477,9 @@
 
 <style>
 	.tic-container { 
-		max-width: 640px; 
+		max-width: 720px; /* Aumentado de 640px */
+		min-width: 320px;
+		width: 100%;
 	}
 	
 	.game-area {

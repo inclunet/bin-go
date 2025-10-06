@@ -46,12 +46,24 @@
 
 	.score-x {
 		color: #2aa9ff;
-		font-weight: 700;
+		font-weight: 800;
+		font-size: 1.2em;
+		text-shadow: 0 0 8px rgba(42, 169, 255, 0.5);
+		background: rgba(42, 169, 255, 0.1);
+		padding: 0.2rem 0.4rem;
+		border-radius: 0.3rem;
+		border: 1px solid rgba(42, 169, 255, 0.3);
 	}
 
 	.score-o {
 		color: #ff8b54;
-		font-weight: 700;
+		font-weight: 800;
+		font-size: 1.2em;
+		text-shadow: 0 0 8px rgba(255, 139, 84, 0.5);
+		background: rgba(255, 139, 84, 0.1);
+		padding: 0.2rem 0.4rem;
+		border-radius: 0.3rem;
+		border: 1px solid rgba(255, 139, 84, 0.3);
 	}
 
 	.score-draw {
