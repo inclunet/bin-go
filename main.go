@@ -5,6 +5,7 @@ import (
 	"github.com/inclunet/bin-go/pkg/bingo"
 	"github.com/inclunet/bin-go/pkg/braille"
 	"github.com/inclunet/bin-go/pkg/server"
+	"github.com/inclunet/bin-go/pkg/tictac"
 )
 
 func main() {
@@ -33,6 +34,9 @@ func main() {
 	}
 
 	server.Logger.Info("Adding file server...")
+
+	server.Logger.Info("Adding TicTac routes...")
+	tictac.New(api).AddWsRoutes(ws)
 
 	server.AddFileServer(r)
 
