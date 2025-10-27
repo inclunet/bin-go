@@ -34,7 +34,7 @@
 		align-items: center;
 		justify-content: center;
 		gap: 0.5rem;
-		flexWrap: wrap;
+		flex-wrap: wrap;
 		color: #e8f4fd;
 		min-height: 2.5rem;
 	}
