@@ -1,0 +1,7 @@
+=== RUN   TestEnemyBoardShowsEntireSunkShip
+{"time":"2025-10-24T20:41:44.6786129-03:00","level":"INFO","msg":"Battleship Winner","round":3,"winner":"a"}
+    round_test.go:339: LastSunkShip n├úo preenchido
+--- FAIL: TestEnemyBoardShowsEntireSunkShip (0.01s)
+FAIL
+FAIL	github.com/inclunet/bin-go/pkg/battleship	0.960s
+FAIL
