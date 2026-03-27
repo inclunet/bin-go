@@ -43,8 +43,11 @@ export const adConfig = {
 	// Áreas que nunca devem ter anúncios
 	blockedAreas: [
 		'.tic-board',
-		'.tic-cell', 
+		'.tic-cell',
+		'.battleship-board',
+		'.battleship-cell',
 		'.scoreboard-container',
+		'.status-container',
 		'.game-controls',
 		'.help-modal',
 		'[role="dialog"]',
@@ -61,12 +64,23 @@ export const adConfig = {
 };
 
 // Função para verificar se um anúncio deve ser exibido
+/**
+ * Verifica se um anúncio deve ser exibido dado o posicionamento e tipo de dispositivo.
+ * @param {'top'|'bottom'|'rectangle'|'sidebar'|'auto'} placement
+ * @param {'mobile'|'tablet'|'desktop'} deviceType
+ */
 export function shouldShowAd(placement, deviceType) {
 	const allowed = adConfig.settings.allowedPlacements[deviceType] || [];
 	return allowed.includes(placement);
 }
 
 // Função para obter configuração de tamanho
+/**
+ * Obtém o tamanho configurado para o formato solicitado.
+ * @param {'mobile'|'tablet'|'desktop'} deviceType
+ * @param {'banner'|'rectangle'|'square'|'auto'} format
+ * @returns {{width:number,height:number}}
+ */
 export function getAdSize(deviceType, format) {
 	const maxSize = adConfig.settings.maxSizes[deviceType];
 	
@@ -76,10 +90,16 @@ export function getAdSize(deviceType, format) {
 		square: { width: Math.min(250, maxSize.width), height: Math.min(250, maxSize.height) }
 	};
 	
+	// Caso 'auto' escolher rectangle como padrão seguro
+	if (format === 'auto') return formatSizes.rectangle;
 	return formatSizes[format] || formatSizes.rectangle;
 }
 
 // Função para detectar tipo de dispositivo
+/**
+ * Detecta tipo de dispositivo baseado na largura atual da janela.
+ * @returns {'mobile'|'tablet'|'desktop'}
+ */
 export function getDeviceType() {
 	if (typeof window === 'undefined') return 'desktop';
 	
