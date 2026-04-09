@@ -53,9 +53,6 @@
 <Footer />
 
 <style>
-	:root {
-		font-size: 62.5%;
-	}
 	header {
 		display: flex;
 		flex-direction: column;
@@ -127,10 +124,7 @@
 			margin-left: 0;
 		}
 		header {
-			width: 15vw;
-		}
-		header {
-			width: 60vw;
+			width: 100vw;
 		}
 	}
 
@@ -149,9 +143,6 @@
 			margin-left: 5rem;
 			padding: 0;
 		}
-		header {
-			width: 110%;
-		}
 	}
 
 	@media (max-width: 571px) {
@@ -160,12 +151,9 @@
 		}
 
 		header h1 {
-			width: 35rem;
+			/* width: 35rem; */
 			margin: 0;
 			padding: 0;
-		}
-		header {
-			width: 80%;
 		}
 	}
 	/* @media (max-width: 520px) {
