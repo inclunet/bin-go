@@ -10,9 +10,9 @@
 </script>
 
 <button
-	class="btn btn-{color}"
+	class="btn"
 	data-size={size}
-	style="background-color: var({color});"
+	style="--btn-color: var({color}, var(--primary-button-color));"
 	{disabled}
 	aria-busy={ariaBusy}
 	data-bs-toggle={data_bs_toggle}
@@ -24,12 +24,31 @@
 	<strong><slot></slot></strong>
 </button>
 
-<style>
+<style lang="scss">
+	@mixin hover-darken($black-percent: 10%) {
+		background-color: var(--btn-color);
+		color: var(--black);
+
+		@media (hover: hover) {
+			&:hover {
+				background-color: color-mix(
+					in srgb,
+					var(--btn-color) #{100 - $black-percent},
+					black #{$black-percent}
+				);
+				color: var(--white);
+			}
+		}
+	}
+
 	button {
 		margin-top: 0;
-		/* padding: 1rem;
-		font-size: 2rem; */
-		/* border: 1px solid red; */
+		color: var(--black);
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+
+		@include hover-darken(15%);
 	}
 
 	button[data-size="lg"] {
@@ -41,18 +60,10 @@
 		padding: 1rem;
 		font-size: 2rem;
 	}
+
 	button[data-size="sm"] {
 		padding: 0.1rem 0.5rem;
 		font-size: 1.8rem;
-	}
-
-	/* será necessário utilizar scss para ajustar a cor do botão quando ocorrer hover  */
-	@media (hover: hover) {
-		button:hover {
-			background-color: white !important;
-			color: var(--white);
-			color: purple;
-		}
 	}
 
 	@media (max-width: 450px) {
