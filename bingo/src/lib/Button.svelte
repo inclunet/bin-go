@@ -12,7 +12,7 @@
 <button
 	class="btn"
 	data-size={size}
-	style="--btn-color: var({color}, var(--primary-button-color));"
+	style={`--btn-color: var(${color}, var(--primary-button-color));`}
 	{disabled}
 	aria-busy={ariaBusy}
 	data-bs-toggle={data_bs_toggle}
@@ -33,8 +33,8 @@
 			&:hover {
 				background-color: color-mix(
 					in srgb,
-					var(--btn-color) #{100 - $black-percent},
-					black #{$black-percent}
+					var(--btn-color) calc(100% - $black-percent),
+					black $black-percent
 				);
 				color: var(--white);
 			}
