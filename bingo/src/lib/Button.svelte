@@ -33,7 +33,7 @@
 			&:hover {
 				background-color: color-mix(
 					in srgb,
-					var(--btn-color) calc(100% - $black-percent),
+					var(--btn-color) #{100% - $black-percent},
 					black $black-percent
 				);
 				color: var(--white);
