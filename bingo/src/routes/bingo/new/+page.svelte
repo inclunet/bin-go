@@ -20,7 +20,7 @@
         }
         createError = "";
         $card = result.data;
-        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
+        goto(`/bingo/${$card.RoundID}/${$card.ID}/lobby`);
     };
 </script>
 

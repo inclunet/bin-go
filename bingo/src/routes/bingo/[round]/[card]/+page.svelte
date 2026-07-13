@@ -97,7 +97,9 @@
         }
         leavingPage = true;
         socket?.close();
-        window.location.assign(`/bingo/${$card.RoundID}/${$card.ID}`);
+        window.location.assign(
+            `/bingo/${$card.RoundID}/${$card.ID}/lobby`
+        );
     };
 
     const handlePlayCheckSoundEvent = async () => {

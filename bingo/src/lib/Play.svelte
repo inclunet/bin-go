@@ -4,12 +4,17 @@
     import { callApiResult } from "./api";
     import { card } from "./bingo";
 
+    export let roundID = "";
     let playError = "";
 
     const startGame = async () => {
+        if (!roundID) {
+            playError = "Não foi possível identificar a rodada.";
+            return;
+        }
         const result = await callApiResult(
             $card,
-            `/api/bingo/${$card.RoundID}/${$card.ID}`,
+            `/api/bingo/${roundID}/0`,
             "GET"
         );
         if (!result.ok || !result.data.RoundID || !result.data.ID) {

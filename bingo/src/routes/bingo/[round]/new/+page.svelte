@@ -9,35 +9,40 @@
     export let data;
     let loadError = "";
     let loaded = false;
+    let roundID = "";
+    let roundNumber = 0;
 
-    const loadCard = async () => {
+    const loadRound = async () => {
+        roundID = String(data.Round);
         const result = await callApiResult(
             $card,
-            `/api/bingo/${data.Round}/${data.Card}`,
+            `/api/bingo/${roundID}`,
             "GET"
         );
-        if (!result.ok || !result.data.RoundID || !result.data.ID) {
+        if (!result.ok || !result.data.ID || !result.data.Round) {
             loadError =
-                "Não foi possível criar sua cartela. Verifique o link e tente novamente.";
+                "Não foi possível abrir esta rodada. Verifique o link e tente novamente.";
             return;
         }
-        $card = result.data;
+        roundNumber = result.data.Round;
         loaded = true;
     };
 
-    onMount(loadCard);
+    onMount(loadRound);
 </script>
 
-<PageTitle title="Nova cartela, rodada {$card.Round}" game="Inclubingo" />
+<PageTitle title="Nova cartela de Inclubingo" game="Inclubingo" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
     {#if loadError}
         <p class="alert alert-danger text-center" role="alert">{loadError}</p>
     {:else if loaded}
-        <h2>Rodada #{$card.Round}</h2>
-        <p class="text-center my-3">Para jogar clique no botão "Jogar" a baixo</p>
+        <h2>Rodada #{roundNumber}</h2>
+        <p class="text-center my-3">
+            Para gerar sua cartela, clique no botão “Jogar” abaixo.
+        </p>
         <Adds />
-        <Play />
+        <Play {roundID} />
     {/if}
 </div>
 
