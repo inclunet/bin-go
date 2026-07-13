@@ -146,9 +146,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 			b.removeRound(round.ID)
 			return persistenceResponseError("rounds cannot be saved", err)
 		}
-		for i := range old.Cards {
-			_ = old.Cards[i].UpdateCard()
-		}
+		old.Publish()
 		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", players)
 	} else if err := b.persistRound(r.Context(), round); err != nil {
 		b.removeRound(round.ID)

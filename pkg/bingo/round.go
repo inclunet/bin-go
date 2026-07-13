@@ -189,9 +189,14 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 	connections := make([]*websocket.Conn, len(r.Cards))
 	writeMutexes := make([]*sync.Mutex, len(r.Cards))
 	for i := range r.Cards {
+		if r.Cards[i].writeMu == nil {
+			r.Cards[i].writeMu = &sync.Mutex{}
+		}
+		r.Cards[i].writeMu.Lock()
 		connections[i] = r.Cards[i].conn
 		writeMutexes[i] = r.Cards[i].writeMu
 		r.Cards[i].conn = nil
+		r.Cards[i].writeMu.Unlock()
 	}
 
 	return &RoundMutation{
@@ -215,21 +220,32 @@ func (m *RoundMutation) Restore(round *Round) error {
 
 func (m *RoundMutation) Publish(round *Round) {
 	m.attachConnections(round)
-	for i := range round.Cards {
-		_ = round.Cards[i].UpdateCard()
+	round.Publish()
+}
+
+func (r *Round) Publish() {
+	for i := range r.Cards {
+		send, err := r.Cards[i].PrepareUpdate()
+		if err == nil {
+			go func() {
+				_ = send()
+			}()
+		}
 	}
 }
 
 func (m *RoundMutation) attachConnections(round *Round) {
 	for i := range round.Cards {
-		if i < len(m.connections) {
-			round.Cards[i].conn = m.connections[i]
-		}
 		if i < len(m.writeMutexes) && m.writeMutexes[i] != nil {
 			round.Cards[i].writeMu = m.writeMutexes[i]
 		} else {
 			round.Cards[i].writeMu = &sync.Mutex{}
 		}
+		round.Cards[i].writeMu.Lock()
+		if i < len(m.connections) {
+			round.Cards[i].conn = m.connections[i]
+		}
+		round.Cards[i].writeMu.Unlock()
 	}
 }
 
