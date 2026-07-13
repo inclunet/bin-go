@@ -3,9 +3,12 @@ package bingo
 import (
 	"context"
 	"encoding/json"
+	"net/http/httptest"
+	"sync"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type fakeStore struct {
@@ -61,6 +64,12 @@ func TestRoundAndCardsUseUUIDs(t *testing.T) {
 	}
 }
 
+func TestNilPoolCreatesNilStore(t *testing.T) {
+	if store := NewPostgresStore(nil); store != nil {
+		t.Fatal("nil pool created a non-nil store")
+	}
+}
+
 func TestNewRoundUsesNextHighestDisplayNumber(t *testing.T) {
 	game := &Bingo{Rounds: []*Round{{Round: 1}, {Round: 2}, {Round: 4}}}
 
@@ -109,6 +118,37 @@ func TestRoundMutationRestoresFailedDraw(t *testing.T) {
 	}
 	if round.Cards[0].LastNumber != 0 {
 		t.Fatalf("main card kept last number %d after rollback", round.Cards[0].LastNumber)
+	}
+}
+
+func TestCompletedRoundDoesNotToggleFreeSpace(t *testing.T) {
+	game, err := NewWithStore(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	roundValue := NewRound(game, 75)
+	round := &roundValue
+	player, err := round.AddCard()
+	if err != nil {
+		t.Fatal(err)
+	}
+	round.Cards[0].Checked = round.Type
+	game.Rounds = append(game.Rounds, round)
+	game.roundsByID[round.ID] = round
+	game.roundLocks[round.ID] = &sync.Mutex{}
+
+	main := &round.Cards[0]
+	request := httptest.NewRequest("GET", "/", nil)
+	request = mux.SetURLVars(request, map[string]string{
+		"round": round.ID,
+		"card":  main.ID,
+	})
+
+	if _, err := game.DrawHandler(request); err != nil {
+		t.Fatal(err)
+	}
+	if !player.Numbers[2][2].Checked {
+		t.Fatal("completed draw unchecked the player's free space")
 	}
 }
 

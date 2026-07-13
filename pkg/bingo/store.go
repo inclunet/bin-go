@@ -22,7 +22,7 @@ type PostgresStore struct {
 	pool *pgxpool.Pool
 }
 
-func NewPostgresStore(pool *pgxpool.Pool) *PostgresStore {
+func NewPostgresStore(pool *pgxpool.Pool) Store {
 	if pool == nil {
 		return nil
 	}

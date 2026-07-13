@@ -38,7 +38,12 @@ func main() {
 		server.Logger.Warn("DATABASE_URL is not configured; bingo persistence is disabled")
 	}
 
-	bingoGame, err := bingo.NewWithStore(api, bingo.NewPostgresStore(pool))
+	var bingoStore bingo.Store
+	if pool != nil {
+		bingoStore = bingo.NewPostgresStore(pool)
+	}
+
+	bingoGame, err := bingo.NewWithStore(api, bingoStore)
 	if err != nil {
 		server.Logger.Error("Bingo startup failed", "error", err)
 		return

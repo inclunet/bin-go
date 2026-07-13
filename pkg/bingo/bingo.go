@@ -207,6 +207,10 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusInternalServerError, err)
 	}
 	number := card.Draw()
+	if number == 0 {
+		mutation.Publish(round)
+		return server.NewResponse(card)
+	}
 
 	checked, Unchecked := round.ToggleNumberForAll(number)
 	if err := b.persistRound(r.Context(), round); err != nil {
