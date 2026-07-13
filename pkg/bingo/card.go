@@ -478,8 +478,12 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 		c.writeMu = &sync.Mutex{}
 	}
 	c.writeMu.Lock()
+	previous := c.conn
 	c.conn = conn
 	c.writeMu.Unlock()
+	if previous != nil && previous != conn {
+		_ = previous.Close()
+	}
 
 	return true
 }
