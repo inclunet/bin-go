@@ -1,6 +1,7 @@
 package bingo
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"sync"
@@ -547,29 +548,51 @@ func (c *Card) UncheckNumber(number int) bool {
 }
 
 func (c *Card) UpdateCard() error {
+	send, err := c.PrepareUpdate()
+	if err != nil {
+		return err
+	}
+
+	return send()
+}
+
+// PrepareUpdate snapshots the card while its caller holds the round lock and
+// reserves the next WebSocket write. The returned function performs network
+// I/O after the caller releases the round lock.
+func (c *Card) PrepareUpdate() (func() error, error) {
 	if c.writeMu == nil {
 		c.writeMu = &sync.Mutex{}
 	}
 	c.writeMu.Lock()
-	defer c.writeMu.Unlock()
 
 	if c.conn == nil {
-		return nil
+		c.writeMu.Unlock()
+		return func() error { return nil }, nil
+	}
+
+	payload, err := json.Marshal(c)
+	if err != nil {
+		c.writeMu.Unlock()
+		return nil, err
 	}
 
 	conn := c.conn
-	if err := conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
-		_ = conn.Close()
-		c.conn = nil
-		return err
-	}
-	if err := conn.WriteJSON(c); err != nil {
-		_ = conn.Close()
-		c.conn = nil
-		return err
-	}
+	return func() error {
+		defer c.writeMu.Unlock()
 
-	return nil
+		if err := conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
+			_ = conn.Close()
+			c.conn = nil
+			return err
+		}
+		if err := conn.WriteMessage(websocket.TextMessage, payload); err != nil {
+			_ = conn.Close()
+			c.conn = nil
+			return err
+		}
+
+		return nil
+	}, nil
 }
 
 // NewCard creates a new bingo card.

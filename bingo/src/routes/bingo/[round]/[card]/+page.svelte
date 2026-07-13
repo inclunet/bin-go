@@ -30,6 +30,7 @@
     let pollingInterval;
     let pollingInFlight = false;
     let leavingPage = false;
+    let cardLoaded = false;
     let loadError = "";
     let actionError = "";
 
@@ -193,10 +194,12 @@
         );
         if (!loaded) {
             actionError = "";
+            cardLoaded = false;
             loadError =
                 "Não foi possível carregar esta cartela. Verifique o link e tente novamente.";
             return;
         }
+        cardLoaded = true;
         loadError = "";
 
         if ("WebSocket" in window) {
@@ -277,17 +280,18 @@
     });
 </script>
 
-<PageTitle
-    title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}"
-    game="Inclubingo"
-/>
 {#if loadError}
+    <PageTitle title="Inclubingo - Cartela indisponível" game="Inclubingo" />
     <p class="alert alert-danger text-center" role="alert">{loadError}</p>
-{/if}
-{#if actionError}
-    <p class="alert alert-danger text-center" role="alert">{actionError}</p>
-{/if}
-<div class="container container-card">
+{:else if cardLoaded}
+    <PageTitle
+        title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}"
+        game="Inclubingo"
+    />
+    {#if actionError}
+        <p class="alert alert-danger text-center" role="alert">{actionError}</p>
+    {/if}
+    <div class="container container-card">
     {#if $card.Card == 1}
         <MediaQuery query="(min-width: 1150px)" let:matches>
             {#if matches}
@@ -375,19 +379,20 @@
     >
         <Adds />
     </div>
-</div>
+    </div>
 
-<TableModalCard title="Configurações">
-    <Completions
-        card={$card.Card}
-        bind:config
-        bind:completions={$card.Completions}
-        on:saveCompletions={handleSaveCompletions}
-    />
-</TableModalCard>
+    <TableModalCard title="Configurações">
+        <Completions
+            card={$card.Card}
+            bind:config
+            bind:completions={$card.Completions}
+            on:saveCompletions={handleSaveCompletions}
+        />
+    </TableModalCard>
 
-<audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
-<audio bind:this={checkAudio} src="/pop.mp3"></audio>
+    <audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
+    <audio bind:this={checkAudio} src="/pop.mp3"></audio>
+{/if}
 
 <style>
     :root {

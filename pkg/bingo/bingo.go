@@ -362,8 +362,14 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 		_ = conn.Close()
 		return
 	}
+	sendUpdate, err := card.PrepareUpdate()
+	if err != nil {
+		roundLock.Unlock()
+		_ = conn.Close()
+		return
+	}
 	roundLock.Unlock()
-	if err := card.UpdateCard(); err != nil {
+	if err := sendUpdate(); err != nil {
 		_ = conn.Close()
 	}
 }
