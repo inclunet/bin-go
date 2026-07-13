@@ -1,5 +1,3 @@
-import { error } from "@sveltejs/kit";
-
 /**
  * @template T
  * @param {T} data
@@ -9,6 +7,19 @@ import { error } from "@sveltejs/kit";
  * @returns {Promise<T>}
  */
 export const callApi = async (data, url = "", method = "GET", body = null) => {
+    const result = await callApiResult(data, url, method, body);
+    return result.data;
+};
+
+/**
+ * @template T
+ * @param {T} data
+ * @param {string} url
+ * @param {string} method
+ * @param {unknown} body
+ * @returns {Promise<{data: T, ok: boolean}>}
+ */
+export const callApiResult = async (data, url = "", method = "GET", body = null) => {
     const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
     console.log(url);
     console.log(method)
@@ -40,10 +51,10 @@ export const callApi = async (data, url = "", method = "GET", body = null) => {
             data = await response.json();
         }
 
-        return data;
+        return { data, ok: response.status === 200 };
     } catch (error) {
         console.error("Error:", error);
-        return data;
+        return { data, ok: false };
     }
 };
 

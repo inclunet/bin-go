@@ -7,7 +7,7 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
     import Play from "$lib/Play.svelte";
-    import { callApi, getWSEndpoint } from "$lib/api";
+    import { callApi, callApiResult, getWSEndpoint } from "$lib/api";
     import Completions from "$lib/bingo/Completions.svelte";
     import TableModalCard from "$lib/TableModalCard.svelte";
     import MediaQuery from "$lib/MediaQuery.svelte";
@@ -170,7 +170,11 @@
     };
 
     const updateCard = async (path = "") => {
-        const updated = await callApi($card, path, "GET");
+        const result = await callApiResult($card, path, "GET");
+        if (!result.ok) {
+            return false;
+        }
+        const updated = result.data;
         if (
             !updated.ID ||
             !updated.RoundID ||
