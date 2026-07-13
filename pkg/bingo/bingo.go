@@ -42,6 +42,11 @@ func (b *Bingo) persistRounds(ctx context.Context, rounds ...*Round) error {
 	return b.store.SaveRounds(ctx, rounds...)
 }
 
+func persistenceResponseError(message string, err error) (*server.Response, error) {
+	server.Logger.Error(message, "error", err)
+	return server.NewResponseError(http.StatusInternalServerError, errors.New(message))
+}
+
 func (b *Bingo) getRoundAndLock(roundID string) (*Round, *sync.Mutex, error) {
 	b.mu.RLock()
 	round := b.roundsByID[roundID]
@@ -86,7 +91,7 @@ func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 	if err := b.persistRound(r.Context(), round); err != nil {
 		round.Cards = round.Cards[:len(round.Cards)-1]
 		round.RelinkCards()
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("new card cannot be saved: %w", err))
+		return persistenceResponseError("new card cannot be saved", err)
 	}
 
 	b.Log("Add Bingo Card", card)
@@ -139,7 +144,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
 			}
 			b.removeRound(round.ID)
-			return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("rounds cannot be saved: %w", err))
+			return persistenceResponseError("rounds cannot be saved", err)
 		}
 		for i := range old.Cards {
 			_ = old.Cards[i].UpdateCard()
@@ -147,7 +152,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", players)
 	} else if err := b.persistRound(r.Context(), round); err != nil {
 		b.removeRound(round.ID)
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("round cannot be saved: %w", err))
+		return persistenceResponseError("round cannot be saved", err)
 	}
 
 	b.Log("Add Bingo Round", card)
@@ -176,7 +181,7 @@ func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
 	card.CancelAlert()
 	if err := b.persistRound(r.Context(), round); err != nil {
 		_ = mutation.Restore(round)
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("card cannot be saved: %w", err))
+		return persistenceResponseError("card cannot be saved", err)
 	}
 	mutation.Publish(round)
 
@@ -215,7 +220,7 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 	checked, Unchecked := round.ToggleNumberForAll(number)
 	if err := b.persistRound(r.Context(), round); err != nil {
 		_ = mutation.Restore(round)
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("draw cannot be saved: %w", err))
+		return persistenceResponseError("draw cannot be saved", err)
 	}
 	mutation.Publish(round)
 
@@ -419,7 +424,7 @@ func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error)
 	}
 	if err := b.persistRound(h.Context(), round); err != nil {
 		_ = mutation.Restore(round)
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("completions cannot be saved: %w", err))
+		return persistenceResponseError("completions cannot be saved", err)
 	}
 	mutation.Publish(round)
 
@@ -449,7 +454,7 @@ func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, e
 	card.ToggleAutoplay()
 	if err := b.persistRound(r.Context(), round); err != nil {
 		_ = mutation.Restore(round)
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("autoplay cannot be saved: %w", err))
+		return persistenceResponseError("autoplay cannot be saved", err)
 	}
 	mutation.Publish(round)
 
@@ -487,7 +492,7 @@ func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) 
 	}
 	if err := b.persistRound(r.Context(), round); err != nil {
 		_ = mutation.Restore(round)
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("card number cannot be saved: %w", err))
+		return persistenceResponseError("card number cannot be saved", err)
 	}
 	mutation.Publish(round)
 

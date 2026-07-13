@@ -110,7 +110,6 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 	if err := cardRows.Err(); err != nil {
 		return nil, fmt.Errorf("iterate bingo cards: %w", err)
 	}
-	cardRows.Close()
 
 	drawnByRound := make(map[string]map[int]bool)
 	drawRows, err := s.pool.Query(ctx, `SELECT round_id, number FROM bingo_draws`)
@@ -192,6 +191,11 @@ func (s *PostgresStore) SaveRounds(ctx context.Context, rounds ...*Round) error 
 }
 
 func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
+	roundID, err := uuid.Parse(round.ID)
+	if err != nil {
+		return fmt.Errorf("parse bingo round id %q: %w", round.ID, err)
+	}
+
 	var nextRoundID interface{}
 	if round.NextRoundID != "" {
 		parsed, err := uuid.Parse(round.NextRoundID)
@@ -209,12 +213,16 @@ func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
 			type = EXCLUDED.type,
 			next_round_id = EXCLUDED.next_round_id,
 			updated_at = NOW()
-	`, round.ID, round.Round, round.Type, nextRoundID); err != nil {
+	`, roundID, round.Round, round.Type, nextRoundID); err != nil {
 		return fmt.Errorf("save bingo round %s: %w", round.ID, err)
 	}
 
 	for i := range round.Cards {
 		card := &round.Cards[i]
+		cardID, err := uuid.Parse(card.ID)
+		if err != nil {
+			return fmt.Errorf("parse bingo card id %q: %w", card.ID, err)
+		}
 		state, err := json.Marshal(card)
 		if err != nil {
 			return fmt.Errorf("encode bingo card %s: %w", card.ID, err)
@@ -227,12 +235,12 @@ func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
 				display_number = EXCLUDED.display_number,
 				state = EXCLUDED.state,
 				updated_at = NOW()
-		`, card.ID, round.ID, card.Card, state); err != nil {
+		`, cardID, roundID, card.Card, state); err != nil {
 			return fmt.Errorf("save bingo card %s: %w", card.ID, err)
 		}
 	}
 
-	if _, err := tx.Exec(ctx, `DELETE FROM bingo_draws WHERE round_id = $1`, round.ID); err != nil {
+	if _, err := tx.Exec(ctx, `DELETE FROM bingo_draws WHERE round_id = $1`, roundID); err != nil {
 		return fmt.Errorf("clear bingo draws for round %s: %w", round.ID, err)
 	}
 
@@ -247,7 +255,7 @@ func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
 					INSERT INTO bingo_draws (round_id, number)
 					VALUES ($1, $2)
 					ON CONFLICT DO NOTHING
-				`, round.ID, number.Number); err != nil {
+				`, roundID, number.Number); err != nil {
 					return fmt.Errorf("save bingo draw for round %s: %w", round.ID, err)
 				}
 			}

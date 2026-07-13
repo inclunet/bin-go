@@ -21,9 +21,6 @@ export const callApi = async (data, url = "", method = "GET", body = null) => {
  */
 export const callApiResult = async (data, url = "", method = "GET", body = null) => {
     const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
-    console.log(url);
-    console.log(method)
-    console.log(body)
     try {
         const response = await fetch(url, {
             method: method,
@@ -68,6 +65,5 @@ export const getWSEndpoint = (path = "") => {
     }
 
     url = url.replace(document.location.pathname, path);
-    console.log(url);
     return url;
 };
