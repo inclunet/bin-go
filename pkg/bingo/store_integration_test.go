@@ -66,8 +66,11 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(loaded) != 1 || len(loaded[0].Cards) != 2 {
-		t.Fatalf("loaded %d rounds and %d cards", len(loaded), len(loaded[0].Cards))
+	if len(loaded) != 1 {
+		t.Fatalf("loaded %d rounds, want 1", len(loaded))
+	}
+	if len(loaded[0].Cards) != 2 {
+		t.Fatalf("loaded %d cards, want 2", len(loaded[0].Cards))
 	}
 	if loaded[0].ID != round.ID || loaded[0].Cards[1].ID != round.Cards[1].ID {
 		t.Fatal("round or card UUID did not survive the database round trip")
