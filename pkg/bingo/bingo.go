@@ -13,9 +13,11 @@ import (
 )
 
 type Bingo struct {
-	Rounds []Round
-	store  Store
-	mu     sync.RWMutex
+	Rounds     []*Round
+	store      Store
+	roundsByID map[string]*Round
+	roundLocks map[string]*sync.Mutex
+	mu         sync.RWMutex
 }
 
 type PublicRound struct {
@@ -40,15 +42,27 @@ func (b *Bingo) persistRounds(ctx context.Context, rounds ...*Round) error {
 	return b.store.SaveRounds(ctx, rounds...)
 }
 
-func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
+func (b *Bingo) getRoundAndLock(roundID string) (*Round, *sync.Mutex, error) {
+	b.mu.RLock()
+	round := b.roundsByID[roundID]
+	roundLock := b.roundLocks[roundID]
+	b.mu.RUnlock()
 
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	if round == nil || roundLock == nil {
+		return nil, nil, fmt.Errorf("round %s not found", roundID)
+	}
+
+	roundLock.Lock()
+	return round, roundLock, nil
+}
+
+func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.AddCard()
 
@@ -72,13 +86,10 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 
 	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
 
-	b.Rounds = append(b.Rounds, newRound)
-
-	round, err := b.GetRoundByID(newRound.ID)
-
-	if err != nil {
-		return server.NewResponseError(http.StatusInternalServerError, errors.New("round cannot be added"))
-	}
+	round := &newRound
+	b.Rounds = append(b.Rounds, round)
+	b.roundsByID[round.ID] = round
+	b.roundLocks[round.ID] = &sync.Mutex{}
 
 	card, err := round.GetCard(0)
 
@@ -86,9 +97,13 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	old, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	old := b.roundsByID[server.GetURLParam(r, "round")]
 
-	if err == nil {
+	if old != nil {
+		oldLock := b.roundLocks[old.ID]
+		oldLock.Lock()
+		defer oldLock.Unlock()
+
 		previousRoundID := old.NextRoundID
 		previousNextRounds := make([]int, len(old.Cards))
 		previousNextRoundIDs := make([]string, len(old.Cards))
@@ -105,6 +120,8 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
 			}
 			b.Rounds = b.Rounds[:len(b.Rounds)-1]
+			delete(b.roundsByID, round.ID)
+			delete(b.roundLocks, round.ID)
 			return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("rounds cannot be saved: %w", err))
 		}
 		for i := range old.Cards {
@@ -113,6 +130,8 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", players)
 	} else if err := b.persistRound(r.Context(), round); err != nil {
 		b.Rounds = b.Rounds[:len(b.Rounds)-1]
+		delete(b.roundsByID, round.ID)
+		delete(b.roundLocks, round.ID)
 		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("round cannot be saved: %w", err))
 	}
 
@@ -122,14 +141,12 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCardByID(server.GetURLParam(r, "card"))
 
@@ -137,10 +154,16 @@ func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
+	mutation, err := round.BeginMutation()
+	if err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, err)
+	}
 	card.CancelAlert()
 	if err := b.persistRound(r.Context(), round); err != nil {
+		_ = mutation.Restore(round)
 		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("card cannot be saved: %w", err))
 	}
+	mutation.Publish(round)
 
 	b.Log("Cancel Bingo Alert", card)
 
@@ -148,14 +171,12 @@ func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCard(0)
 
@@ -166,12 +187,18 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusForbidden, errors.New("only the main card can draw numbers"))
 	}
 
+	mutation, err := round.BeginMutation()
+	if err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, err)
+	}
 	number := card.Draw()
 
 	checked, Unchecked := round.ToggleNumberForAll(number)
 	if err := b.persistRound(r.Context(), round); err != nil {
+		_ = mutation.Restore(round)
 		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("draw cannot be saved: %w", err))
 	}
+	mutation.Publish(round)
 
 	b.Log("Draw new Random Bingo Number", card, "number", number, "checked", checked, "unchecked", Unchecked)
 
@@ -179,14 +206,12 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
-	b.mu.RLock()
-	defer b.mu.RUnlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCardByID(server.GetURLParam(r, "card"))
 
@@ -200,14 +225,12 @@ func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
-	b.mu.RLock()
-	defer b.mu.RUnlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCard(0)
 
@@ -223,32 +246,35 @@ func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) GetRound(round int) (*Round, error) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
 	if round < 0 || round >= len(b.Rounds) || len(b.Rounds) == 0 {
 		return nil, fmt.Errorf("Round %d not found", round)
 	}
 
-	return &b.Rounds[round], nil
+	return b.Rounds[round], nil
 }
 
 func (b *Bingo) GetRoundByID(roundID string) (*Round, error) {
-	for i := range b.Rounds {
-		if b.Rounds[i].ID == roundID {
-			return &b.Rounds[i], nil
-		}
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	round := b.roundsByID[roundID]
+	if round != nil {
+		return round, nil
 	}
 
 	return nil, fmt.Errorf("round %s not found", roundID)
 }
 
 func (b *Bingo) GetRoundsHandler(r *http.Request) (*server.Response, error) {
-	b.mu.RLock()
-	defer b.mu.RUnlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCard(0)
 
@@ -266,10 +292,7 @@ func (b *Bingo) GetRoundsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		response, err := server.NewResponseError(http.StatusNotFound, fmt.Errorf("round not found"))
@@ -277,6 +300,7 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 		response.SendHasJson(w)
 		return
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCardByID(server.GetURLParam(r, "card"))
 
@@ -329,14 +353,12 @@ func (b *Bingo) Log(msg string, card *Card, complement ...any) {
 }
 
 func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(h, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(h, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	completions := NewDefaultCompletions()
 
@@ -355,14 +377,21 @@ func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error)
 		return server.NewResponseError(http.StatusForbidden, errors.New("only the main card can configure completions"))
 	}
 
-	counter, err := round.SetCompletionsForAll(completions)
-
+	mutation, err := round.BeginMutation()
 	if err != nil {
 		return server.NewResponseError(http.StatusInternalServerError, err)
 	}
+	counter, err := round.SetCompletionsForAll(completions)
+
+	if err != nil {
+		_ = mutation.Restore(round)
+		return server.NewResponseError(http.StatusInternalServerError, err)
+	}
 	if err := b.persistRound(h.Context(), round); err != nil {
+		_ = mutation.Restore(round)
 		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("completions cannot be saved: %w", err))
 	}
+	mutation.Publish(round)
 
 	b.Log("Set new Completions Values for the bingo Round", card, "counter", counter, "completions", card.Completions)
 
@@ -370,14 +399,12 @@ func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error)
 }
 
 func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCardByID(server.GetURLParam(r, "card"))
 
@@ -385,10 +412,16 @@ func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, e
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
+	mutation, err := round.BeginMutation()
+	if err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, err)
+	}
 	card.ToggleAutoplay()
 	if err := b.persistRound(r.Context(), round); err != nil {
+		_ = mutation.Restore(round)
 		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("autoplay cannot be saved: %w", err))
 	}
+	mutation.Publish(round)
 
 	b.Log("Toggle Bingo Card Autoplay", card)
 
@@ -396,14 +429,12 @@ func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, e
 }
 
 func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	round, err := b.GetRoundByID(server.GetURLParam(r, "round"))
+	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
 	}
+	defer roundLock.Unlock()
 
 	card, err := round.GetCardByID(server.GetURLParam(r, "card"))
 
@@ -411,6 +442,10 @@ func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) 
 		return server.NewResponseError(http.StatusNotFound, errors.New("card not found"))
 	}
 
+	mutation, err := round.BeginMutation()
+	if err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, err)
+	}
 	if card.ToggleNumber(server.GetURLParamHasInt(r, "number")) && card.Card > 1 {
 		b.Log("Toggle Bingo Card Number", card, "number", server.GetURLParamHasInt(r, "number"))
 	}
@@ -421,8 +456,10 @@ func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) 
 		b.Log("Toggle Bingo Card Number for All", card, "number", server.GetURLParamHasInt(r, "number"), "checked", checked, "unchecked", unchecked)
 	}
 	if err := b.persistRound(r.Context(), round); err != nil {
+		_ = mutation.Restore(round)
 		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("card number cannot be saved: %w", err))
 	}
+	mutation.Publish(round)
 
 	return server.NewResponse(card)
 }
@@ -456,8 +493,10 @@ func New(routes *mux.Router) *Bingo {
 
 func NewWithStore(routes *mux.Router, store Store) (b *Bingo, err error) {
 	b = &Bingo{
-		Rounds: []Round{},
-		store:  store,
+		Rounds:     []*Round{},
+		store:      store,
+		roundsByID: make(map[string]*Round),
+		roundLocks: make(map[string]*sync.Mutex),
 	}
 
 	if store != nil {
@@ -467,6 +506,8 @@ func NewWithStore(routes *mux.Router, store Store) (b *Bingo, err error) {
 		}
 		for i := range b.Rounds {
 			b.Rounds[i].RestoreRuntime()
+			b.roundsByID[b.Rounds[i].ID] = b.Rounds[i]
+			b.roundLocks[b.Rounds[i].ID] = &sync.Mutex{}
 		}
 	}
 

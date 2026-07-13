@@ -3,7 +3,7 @@ WORKDIR /app
 COPY ./ .
 RUN go build -o inclugames main.go
 
-FROM node:18 as build-frontend
+FROM node:20 AS build-frontend
 WORKDIR /app
 COPY ./bingo .
 RUN npm install

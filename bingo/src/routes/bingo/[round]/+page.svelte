@@ -1,96 +1,29 @@
 <script>
-    import { page } from "$app/stores";
     import PageTitle from "$lib/PageTitle.svelte";
-    import StartRound from "$lib/StartRound.svelte";
     import { onMount } from "svelte";
-    import { card } from "$lib/bingo";
-    import { callApi } from "$lib/api.js";
     import { goto } from "$app/navigation";
 
     export let data;
-    let hostCardID = "";
 
-    const loadCard = async () => {
-        const round = await callApi(
-            { ID: "", Round: 0, Type: 75 },
-            `/api/bingo/${data.Round}`,
-            "GET"
-        );
-        $card.RoundID = round.ID;
-        $card.Round = round.Round;
-        $card.Type = round.Type;
-        hostCardID = localStorage.getItem(`bingo-host:${round.ID}`) || "";
-    };
-
-    const handleCallToAction = async () => {
-        if (!hostCardID) {
-            goto(`/bingo/${data.Round}/new`);
-            return;
-        }
-
-        $card = await callApi(
-            $card,
-            `/api/bingo/${data.Round}/${hostCardID}`,
-            "GET"
-        );
-        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
-    };
-
-    onMount(loadCard);
+    onMount(() => goto(`/bingo/${data.Round}/new`));
 </script>
 
-<PageTitle
-    title="Sorteio de Cartelas, rodada {$card.Round}"
-    game="Inclubingo"
-/>
+<PageTitle title="Entrar na rodada" game="Inclubingo" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
-    <h2 class="text-center">Rodada #{$card.Round}</h2>
-
-    <p class="text-center">
-        Aponte a câmera do seu celular aqui para pegar a sua cartela ou acesse o
-        link:
-        <strong>
-            <a href="{$page.url}/new" id="link_jogo">{$page.url}/new</a>
-        </strong>
-    </p>
-    <div id="qr_code" class="d-flex">
-        <img src="/qr/bingo/{$card.RoundID}" alt="QR-Code" />
-    </div>
-    <StartRound on:callToAction={handleCallToAction} />
+    <p class="text-center">Redirecionando para criar sua cartela…</p>
 </div>
 
 <style>
     :root {
         font-size: 62.5%;
     }
-    h2 {
-        margin-top: 4rem;
-        font-size: 2.8rem;
-    }
     p {
         padding: 0 1rem 0 1rem;
         font-size: 1.8rem;
     }
 
-    a#link_jogo {
-        word-break: break-word;
-    }
-
-    #qr_code {
-        margin: 1rem 0 1.5rem 0;
-    }
-    img {
-        width: 24.8rem;
-        height: 20.8rem;
-    }
-
     @media (max-width: 450px) {
-        h2 {
-            margin: 0;
-            padding: 1rem 0 1rem 0;
-            font-size: 2.3rem;
-        }
         p {
             margin: 0;
             margin-bottom: 2rem;

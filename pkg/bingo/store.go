@@ -13,7 +13,7 @@ import (
 )
 
 type Store interface {
-	LoadRounds(context.Context) ([]Round, error)
+	LoadRounds(context.Context) ([]*Round, error)
 	SaveRound(context.Context, *Round) error
 	SaveRounds(context.Context, ...*Round) error
 }
@@ -30,7 +30,7 @@ func NewPostgresStore(pool *pgxpool.Pool) *PostgresStore {
 	return &PostgresStore{pool: pool}
 }
 
-func (s *PostgresStore) LoadRounds(ctx context.Context) ([]Round, error) {
+func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT id, display_number, type, next_round_id
 		FROM bingo_rounds
@@ -41,14 +41,14 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]Round, error) {
 	}
 	defer rows.Close()
 
-	rounds := make([]Round, 0)
+	rounds := make([]*Round, 0)
 	roundByID := make(map[string]*Round)
 
 	for rows.Next() {
 		var (
 			id          uuid.UUID
 			nextRoundID pgtype.UUID
-			round       Round
+			round       = &Round{}
 		)
 
 		if err := rows.Scan(&id, &round.Round, &round.Type, &nextRoundID); err != nil {
@@ -68,7 +68,7 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]Round, error) {
 	}
 
 	for i := range rounds {
-		roundByID[rounds[i].ID] = &rounds[i]
+		roundByID[rounds[i].ID] = rounds[i]
 	}
 
 	cardRows, err := s.pool.Query(ctx, `
@@ -110,15 +110,61 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]Round, error) {
 	if err := cardRows.Err(); err != nil {
 		return nil, fmt.Errorf("iterate bingo cards: %w", err)
 	}
+	cardRows.Close()
+
+	drawnByRound := make(map[string]map[int]bool)
+	drawRows, err := s.pool.Query(ctx, `SELECT round_id, number FROM bingo_draws`)
+	if err != nil {
+		return nil, fmt.Errorf("load bingo draws: %w", err)
+	}
+	defer drawRows.Close()
+
+	for drawRows.Next() {
+		var (
+			roundID uuid.UUID
+			number  int
+		)
+		if err := drawRows.Scan(&roundID, &number); err != nil {
+			return nil, fmt.Errorf("scan bingo draw: %w", err)
+		}
+		id := roundID.String()
+		if drawnByRound[id] == nil {
+			drawnByRound[id] = make(map[int]bool)
+		}
+		drawnByRound[id][number] = true
+	}
+	if err := drawRows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate bingo draws: %w", err)
+	}
 
 	for i := range rounds {
 		sort.Slice(rounds[i].Cards, func(a, b int) bool {
 			return rounds[i].Cards[a].Card < rounds[i].Cards[b].Card
 		})
+		restoreDrawnNumbers(rounds[i], drawnByRound[rounds[i].ID])
 		rounds[i].RestoreRuntime()
 	}
 
 	return rounds, nil
+}
+
+func restoreDrawnNumbers(round *Round, drawn map[int]bool) {
+	if len(round.Cards) == 0 {
+		return
+	}
+
+	main := &round.Cards[0]
+	main.Checked = 0
+	for line := range main.Numbers {
+		for column := range main.Numbers[line] {
+			number := &main.Numbers[line][column]
+			number.Checked = drawn[number.Number]
+			if number.Checked {
+				main.Checked++
+			}
+		}
+	}
+	main.Finished = main.IsFinished()
 }
 
 func (s *PostgresStore) SaveRound(ctx context.Context, round *Round) error {

@@ -1,6 +1,7 @@
 package bingo
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -13,6 +14,12 @@ type Round struct {
 	Round       int
 	Type        int
 	NextRoundID string
+	upgrader    websocket.Upgrader
+}
+
+type RoundMutation struct {
+	snapshot    []byte
+	connections []*websocket.Conn
 	upgrader    websocket.Upgrader
 }
 
@@ -167,6 +174,51 @@ func (r *Round) RelinkCards() {
 	main := &r.Cards[0]
 	for i := 1; i < len(r.Cards); i++ {
 		r.Cards[i].Main = main
+	}
+}
+
+func (r *Round) BeginMutation() (*RoundMutation, error) {
+	snapshot, err := json.Marshal(r)
+	if err != nil {
+		return nil, fmt.Errorf("snapshot bingo round: %w", err)
+	}
+
+	connections := make([]*websocket.Conn, len(r.Cards))
+	for i := range r.Cards {
+		connections[i] = r.Cards[i].conn
+		r.Cards[i].conn = nil
+	}
+
+	return &RoundMutation{
+		snapshot:    snapshot,
+		connections: connections,
+		upgrader:    r.upgrader,
+	}, nil
+}
+
+func (m *RoundMutation) Restore(round *Round) error {
+	if err := json.Unmarshal(m.snapshot, round); err != nil {
+		return fmt.Errorf("restore bingo round: %w", err)
+	}
+
+	round.upgrader = m.upgrader
+	round.RelinkCards()
+	m.attachConnections(round)
+	return nil
+}
+
+func (m *RoundMutation) Publish(round *Round) {
+	m.attachConnections(round)
+	for i := range round.Cards {
+		_ = round.Cards[i].UpdateCard()
+	}
+}
+
+func (m *RoundMutation) attachConnections(round *Round) {
+	for i := range round.Cards {
+		if i < len(m.connections) {
+			round.Cards[i].conn = m.connections[i]
+		}
 	}
 }
 

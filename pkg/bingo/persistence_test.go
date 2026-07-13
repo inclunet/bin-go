@@ -9,17 +9,17 @@ import (
 )
 
 type fakeStore struct {
-	rounds []Round
+	rounds []*Round
 	saved  int
 }
 
-func (s *fakeStore) LoadRounds(context.Context) ([]Round, error) {
+func (s *fakeStore) LoadRounds(context.Context) ([]*Round, error) {
 	return s.rounds, nil
 }
 
 func (s *fakeStore) SaveRound(_ context.Context, round *Round) error {
 	s.saved++
-	s.rounds = []Round{*round}
+	s.rounds = []*Round{round}
 	return nil
 }
 
@@ -62,7 +62,7 @@ func TestRoundAndCardsUseUUIDs(t *testing.T) {
 }
 
 func TestNewRoundUsesNextHighestDisplayNumber(t *testing.T) {
-	game := &Bingo{Rounds: []Round{{Round: 1}, {Round: 2}, {Round: 4}}}
+	game := &Bingo{Rounds: []*Round{{Round: 1}, {Round: 2}, {Round: 4}}}
 
 	round := NewRound(game, 75)
 
@@ -85,6 +85,30 @@ func TestAddingCardRelinksMainCard(t *testing.T) {
 		if round.Cards[i].Main != main {
 			t.Fatalf("card %d is not linked to the current main card", i+1)
 		}
+	}
+}
+
+func TestRoundMutationRestoresFailedDraw(t *testing.T) {
+	round := NewRound(&Bingo{}, 75)
+	if _, err := round.AddCard(); err != nil {
+		t.Fatal(err)
+	}
+
+	mutation, err := round.BeginMutation()
+	if err != nil {
+		t.Fatal(err)
+	}
+	number := round.Draw().LastNumber
+	round.ToggleNumberForAll(number)
+
+	if err := mutation.Restore(&round); err != nil {
+		t.Fatal(err)
+	}
+	if round.Cards[0].Checked != 0 {
+		t.Fatalf("main card kept %d checked numbers after rollback", round.Cards[0].Checked)
+	}
+	if round.Cards[0].LastNumber != 0 {
+		t.Fatalf("main card kept last number %d after rollback", round.Cards[0].LastNumber)
 	}
 }
 
@@ -115,7 +139,7 @@ func TestNewWithStoreRestoresPersistedRounds(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	store := &fakeStore{rounds: []Round{round}}
+	store := &fakeStore{rounds: []*Round{&round}}
 	game, err := NewWithStore(nil, store)
 	if err != nil {
 		t.Fatal(err)
