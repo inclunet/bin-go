@@ -338,7 +338,6 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 
 	upgrader := round.upgrader
 	roundLock.Unlock()
-	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 
