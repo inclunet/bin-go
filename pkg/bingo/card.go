@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -556,9 +557,15 @@ func (c *Card) UpdateCard() error {
 		return nil
 	}
 
-	err := c.conn.WriteJSON(c)
-
-	if err != nil {
+	conn := c.conn
+	if err := conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
+		_ = conn.Close()
+		c.conn = nil
+		return err
+	}
+	if err := conn.WriteJSON(c); err != nil {
+		_ = conn.Close()
+		c.conn = nil
 		return err
 	}
 
