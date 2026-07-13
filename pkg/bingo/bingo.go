@@ -91,30 +91,47 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	b.creationMu.Lock()
 	defer b.creationMu.Unlock()
 
-	b.mu.Lock()
-
-	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
-
-	round := &newRound
+	b.mu.RLock()
 	old := b.roundsByID[server.GetURLParam(r, "round")]
 	oldLock := b.roundLocks[server.GetURLParam(r, "round")]
-	b.mu.Unlock()
-
-	card, err := round.GetCard(0)
-
-	if err != nil {
-		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
-	}
+	b.mu.RUnlock()
 
 	players := 0
 	if old != nil {
 		oldLock.Lock()
 		defer oldLock.Unlock()
 
-		if old.NextRoundID != "" {
-			return server.NewResponseError(http.StatusConflict, errors.New("round already has a next round"))
+		organizer, err := old.GetCardByID(server.GetURLParam(r, "card"))
+		if err != nil || organizer.Card != 1 {
+			return server.NewResponseError(http.StatusNotFound, errors.New("organizer card not found"))
 		}
 
+		if old.NextRoundID != "" {
+			next, nextLock, err := b.getRoundAndLock(old.NextRoundID)
+			if err != nil {
+				return server.NewResponseError(http.StatusInternalServerError, errors.New("next round not found"))
+			}
+			defer nextLock.Unlock()
+
+			card, err := next.GetCard(0)
+			if err != nil {
+				return server.NewResponseError(http.StatusInternalServerError, errors.New("main card not found"))
+			}
+			return server.NewResponse(card)
+		}
+	}
+
+	b.mu.Lock()
+	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
+	b.mu.Unlock()
+
+	round := &newRound
+	card, err := round.GetCard(0)
+	if err != nil {
+		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
+	}
+
+	if old != nil {
 		previousRoundID := old.NextRoundID
 		previousNextRounds := make([]int, len(old.Cards))
 		previousNextRoundIDs := make([]string, len(old.Cards))
@@ -560,6 +577,7 @@ func NewWithStore(routes *mux.Router, store Store) (b *Bingo, err error) {
 
 	if routes != nil {
 		r := routes.PathPrefix("/bingo").Subrouter()
+		r.Methods(http.MethodGet).Path("/{round}/{card}/new/{type}").Handler(server.SendJson(b.AddRoundsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/new/{type}").Handler(server.SendJson(b.AddRoundsHandler))
 		r.Methods(http.MethodGet).Path("/{round}").Handler(server.SendJson(b.GetRoundsHandler))
 		r.Methods(http.MethodGet).Path("/{round}/0").Handler(server.SendJson(b.AddCardsHandler))

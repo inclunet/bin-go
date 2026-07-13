@@ -211,6 +211,52 @@ func TestRequestScheme(t *testing.T) {
 	}
 }
 
+func TestAddRoundsHandlerReturnsExistingNextRound(t *testing.T) {
+	game := New(nil)
+
+	initialRequest := mux.SetURLVars(
+		httptest.NewRequest("GET", "/api/bingo/0/new/75", nil),
+		map[string]string{"round": "0", "type": "75"},
+	)
+	initialResponse, err := game.AddRoundsHandler(initialRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	initialCard := initialResponse.Body.(*Card)
+
+	newRoundVars := map[string]string{
+		"round": initialCard.RoundID,
+		"card":  initialCard.ID,
+		"type":  "75",
+	}
+	newRoundRequest := mux.SetURLVars(
+		httptest.NewRequest("GET", "/api/bingo/round/card/new/75", nil),
+		newRoundVars,
+	)
+	newRoundResponse, err := game.AddRoundsHandler(newRoundRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	newRoundCard := newRoundResponse.Body.(*Card)
+
+	retryRequest := mux.SetURLVars(
+		httptest.NewRequest("GET", "/api/bingo/round/card/new/75", nil),
+		newRoundVars,
+	)
+	retryResponse, err := game.AddRoundsHandler(retryRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	retryCard := retryResponse.Body.(*Card)
+
+	if retryCard.ID != newRoundCard.ID || retryCard.RoundID != newRoundCard.RoundID {
+		t.Fatalf("retry returned card %s/%s, want %s/%s", retryCard.RoundID, retryCard.ID, newRoundCard.RoundID, newRoundCard.ID)
+	}
+	if len(game.Rounds) != 2 {
+		t.Fatalf("retry created %d rounds, want 2", len(game.Rounds))
+	}
+}
+
 func TestCardJSONDoesNotPersistRuntimeMainPointer(t *testing.T) {
 	round := NewRound(&Bingo{}, 75)
 	card, err := round.AddCard()

@@ -90,7 +90,7 @@
 
     const handleNewRoundEvent = async () => {
         const updated = await updateCard(
-            `/api/bingo/${$card.RoundID}/new/${$card.Type}`
+            `/api/bingo/${$card.RoundID}/${$card.ID}/new/${$card.Type}`
         );
         if (!updated) {
             return;
