@@ -5,7 +5,14 @@
 
     export let data;
 
-    onMount(() => goto(`/bingo/${data.Round}/new`));
+    onMount(() => {
+        const hostCardID =
+            localStorage.getItem(`bingo-host:${data.Round}`) || "";
+        const destination = hostCardID
+            ? `/bingo/${data.Round}/${hostCardID}`
+            : `/bingo/${data.Round}/new`;
+        goto(destination);
+    });
 </script>
 
 <PageTitle title="Entrar na rodada" game="Inclubingo" />

@@ -56,6 +56,20 @@ func (b *Bingo) getRoundAndLock(roundID string) (*Round, *sync.Mutex, error) {
 	return round, roundLock, nil
 }
 
+func (b *Bingo) removeRound(roundID string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	for i, round := range b.Rounds {
+		if round.ID == roundID {
+			b.Rounds = append(b.Rounds[:i], b.Rounds[i+1:]...)
+			break
+		}
+	}
+	delete(b.roundsByID, roundID)
+	delete(b.roundLocks, roundID)
+}
+
 func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
@@ -82,7 +96,6 @@ func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 
 func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	b.mu.Lock()
-	defer b.mu.Unlock()
 
 	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
 
@@ -90,19 +103,25 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	b.Rounds = append(b.Rounds, round)
 	b.roundsByID[round.ID] = round
 	b.roundLocks[round.ID] = &sync.Mutex{}
+	old := b.roundsByID[server.GetURLParam(r, "round")]
+	oldLock := b.roundLocks[server.GetURLParam(r, "round")]
+	b.mu.Unlock()
 
 	card, err := round.GetCard(0)
 
 	if err != nil {
+		b.removeRound(round.ID)
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	old := b.roundsByID[server.GetURLParam(r, "round")]
-
 	if old != nil {
-		oldLock := b.roundLocks[old.ID]
 		oldLock.Lock()
 		defer oldLock.Unlock()
+
+		if old.NextRoundID != "" {
+			b.removeRound(round.ID)
+			return server.NewResponseError(http.StatusConflict, errors.New("round already has a next round"))
+		}
 
 		previousRoundID := old.NextRoundID
 		previousNextRounds := make([]int, len(old.Cards))
@@ -119,9 +138,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 				old.Cards[i].NextRound = previousNextRounds[i]
 				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
 			}
-			b.Rounds = b.Rounds[:len(b.Rounds)-1]
-			delete(b.roundsByID, round.ID)
-			delete(b.roundLocks, round.ID)
+			b.removeRound(round.ID)
 			return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("rounds cannot be saved: %w", err))
 		}
 		for i := range old.Cards {
@@ -129,9 +146,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		}
 		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", players)
 	} else if err := b.persistRound(r.Context(), round); err != nil {
-		b.Rounds = b.Rounds[:len(b.Rounds)-1]
-		delete(b.roundsByID, round.ID)
-		delete(b.roundLocks, round.ID)
+		b.removeRound(round.ID)
 		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("round cannot be saved: %w", err))
 	}
 
