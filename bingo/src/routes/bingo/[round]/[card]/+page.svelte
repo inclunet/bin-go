@@ -55,6 +55,7 @@
 
     const handleNewRoundEvent = async () => {
         await updateCard(`/api/bingo/${$card.RoundID}/new/${$card.Type}`);
+        localStorage.setItem(`bingo-host:${$card.RoundID}`, $card.ID);
         goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
@@ -121,6 +122,7 @@
     const loadCard = async () => {
         $card.ID = String(data.Card);
         $card.RoundID = String(data.Round);
+        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}`);
 
         if ("WebSocket" in window) {
             liveUpdater();

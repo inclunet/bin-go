@@ -32,6 +32,14 @@ func (b *Bingo) persistRound(ctx context.Context, round *Round) error {
 	return b.store.SaveRound(ctx, round)
 }
 
+func (b *Bingo) persistRounds(ctx context.Context, rounds ...*Round) error {
+	if b.store == nil {
+		return nil
+	}
+
+	return b.store.SaveRounds(ctx, rounds...)
+}
+
 func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -71,10 +79,6 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	if err != nil {
 		return server.NewResponseError(http.StatusInternalServerError, errors.New("round cannot be added"))
 	}
-	if err := b.persistRound(r.Context(), round); err != nil {
-		b.Rounds = b.Rounds[:len(b.Rounds)-1]
-		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("round cannot be saved: %w", err))
-	}
 
 	card, err := round.GetCard(0)
 
@@ -85,11 +89,31 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	old, err := b.GetRoundByID(server.GetURLParam(r, "round"))
 
 	if err == nil {
+		previousRoundID := old.NextRoundID
+		previousNextRounds := make([]int, len(old.Cards))
+		previousNextRoundIDs := make([]string, len(old.Cards))
+		for i := range old.Cards {
+			previousNextRounds[i] = old.Cards[i].NextRound
+			previousNextRoundIDs[i] = old.Cards[i].NextRoundID
+		}
+
 		players := old.SetNextRoundForAll(round)
-		if err := b.persistRound(r.Context(), old); err != nil {
-			return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("previous round cannot be updated: %w", err))
+		if err := b.persistRounds(r.Context(), round, old); err != nil {
+			old.NextRoundID = previousRoundID
+			for i := range old.Cards {
+				old.Cards[i].NextRound = previousNextRounds[i]
+				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
+			}
+			b.Rounds = b.Rounds[:len(b.Rounds)-1]
+			return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("rounds cannot be saved: %w", err))
+		}
+		for i := range old.Cards {
+			_ = old.Cards[i].UpdateCard()
 		}
 		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", players)
+	} else if err := b.persistRound(r.Context(), round); err != nil {
+		b.Rounds = b.Rounds[:len(b.Rounds)-1]
+		return server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("round cannot be saved: %w", err))
 	}
 
 	b.Log("Add Bingo Round", card)

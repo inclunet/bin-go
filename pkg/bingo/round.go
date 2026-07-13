@@ -170,10 +170,20 @@ func (r *Round) RelinkCards() {
 	}
 }
 
+func nextRoundNumber(bingo *Bingo) int {
+	next := 1
+	for _, round := range bingo.Rounds {
+		if round.Round >= next {
+			next = round.Round + 1
+		}
+	}
+	return next
+}
+
 func NewRound(bingo *Bingo, roundType int) Round {
 	round := Round{
 		ID:    uuid.NewString(),
-		Round: len(bingo.Rounds) + 1,
+		Round: nextRoundNumber(bingo),
 		Type:  roundType,
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,

@@ -481,7 +481,6 @@ func (c *Card) SetNextRound(round int, roundID string) bool {
 	if c.NextRound == 0 && c.Round != round {
 		c.NextRound = round
 		c.NextRoundID = roundID
-		c.UpdateCard()
 		return true
 	}
 

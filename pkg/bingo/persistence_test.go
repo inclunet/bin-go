@@ -23,6 +23,15 @@ func (s *fakeStore) SaveRound(_ context.Context, round *Round) error {
 	return nil
 }
 
+func (s *fakeStore) SaveRounds(ctx context.Context, rounds ...*Round) error {
+	for _, round := range rounds {
+		if err := s.SaveRound(ctx, round); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func TestRoundAndCardsUseUUIDs(t *testing.T) {
 	round := NewRound(&Bingo{}, 75)
 	if _, err := uuid.Parse(round.ID); err != nil {
@@ -49,6 +58,16 @@ func TestRoundAndCardsUseUUIDs(t *testing.T) {
 	}
 	if player.ID == main.ID {
 		t.Fatal("main and player cards have the same ID")
+	}
+}
+
+func TestNewRoundUsesNextHighestDisplayNumber(t *testing.T) {
+	game := &Bingo{Rounds: []Round{{Round: 1}, {Round: 2}, {Round: 4}}}
+
+	round := NewRound(game, 75)
+
+	if round.Round != 5 {
+		t.Fatalf("round display number = %d, want 5", round.Round)
 	}
 }
 

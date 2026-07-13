@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -14,6 +15,7 @@ import (
 type Store interface {
 	LoadRounds(context.Context) ([]Round, error)
 	SaveRound(context.Context, *Round) error
+	SaveRounds(context.Context, ...*Round) error
 }
 
 type PostgresStore struct {
@@ -120,12 +122,30 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]Round, error) {
 }
 
 func (s *PostgresStore) SaveRound(ctx context.Context, round *Round) error {
+	return s.SaveRounds(ctx, round)
+}
+
+func (s *PostgresStore) SaveRounds(ctx context.Context, rounds ...*Round) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("begin saving bingo round: %w", err)
+		return fmt.Errorf("begin saving bingo rounds: %w", err)
 	}
 	defer tx.Rollback(ctx) //nolint:errcheck
 
+	for _, round := range rounds {
+		if err := saveRound(ctx, tx, round); err != nil {
+			return err
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("commit bingo rounds: %w", err)
+	}
+
+	return nil
+}
+
+func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
 	var nextRoundID interface{}
 	if round.NextRoundID != "" {
 		parsed, err := uuid.Parse(round.NextRoundID)
@@ -186,10 +206,6 @@ func (s *PostgresStore) SaveRound(ctx context.Context, round *Round) error {
 				}
 			}
 		}
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return fmt.Errorf("commit bingo round %s: %w", round.ID, err)
 	}
 
 	return nil

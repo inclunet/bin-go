@@ -8,6 +8,7 @@
     import { goto } from "$app/navigation";
 
     export let data;
+    let hostCardID = "";
 
     const loadCard = async () => {
         const round = await callApi(
@@ -18,10 +19,20 @@
         $card.RoundID = round.ID;
         $card.Round = round.Round;
         $card.Type = round.Type;
+        hostCardID = localStorage.getItem(`bingo-host:${round.ID}`) || "";
     };
 
     const handleCallToAction = async () => {
-        $card = await callApi($card, `/api/bingo/${data.Round}/0`, "GET");
+        if (!hostCardID) {
+            goto(`/bingo/${data.Round}/new`);
+            return;
+        }
+
+        $card = await callApi(
+            $card,
+            `/api/bingo/${data.Round}/${hostCardID}`,
+            "GET"
+        );
         goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
