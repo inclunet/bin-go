@@ -63,8 +63,10 @@
     };
 
     const handleNewRoundEvent = async () => {
-        await updateCard(`/api/bingo/${$card.RoundID}/new/${$card.Type}`);
-        if (!$card.RoundID || !$card.ID) {
+        const updated = await updateCard(
+            `/api/bingo/${$card.RoundID}/new/${$card.Type}`
+        );
+        if (!updated) {
             return;
         }
         leavingPage = true;
@@ -135,7 +137,12 @@
     const loadCard = async () => {
         $card.ID = String(data.Card);
         $card.RoundID = String(data.Round);
-        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}`);
+        const loaded = await updateCard(
+            `/api/bingo/${$card.RoundID}/${$card.ID}`
+        );
+        if (!loaded) {
+            return;
+        }
 
         if ("WebSocket" in window) {
             liveUpdater();
@@ -163,9 +170,19 @@
     };
 
     const updateCard = async (path = "") => {
-        $card = await callApi($card, path, "GET");
+        const updated = await callApi($card, path, "GET");
+        if (
+            !updated.ID ||
+            !updated.RoundID ||
+            updated.Round <= 0 ||
+            updated.Card <= 0
+        ) {
+            return false;
+        }
+        $card = updated;
         redirectToNextRound();
         isBingo();
+        return true;
     };
 
     export let table_client = false;
