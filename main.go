@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/inclunet/bin-go/pkg/bingo"
@@ -29,13 +30,17 @@ func main() {
 
 	pool, err := database.Open(context.Background())
 	if err != nil {
-		server.Logger.Error("Database startup failed", "error", err)
-		os.Exit(1)
+		if strings.EqualFold(os.Getenv("REQUIRE_DATABASE"), "true") {
+			server.Logger.Error("Database startup failed", "error", err)
+			os.Exit(1)
+		}
+		server.Logger.Warn("Database startup failed; bingo persistence is disabled", "error", err)
+		pool = nil
 	}
 	if pool != nil {
 		defer pool.Close()
 		server.Logger.Info("PostgreSQL persistence enabled")
-	} else {
+	} else if err == nil {
 		server.Logger.Warn("DATABASE_URL is not configured; bingo persistence is disabled")
 	}
 
