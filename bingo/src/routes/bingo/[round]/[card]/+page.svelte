@@ -159,6 +159,8 @@
 
         socket.addEventListener("message", (event) => {
             $card = JSON.parse(event.data);
+            actionError = "";
+            loadError = "";
             redirectToNextRound();
             isBingo();
         });
@@ -199,7 +201,10 @@
         }
         pollingInFlight = true;
         try {
-            await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}`);
+            await updateCard(
+                `/api/bingo/${$card.RoundID}/${$card.ID}`,
+                false
+            );
         } finally {
             pollingInFlight = false;
         }
@@ -219,17 +224,21 @@
         }
     };
 
-    const updateCard = async (path = "") => {
+    const updateCard = async (path = "", reportError = true) => {
         const result = await callApiResult($card, path, "GET");
         if (!result.ok) {
-            actionError =
-                "A ação não pôde ser concluída. Verifique sua conexão e tente novamente.";
+            if (reportError) {
+                actionError =
+                    "A ação não pôde ser concluída. Verifique sua conexão e tente novamente.";
+            }
             return false;
         }
         const updated = result.data;
         if (!isValidCard(updated)) {
-            actionError =
-                "A API retornou uma cartela inválida. Atualize a página e tente novamente.";
+            if (reportError) {
+                actionError =
+                    "A API retornou uma cartela inválida. Atualize a página e tente novamente.";
+            }
             return false;
         }
         actionError = "";
