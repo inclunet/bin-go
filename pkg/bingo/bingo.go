@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/mux"
@@ -253,11 +254,26 @@ func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
-	qr := server.NewQRCode(fmt.Sprintf("https://%s/bingo/%s/new", r.Host, round.ID))
+	qr := server.NewQRCode(fmt.Sprintf("%s://%s/bingo/%s/new", requestScheme(r), r.Host, round.ID))
 
 	b.Log("Get Bingo Round QR", card, "qr", qr.Content)
 
 	return server.NewResponse(qr)
+}
+
+func requestScheme(r *http.Request) string {
+	if forwarded := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-Proto"), ",")[0]); forwarded != "" {
+		if strings.EqualFold(forwarded, "https") {
+			return "https"
+		}
+		if strings.EqualFold(forwarded, "http") {
+			return "http"
+		}
+	}
+	if r.TLS != nil {
+		return "https"
+	}
+	return "http"
 }
 
 func (b *Bingo) GetRound(round int) (*Round, error) {

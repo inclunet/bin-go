@@ -183,6 +183,34 @@ func TestCheckWebSocketOrigin(t *testing.T) {
 	}
 }
 
+func TestRequestScheme(t *testing.T) {
+	tests := []struct {
+		name      string
+		target    string
+		forwarded string
+		expected  string
+	}{
+		{name: "plain HTTP", target: "http://example.com/qr", expected: "http"},
+		{name: "direct HTTPS", target: "https://example.com/qr", expected: "https"},
+		{name: "HTTPS proxy", target: "http://example.com/qr", forwarded: "https", expected: "https"},
+		{name: "first proxy value", target: "http://example.com/qr", forwarded: "https, http", expected: "https"},
+		{name: "invalid proxy value", target: "http://example.com/qr", forwarded: "ftp", expected: "http"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			request := httptest.NewRequest("GET", test.target, nil)
+			if test.forwarded != "" {
+				request.Header.Set("X-Forwarded-Proto", test.forwarded)
+			}
+
+			if actual := requestScheme(request); actual != test.expected {
+				t.Fatalf("requestScheme() = %q, want %q", actual, test.expected)
+			}
+		})
+	}
+}
+
 func TestCardJSONDoesNotPersistRuntimeMainPointer(t *testing.T) {
 	round := NewRound(&Bingo{}, 75)
 	card, err := round.AddCard()
