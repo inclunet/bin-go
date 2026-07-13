@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/inclunet/bin-go/pkg/bingo"
@@ -29,7 +30,7 @@ func main() {
 	pool, err := database.Open(context.Background())
 	if err != nil {
 		server.Logger.Error("Database startup failed", "error", err)
-		return
+		os.Exit(1)
 	}
 	if pool != nil {
 		defer pool.Close()
@@ -46,7 +47,7 @@ func main() {
 	bingoGame, err := bingo.NewWithStore(api, bingoStore)
 	if err != nil {
 		server.Logger.Error("Bingo startup failed", "error", err)
-		return
+		os.Exit(1)
 	}
 	bingoGame.AddQrRoutes(qr).AddWsRoutes(ws)
 

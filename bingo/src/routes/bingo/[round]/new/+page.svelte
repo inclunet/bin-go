@@ -4,16 +4,25 @@
     import Play from "$lib/Play.svelte";
     import { onMount } from "svelte";
     import { card } from "$lib/bingo";
-    import { callApi } from "$lib/api.js";
+    import { callApiResult } from "$lib/api.js";
 
     export let data;
+    let loadError = "";
+    let loaded = false;
 
     const loadCard = async () => {
-        $card = await callApi(
+        const result = await callApiResult(
             $card,
             `/api/bingo/${data.Round}/${data.Card}`,
             "GET"
         );
+        if (!result.ok || !result.data.RoundID || !result.data.ID) {
+            loadError =
+                "Não foi possível criar sua cartela. Verifique o link e tente novamente.";
+            return;
+        }
+        $card = result.data;
+        loaded = true;
     };
 
     onMount(loadCard);
@@ -22,10 +31,14 @@
 <PageTitle title="Nova cartela, rodada {$card.Round}" game="Inclubingo" />
 
 <div class="container-fluid d-flex align-items-center flex-column">
-    <h2>Rodada #{$card.Round}</h2>
-    <p class="text-center my-3">Para jogar clique no botão "Jogar" a baixo</p>
-    <Adds />
-    <Play />
+    {#if loadError}
+        <p class="alert alert-danger text-center" role="alert">{loadError}</p>
+    {:else if loaded}
+        <h2>Rodada #{$card.Round}</h2>
+        <p class="text-center my-3">Para jogar clique no botão "Jogar" a baixo</p>
+        <Adds />
+        <Play />
+    {/if}
 </div>
 
 <style>
