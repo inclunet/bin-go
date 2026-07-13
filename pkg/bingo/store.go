@@ -1,0 +1,196 @@
+package bingo
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"sort"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+type Store interface {
+	LoadRounds(context.Context) ([]Round, error)
+	SaveRound(context.Context, *Round) error
+}
+
+type PostgresStore struct {
+	pool *pgxpool.Pool
+}
+
+func NewPostgresStore(pool *pgxpool.Pool) *PostgresStore {
+	if pool == nil {
+		return nil
+	}
+
+	return &PostgresStore{pool: pool}
+}
+
+func (s *PostgresStore) LoadRounds(ctx context.Context) ([]Round, error) {
+	rows, err := s.pool.Query(ctx, `
+		SELECT id, display_number, type, next_round_id
+		FROM bingo_rounds
+		ORDER BY display_number
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("load bingo rounds: %w", err)
+	}
+	defer rows.Close()
+
+	rounds := make([]Round, 0)
+	roundByID := make(map[string]*Round)
+
+	for rows.Next() {
+		var (
+			id          uuid.UUID
+			nextRoundID pgtype.UUID
+			round       Round
+		)
+
+		if err := rows.Scan(&id, &round.Round, &round.Type, &nextRoundID); err != nil {
+			return nil, fmt.Errorf("scan bingo round: %w", err)
+		}
+
+		round.ID = id.String()
+		if nextRoundID.Valid {
+			nextID := uuid.UUID(nextRoundID.Bytes)
+			round.NextRoundID = nextID.String()
+		}
+		round.Cards = []Card{}
+		rounds = append(rounds, round)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate bingo rounds: %w", err)
+	}
+
+	for i := range rounds {
+		roundByID[rounds[i].ID] = &rounds[i]
+	}
+
+	cardRows, err := s.pool.Query(ctx, `
+		SELECT id, round_id, display_number, state
+		FROM bingo_cards
+		ORDER BY round_id, display_number
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("load bingo cards: %w", err)
+	}
+	defer cardRows.Close()
+
+	for cardRows.Next() {
+		var (
+			id            uuid.UUID
+			roundID       uuid.UUID
+			displayNumber int
+			state         []byte
+			card          Card
+		)
+
+		if err := cardRows.Scan(&id, &roundID, &displayNumber, &state); err != nil {
+			return nil, fmt.Errorf("scan bingo card: %w", err)
+		}
+		if err := json.Unmarshal(state, &card); err != nil {
+			return nil, fmt.Errorf("decode bingo card %s: %w", id, err)
+		}
+
+		card.ID = id.String()
+		card.RoundID = roundID.String()
+		card.Card = displayNumber
+
+		round := roundByID[card.RoundID]
+		if round == nil {
+			return nil, fmt.Errorf("bingo card %s references unknown round %s", card.ID, card.RoundID)
+		}
+		round.Cards = append(round.Cards, card)
+	}
+	if err := cardRows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate bingo cards: %w", err)
+	}
+
+	for i := range rounds {
+		sort.Slice(rounds[i].Cards, func(a, b int) bool {
+			return rounds[i].Cards[a].Card < rounds[i].Cards[b].Card
+		})
+		rounds[i].RestoreRuntime()
+	}
+
+	return rounds, nil
+}
+
+func (s *PostgresStore) SaveRound(ctx context.Context, round *Round) error {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin saving bingo round: %w", err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+
+	var nextRoundID interface{}
+	if round.NextRoundID != "" {
+		parsed, err := uuid.Parse(round.NextRoundID)
+		if err != nil {
+			return fmt.Errorf("parse next bingo round id: %w", err)
+		}
+		nextRoundID = parsed
+	}
+
+	if _, err := tx.Exec(ctx, `
+		INSERT INTO bingo_rounds (id, display_number, type, next_round_id)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (id) DO UPDATE SET
+			display_number = EXCLUDED.display_number,
+			type = EXCLUDED.type,
+			next_round_id = EXCLUDED.next_round_id,
+			updated_at = NOW()
+	`, round.ID, round.Round, round.Type, nextRoundID); err != nil {
+		return fmt.Errorf("save bingo round %s: %w", round.ID, err)
+	}
+
+	for i := range round.Cards {
+		card := &round.Cards[i]
+		state, err := json.Marshal(card)
+		if err != nil {
+			return fmt.Errorf("encode bingo card %s: %w", card.ID, err)
+		}
+
+		if _, err := tx.Exec(ctx, `
+			INSERT INTO bingo_cards (id, round_id, display_number, state)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (id) DO UPDATE SET
+				display_number = EXCLUDED.display_number,
+				state = EXCLUDED.state,
+				updated_at = NOW()
+		`, card.ID, round.ID, card.Card, state); err != nil {
+			return fmt.Errorf("save bingo card %s: %w", card.ID, err)
+		}
+	}
+
+	if _, err := tx.Exec(ctx, `DELETE FROM bingo_draws WHERE round_id = $1`, round.ID); err != nil {
+		return fmt.Errorf("clear bingo draws for round %s: %w", round.ID, err)
+	}
+
+	if len(round.Cards) > 0 {
+		for _, line := range round.Cards[0].Numbers {
+			for _, number := range line {
+				if !number.Checked || number.Number <= 0 {
+					continue
+				}
+
+				if _, err := tx.Exec(ctx, `
+					INSERT INTO bingo_draws (round_id, number)
+					VALUES ($1, $2)
+					ON CONFLICT DO NOTHING
+				`, round.ID, number.Number); err != nil {
+					return fmt.Errorf("save bingo draw for round %s: %w", round.ID, err)
+				}
+			}
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("commit bingo round %s: %w", round.ID, err)
+	}
+
+	return nil
+}

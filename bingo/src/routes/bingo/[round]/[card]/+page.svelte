@@ -28,13 +28,13 @@
     let config = false;
 
     const handleAutoplayEvent = async () => {
-        await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/autoplay`);
+        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}/autoplay`);
     };
 
     const handleCheckNumberEvent = async (event = {}) => {
         if (!$card.Autoplay || $card.Card == 1) {
             await updateCard(
-                `/api/bingo/${$card.Round}/${$card.Card}/${event.detail.Number}`
+                `/api/bingo/${$card.RoundID}/${$card.ID}/${event.detail.Number}`
             );
         }
     };
@@ -50,12 +50,12 @@
     };
 
     const handleDrawEvent = async () => {
-        await updateCard(`/api/bingo/${$card.Round}/${$card.Card}/0`);
+        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}/0`);
     };
 
     const handleNewRoundEvent = async () => {
-        await updateCard(`/api/bingo/${$card.Round}/new/${$card.Type}`);
-        goto(`/bingo/${$card.Round}`);
+        await updateCard(`/api/bingo/${$card.RoundID}/new/${$card.Type}`);
+        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
     const handlePlayCheckSoundEvent = async () => {
@@ -67,7 +67,7 @@
     const handleCancelBingoAlertEvent = async () => {
         $card = await callApi(
             $card,
-            `/api/bingo/${$card.Round}/${$card.Card}/cancel`,
+            `/api/bingo/${$card.RoundID}/${$card.ID}/cancel`,
             "GET"
         );
 
@@ -77,7 +77,7 @@
     const handleSaveCompletions = async () => {
         $card = await callApi(
             $card,
-            `/api/bingo/${$card.Round}/${$card.Card}/completions`,
+            `/api/bingo/${$card.RoundID}/${$card.ID}/completions`,
             "POST",
             $card.Completions
         );
@@ -96,7 +96,7 @@
 
     const liveUpdater = async () => {
         const socket = new window.WebSocket(
-            getWSEndpoint(`/ws/bingo/${$card.Round}/${$card.Card}`)
+            getWSEndpoint(`/ws/bingo/${$card.RoundID}/${$card.ID}`)
         );
 
         socket.addEventListener("open", (event) => {
@@ -119,8 +119,8 @@
     };
 
     const loadCard = async () => {
-        $card.Card = Number(data.Card);
-        $card.Round = Number(data.Round);
+        $card.ID = String(data.Card);
+        $card.RoundID = String(data.Round);
 
         if ("WebSocket" in window) {
             liveUpdater();
@@ -130,7 +130,7 @@
     };
 
     const poolingUpdater = async () => {
-        await updateCard(`/api/bingo/${$card.Round}/${$card.Card}`);
+        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
     const redirectToNextRound = () => {
@@ -139,11 +139,11 @@
         }
 
         if ($card.Card == 0) {
-            goto(`/bingo/${$card.Round}/new`);
+            goto(`/bingo/${$card.RoundID}/new`);
         }
 
-        if ($card.NextRound > 0 && $card.Card > 1) {
-            goto(`/bingo/${$card.NextRound}/new`);
+        if ($card.NextRoundID && $card.Card > 1) {
+            goto(`/bingo/${$card.NextRoundID}/new`);
         }
     };
 
@@ -174,7 +174,7 @@
             {#if matches}
                 <div class=" info-card table-horizontal" class:table_draw>
                     <div class="container-qr_code">
-                        <img src="/qr/bingo/{$card.Round}" alt="QR-Code" />
+                        <img src="/qr/bingo/{$card.RoundID}" alt="QR-Code" />
                     </div>
                     <div class="info-card-header">
                         <h2>Cartela de Bingo #{$card.Card}</h2>

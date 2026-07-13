@@ -7,7 +7,7 @@
 
     const handleNewRoundEvent = async () => {
         $card = await callApi($card, `/api/bingo/0/new/${$card.Type}`, "GET");
-        goto(`/bingo/${$card.Round}`);
+        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 </script>
 

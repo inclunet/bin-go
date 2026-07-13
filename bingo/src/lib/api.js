@@ -1,6 +1,14 @@
 import { error } from "@sveltejs/kit";
 
-export const callApi = async (data = {}, url = "", method = "GET", body = null) => {
+/**
+ * @template T
+ * @param {T} data
+ * @param {string} url
+ * @param {string} method
+ * @param {unknown} body
+ * @returns {Promise<T>}
+ */
+export const callApi = async (data, url = "", method = "GET", body = null) => {
     const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
     console.log(url);
     console.log(method)

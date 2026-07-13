@@ -1,2 +1,5 @@
 bin-go.odt
 .~lock.bin-go.odt#
+.env
+.env.*
+!.env.example

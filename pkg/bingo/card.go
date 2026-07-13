@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/inclunet/bin-go/pkg/utils"
 )
 
 type Card struct {
+	ID             string
+	RoundID        string
 	Autoplay       bool
 	Bingo          bool
 	Card           int
@@ -19,9 +22,10 @@ type Card struct {
 	LastCompletion string
 	LastNumber     int
 	NextRound      int
+	NextRoundID    string
 	Round          int
 	Type           int
-	Main           *Card
+	Main           *Card `json:"-"`
 	Numbers        [][5]Number
 }
 
@@ -473,9 +477,10 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 	return true
 }
 
-func (c *Card) SetNextRound(round int) bool {
+func (c *Card) SetNextRound(round int, roundID string) bool {
 	if c.NextRound == 0 && c.Round != round {
 		c.NextRound = round
+		c.NextRoundID = roundID
 		c.UpdateCard()
 		return true
 	}
@@ -549,6 +554,8 @@ func NewCard(round *Round) Card {
 	main, err := round.GetCard(0)
 
 	card := Card{
+		ID:          uuid.NewString(),
+		RoundID:     round.ID,
 		Autoplay:    true,
 		Card:        len(round.Cards) + 1,
 		Completions: NewDefaultCompletions(),

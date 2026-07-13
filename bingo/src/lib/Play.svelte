@@ -7,11 +7,11 @@
     const startGame = async () => {
         $card = await callApi(
             $card,
-            `/api/bingo/${$card.Round}/${$card.Card}`,
+            `/api/bingo/${$card.RoundID}/${$card.ID}`,
             "GET"
         );
 
-        goto(`/bingo/${$card.Round}/${$card.Card}`);
+        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 </script>
 

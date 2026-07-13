@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine as build-backend
+FROM golang:1.25-alpine AS build-backend
 WORKDIR /app
 COPY ./ .
 RUN go build -o inclugames main.go

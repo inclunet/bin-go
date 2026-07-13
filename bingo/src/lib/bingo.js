@@ -1,6 +1,8 @@
 import { writable } from "svelte/store";
 
 export let card = writable({
+    ID: "",
+    RoundID: "",
     Autoplay: false,
     Bingo: false,
     Card: 0,
@@ -8,6 +10,7 @@ export let card = writable({
     Completions: {},
     LastNumber: 0,
     NextRound: 0,
+    NextRoundID: "",
     Round: 0,
     Type: 75,
     Numbers: [

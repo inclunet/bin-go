@@ -3,20 +3,24 @@ package bingo
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
 type Round struct {
-	Cards    []Card
-	Round    int
-	Type     int
-	upgrader websocket.Upgrader
+	ID          string
+	Cards       []Card
+	Round       int
+	Type        int
+	NextRoundID string
+	upgrader    websocket.Upgrader
 }
 
 func (r *Round) AddCard() (*Card, error) {
 	card := NewCard(r)
 
 	r.Cards = append(r.Cards, card)
+	r.RelinkCards()
 
 	return r.GetCard(card.Card - 1)
 }
@@ -41,6 +45,16 @@ func (r *Round) GetCard(card int) (*Card, error) {
 	return &r.Cards[card], nil
 }
 
+func (r *Round) GetCardByID(cardID string) (*Card, error) {
+	for i := range r.Cards {
+		if r.Cards[i].ID == cardID {
+			return &r.Cards[i], nil
+		}
+	}
+
+	return nil, fmt.Errorf("card %s not found", cardID)
+}
+
 func (r *Round) SetCompletionsForAll(completions *Completions) (int, error) {
 	counter := 0
 
@@ -59,25 +73,27 @@ func (r *Round) SetCompletionsForAll(completions *Completions) (int, error) {
 	return counter, nil
 }
 
-func (r *Round) SetNextRoundForAll(nextRound int) int {
+func (r *Round) SetNextRoundForAll(nextRound *Round) int {
 	count := 0
 
-	if nextRound < 0 {
+	if nextRound == nil {
 		return count
 	}
 
 	for card := range r.Cards {
-		if r.Cards[card].SetNextRound(nextRound) {
+		if r.Cards[card].SetNextRound(nextRound.Round, nextRound.ID) {
 			count++
 		}
 	}
+
+	r.NextRoundID = nextRound.ID
 
 	return count
 }
 
 func (r *Round) SetRoundForAll(round *Round) bool {
 	for card := range r.Cards {
-		r.Cards[card].SetNextRound(round.Round)
+		r.Cards[card].SetNextRound(round.Round, round.ID)
 	}
 
 	return false
@@ -126,8 +142,37 @@ func (r *Round) UncheckNumberForAll(number int) *Round {
 	return r
 }
 
+func (r *Round) RestoreRuntime() {
+	r.upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	for i := range r.Cards {
+		r.Cards[i].RoundID = r.ID
+		r.Cards[i].Round = r.Round
+		r.Cards[i].Type = r.Type
+		r.Cards[i].conn = nil
+	}
+
+	r.RelinkCards()
+}
+
+func (r *Round) RelinkCards() {
+	if len(r.Cards) == 0 {
+		return
+	}
+
+	r.Cards[0].Main = nil
+	main := &r.Cards[0]
+	for i := 1; i < len(r.Cards); i++ {
+		r.Cards[i].Main = main
+	}
+}
+
 func NewRound(bingo *Bingo, roundType int) Round {
 	round := Round{
+		ID:    uuid.NewString(),
 		Round: len(bingo.Rounds) + 1,
 		Type:  roundType,
 		upgrader: websocket.Upgrader{

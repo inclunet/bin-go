@@ -10,11 +10,19 @@
     export let data;
 
     const loadCard = async () => {
-        $card = await callApi($card, `/api/bingo/${data.Round}/1`, "GET");
+        const round = await callApi(
+            { ID: "", Round: 0, Type: 75 },
+            `/api/bingo/${data.Round}`,
+            "GET"
+        );
+        $card.RoundID = round.ID;
+        $card.Round = round.Round;
+        $card.Type = round.Type;
     };
 
     const handleCallToAction = async () => {
-        goto(`/bingo/${$card.Round}/1`);
+        $card = await callApi($card, `/api/bingo/${data.Round}/0`, "GET");
+        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
     onMount(loadCard);
@@ -36,7 +44,7 @@
         </strong>
     </p>
     <div id="qr_code" class="d-flex">
-        <img src="/qr/bingo/{$card.Round}" alt="QR-Code" />
+        <img src="/qr/bingo/{$card.RoundID}" alt="QR-Code" />
     </div>
     <StartRound on:callToAction={handleCallToAction} />
 </div>
