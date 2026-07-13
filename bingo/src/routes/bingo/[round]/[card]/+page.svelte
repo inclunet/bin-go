@@ -7,7 +7,7 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
     import Play from "$lib/Play.svelte";
-    import { callApi, callApiResult, getWSEndpoint } from "$lib/api";
+    import { callApiResult, getWSEndpoint } from "$lib/api";
     import Completions from "$lib/bingo/Completions.svelte";
     import TableModalCard from "$lib/TableModalCard.svelte";
     import MediaQuery from "$lib/MediaQuery.svelte";
@@ -31,6 +31,13 @@
     let pollingInFlight = false;
     let leavingPage = false;
     let loadError = "";
+    let actionError = "";
+
+    const isValidCard = (value) =>
+        value.ID &&
+        value.RoundID &&
+        value.Round > 0 &&
+        value.Card > 0;
 
     const startPolling = () => {
         if (!leavingPage && !pollingInterval) {
@@ -39,14 +46,24 @@
     };
 
     const handleAutoplayEvent = async () => {
-        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}/autoplay`);
+        if (
+            !(await updateCard(
+                `/api/bingo/${$card.RoundID}/${$card.ID}/autoplay`
+            ))
+        ) {
+            return;
+        }
     };
 
     const handleCheckNumberEvent = async (event = {}) => {
         if (!$card.Autoplay || $card.Card == 1) {
-            await updateCard(
-                `/api/bingo/${$card.RoundID}/${$card.ID}/${event.detail.Number}`
-            );
+            if (
+                !(await updateCard(
+                    `/api/bingo/${$card.RoundID}/${$card.ID}/${event.detail.Number}`
+                ))
+            ) {
+                return;
+            }
         }
     };
 
@@ -61,7 +78,13 @@
     };
 
     const handleDrawEvent = async () => {
-        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}/0`);
+        if (
+            !(await updateCard(
+                `/api/bingo/${$card.RoundID}/${$card.ID}/0`
+            ))
+        ) {
+            return;
+        }
     };
 
     const handleNewRoundEvent = async () => {
@@ -83,22 +106,35 @@
     };
 
     const handleCancelBingoAlertEvent = async () => {
-        $card = await callApi(
+        const result = await callApiResult(
             $card,
             `/api/bingo/${$card.RoundID}/${$card.ID}/cancel`,
             "GET"
         );
-
+        if (!result.ok || !isValidCard(result.data)) {
+            actionError =
+                "Não foi possível atualizar a cartela. Tente novamente.";
+            return;
+        }
+        actionError = "";
+        $card = result.data;
         isBingo();
     };
 
     const handleSaveCompletions = async () => {
-        $card = await callApi(
+        const result = await callApiResult(
             $card,
             `/api/bingo/${$card.RoundID}/${$card.ID}/completions`,
             "POST",
             $card.Completions
         );
+        if (!result.ok || !isValidCard(result.data)) {
+            actionError =
+                "Não foi possível salvar as configurações. Tente novamente.";
+            return;
+        }
+        actionError = "";
+        $card = result.data;
     };
 
     const isBingo = () => {
@@ -143,6 +179,7 @@
             `/api/bingo/${$card.RoundID}/${$card.ID}`
         );
         if (!loaded) {
+            actionError = "";
             loadError =
                 "Não foi possível carregar esta cartela. Verifique o link e tente novamente.";
             return;
@@ -185,17 +222,17 @@
     const updateCard = async (path = "") => {
         const result = await callApiResult($card, path, "GET");
         if (!result.ok) {
+            actionError =
+                "A ação não pôde ser concluída. Verifique sua conexão e tente novamente.";
             return false;
         }
         const updated = result.data;
-        if (
-            !updated.ID ||
-            !updated.RoundID ||
-            updated.Round <= 0 ||
-            updated.Card <= 0
-        ) {
+        if (!isValidCard(updated)) {
+            actionError =
+                "A API retornou uma cartela inválida. Atualize a página e tente novamente.";
             return false;
         }
+        actionError = "";
         $card = updated;
         redirectToNextRound();
         isBingo();
@@ -226,6 +263,9 @@
 />
 {#if loadError}
     <p class="alert alert-danger text-center" role="alert">{loadError}</p>
+{/if}
+{#if actionError}
+    <p class="alert alert-danger text-center" role="alert">{actionError}</p>
 {/if}
 <div class="container container-card">
     {#if $card.Card == 1}
