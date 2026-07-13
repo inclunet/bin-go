@@ -105,12 +105,15 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
 
 	round := &newRound
+	newRoundLock := &sync.Mutex{}
+	newRoundLock.Lock()
 	b.Rounds = append(b.Rounds, round)
 	b.roundsByID[round.ID] = round
-	b.roundLocks[round.ID] = &sync.Mutex{}
+	b.roundLocks[round.ID] = newRoundLock
 	old := b.roundsByID[server.GetURLParam(r, "round")]
 	oldLock := b.roundLocks[server.GetURLParam(r, "round")]
 	b.mu.Unlock()
+	defer newRoundLock.Unlock()
 
 	card, err := round.GetCard(0)
 
