@@ -28,7 +28,9 @@
     let config = false;
     let socket;
     let pollingInterval;
+    let pollingInFlight = false;
     let leavingPage = false;
+    let loadError = "";
 
     const startPolling = () => {
         if (!leavingPage && !pollingInterval) {
@@ -141,8 +143,11 @@
             `/api/bingo/${$card.RoundID}/${$card.ID}`
         );
         if (!loaded) {
+            loadError =
+                "Não foi possível carregar esta cartela. Verifique o link e tente novamente.";
             return;
         }
+        loadError = "";
 
         if ("WebSocket" in window) {
             liveUpdater();
@@ -152,7 +157,15 @@
     };
 
     const poolingUpdater = async () => {
-        await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}`);
+        if (pollingInFlight) {
+            return;
+        }
+        pollingInFlight = true;
+        try {
+            await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}`);
+        } finally {
+            pollingInFlight = false;
+        }
     };
 
     const redirectToNextRound = () => {
@@ -211,6 +224,9 @@
     title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}"
     game="Inclubingo"
 />
+{#if loadError}
+    <p class="alert alert-danger text-center" role="alert">{loadError}</p>
+{/if}
 <div class="container container-card">
     {#if $card.Card == 1}
         <MediaQuery query="(min-width: 1150px)" let:matches>
