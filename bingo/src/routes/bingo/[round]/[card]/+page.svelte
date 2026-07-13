@@ -158,11 +158,22 @@
         });
 
         socket.addEventListener("message", (event) => {
-            $card = JSON.parse(event.data);
-            actionError = "";
-            loadError = "";
-            redirectToNextRound();
-            isBingo();
+            try {
+                const updated = JSON.parse(event.data);
+                if (!isValidCard(updated)) {
+                    throw new Error("invalid card update");
+                }
+                $card = updated;
+                actionError = "";
+                loadError = "";
+                redirectToNextRound();
+                isBingo();
+            } catch (error) {
+                actionError =
+                    "A atualização em tempo real foi interrompida. Tentando reconectar.";
+                socket?.close();
+                startPolling();
+            }
         });
 
         socket.addEventListener("close", (event) => {
