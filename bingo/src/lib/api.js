@@ -7,7 +7,7 @@
  * @returns {Promise<T>}
  */
 export const callApi = async (data, url = "", method = "GET", body = null) => {
-    const result = await callApiResult(data, url, method, body);
+    const result = await callApiResult(data, url, method, body, true);
     return result.data;
 };
 
@@ -17,9 +17,16 @@ export const callApi = async (data, url = "", method = "GET", body = null) => {
  * @param {string} url
  * @param {string} method
  * @param {unknown} body
+ * @param {boolean} redirectOnServerError
  * @returns {Promise<{data: T, ok: boolean}>}
  */
-export const callApiResult = async (data, url = "", method = "GET", body = null) => {
+export const callApiResult = async (
+    data,
+    url = "",
+    method = "GET",
+    body = null,
+    redirectOnServerError = false
+) => {
     const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
     try {
         const response = await fetch(url, {
@@ -40,7 +47,7 @@ export const callApiResult = async (data, url = "", method = "GET", body = null)
             // window.location.href = "/404";
         }
 
-        if (response.status === 500) {
+        if (response.status === 500 && redirectOnServerError) {
             window.location.href = "/500";
         }
 
