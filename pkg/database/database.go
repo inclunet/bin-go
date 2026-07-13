@@ -128,7 +128,7 @@ func migrate(ctx context.Context, pool *pgxpool.Pool) error {
 			return fmt.Errorf("read migration %s: %w", entry.Name(), err)
 		}
 
-		if _, err := tx.Exec(ctx, string(sql)); err != nil {
+		if _, err := tx.Conn().PgConn().Exec(ctx, string(sql)).ReadAll(); err != nil {
 			return fmt.Errorf("apply migration %s: %w", entry.Name(), err)
 		}
 		if _, err := tx.Exec(ctx, `INSERT INTO schema_migrations (version) VALUES ($1)`, entry.Name()); err != nil {

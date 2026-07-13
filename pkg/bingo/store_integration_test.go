@@ -46,8 +46,14 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := pool.Exec(ctx, string(migration)); err != nil {
+	connection, err := pool.Acquire(ctx)
+	if err != nil {
 		t.Fatal(err)
+	}
+	_, migrationErr := connection.Conn().PgConn().Exec(ctx, string(migration)).ReadAll()
+	connection.Release()
+	if migrationErr != nil {
+		t.Fatal(migrationErr)
 	}
 
 	round := NewRound(&Bingo{}, 75)
