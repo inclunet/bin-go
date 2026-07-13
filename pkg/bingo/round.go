@@ -3,8 +3,6 @@ package bingo
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
-	"sync/atomic"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -20,12 +18,10 @@ type Round struct {
 }
 
 type RoundMutation struct {
-	snapshot     []byte
-	connections  []*websocket.Conn
-	connMutexes  []*sync.Mutex
-	updateSeqs   []*atomic.Uint64
-	writeMutexes []*sync.Mutex
-	upgrader     websocket.Upgrader
+	snapshot    []byte
+	connections []*websocket.Conn
+	runtimes    []*cardRuntime
+	upgrader    websocket.Upgrader
 }
 
 func (r *Round) AddCard() (*Card, error) {
@@ -164,10 +160,7 @@ func (r *Round) RestoreRuntime() {
 		r.Cards[i].RoundID = r.ID
 		r.Cards[i].Round = r.Round
 		r.Cards[i].Type = r.Type
-		r.Cards[i].conn = nil
-		r.Cards[i].connMu = &sync.Mutex{}
-		r.Cards[i].updateSeq = &atomic.Uint64{}
-		r.Cards[i].writeMu = &sync.Mutex{}
+		r.Cards[i].runtime = &cardRuntime{}
 	}
 
 	r.RelinkCards()
@@ -192,35 +185,21 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 	}
 
 	connections := make([]*websocket.Conn, len(r.Cards))
-	connMutexes := make([]*sync.Mutex, len(r.Cards))
-	updateSeqs := make([]*atomic.Uint64, len(r.Cards))
-	writeMutexes := make([]*sync.Mutex, len(r.Cards))
+	runtimes := make([]*cardRuntime, len(r.Cards))
 	for i := range r.Cards {
-		if r.Cards[i].connMu == nil {
-			r.Cards[i].connMu = &sync.Mutex{}
-		}
-		if r.Cards[i].writeMu == nil {
-			r.Cards[i].writeMu = &sync.Mutex{}
-		}
-		if r.Cards[i].updateSeq == nil {
-			r.Cards[i].updateSeq = &atomic.Uint64{}
-		}
-		r.Cards[i].connMu.Lock()
-		connections[i] = r.Cards[i].conn
-		connMutexes[i] = r.Cards[i].connMu
-		updateSeqs[i] = r.Cards[i].updateSeq
-		writeMutexes[i] = r.Cards[i].writeMu
-		r.Cards[i].conn = nil
-		r.Cards[i].connMu.Unlock()
+		runtime := r.Cards[i].getRuntime()
+		runtime.connMu.Lock()
+		connections[i] = runtime.conn
+		runtimes[i] = runtime
+		runtime.conn = nil
+		runtime.connMu.Unlock()
 	}
 
 	return &RoundMutation{
-		snapshot:     snapshot,
-		connections:  connections,
-		connMutexes:  connMutexes,
-		updateSeqs:   updateSeqs,
-		writeMutexes: writeMutexes,
-		upgrader:     r.upgrader,
+		snapshot:    snapshot,
+		connections: connections,
+		runtimes:    runtimes,
+		upgrader:    r.upgrader,
 	}, nil
 }
 
@@ -253,26 +232,17 @@ func (r *Round) Publish() {
 
 func (m *RoundMutation) attachConnections(round *Round) {
 	for i := range round.Cards {
-		if i < len(m.connMutexes) && m.connMutexes[i] != nil {
-			round.Cards[i].connMu = m.connMutexes[i]
+		if i < len(m.runtimes) && m.runtimes[i] != nil {
+			round.Cards[i].runtime = m.runtimes[i]
 		} else {
-			round.Cards[i].connMu = &sync.Mutex{}
+			round.Cards[i].runtime = &cardRuntime{}
 		}
-		if i < len(m.writeMutexes) && m.writeMutexes[i] != nil {
-			round.Cards[i].writeMu = m.writeMutexes[i]
-		} else {
-			round.Cards[i].writeMu = &sync.Mutex{}
-		}
-		if i < len(m.updateSeqs) && m.updateSeqs[i] != nil {
-			round.Cards[i].updateSeq = m.updateSeqs[i]
-		} else {
-			round.Cards[i].updateSeq = &atomic.Uint64{}
-		}
-		round.Cards[i].connMu.Lock()
+		runtime := round.Cards[i].runtime
+		runtime.connMu.Lock()
 		if i < len(m.connections) {
-			round.Cards[i].conn = m.connections[i]
+			runtime.conn = m.connections[i]
 		}
-		round.Cards[i].connMu.Unlock()
+		runtime.connMu.Unlock()
 	}
 }
 

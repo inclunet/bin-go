@@ -20,10 +20,7 @@ type Card struct {
 	Bingo          bool
 	Card           int
 	Checked        int
-	conn           *websocket.Conn
-	connMu         *sync.Mutex
-	updateSeq      *atomic.Uint64
-	writeMu        *sync.Mutex
+	runtime        *cardRuntime
 	Completions    *Completions
 	Finished       bool
 	LastCompletion string
@@ -34,6 +31,20 @@ type Card struct {
 	Type           int
 	Main           *Card `json:"-"`
 	Numbers        [][5]Number
+}
+
+type cardRuntime struct {
+	conn      *websocket.Conn
+	connMu    sync.Mutex
+	updateSeq atomic.Uint64
+	writeMu   sync.Mutex
+}
+
+func (c *Card) getRuntime() *cardRuntime {
+	if c.runtime == nil {
+		c.runtime = &cardRuntime{}
+	}
+	return c.runtime
 }
 
 func (c *Card) CancelAlert() {
@@ -479,13 +490,11 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 		return false
 	}
 
-	if c.connMu == nil {
-		c.connMu = &sync.Mutex{}
-	}
-	c.connMu.Lock()
-	previous := c.conn
-	c.conn = conn
-	c.connMu.Unlock()
+	runtime := c.getRuntime()
+	runtime.connMu.Lock()
+	previous := runtime.conn
+	runtime.conn = conn
+	runtime.connMu.Unlock()
 	if previous != nil && previous != conn {
 		_ = previous.Close()
 	}
@@ -562,55 +571,43 @@ func (c *Card) UpdateCard() error {
 // PrepareUpdate snapshots the card while its caller holds the round lock. The
 // returned function serializes network I/O without holding the round lock.
 func (c *Card) PrepareUpdate() (func() error, error) {
-	if c.writeMu == nil {
-		c.writeMu = &sync.Mutex{}
-	}
-	if c.connMu == nil {
-		c.connMu = &sync.Mutex{}
-	}
-
 	payload, err := json.Marshal(c)
 	if err != nil {
 		return nil, err
 	}
 
-	c.connMu.Lock()
-	conn := c.conn
-	c.connMu.Unlock()
+	runtime := c.getRuntime()
+	runtime.connMu.Lock()
+	conn := runtime.conn
+	runtime.connMu.Unlock()
 	if conn == nil {
 		return func() error { return nil }, nil
 	}
-	if c.updateSeq == nil {
-		c.updateSeq = &atomic.Uint64{}
-	}
-	writeMu := c.writeMu
-	connMu := c.connMu
-	updateSeq := c.updateSeq
-	sequence := updateSeq.Add(1)
+	sequence := runtime.updateSeq.Add(1)
 
 	return func() error {
-		writeMu.Lock()
-		defer writeMu.Unlock()
-		if sequence != updateSeq.Load() {
+		runtime.writeMu.Lock()
+		defer runtime.writeMu.Unlock()
+		if sequence != runtime.updateSeq.Load() {
 			return nil
 		}
 
 		if err := conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
 			_ = conn.Close()
-			connMu.Lock()
-			if c.conn == conn {
-				c.conn = nil
+			runtime.connMu.Lock()
+			if runtime.conn == conn {
+				runtime.conn = nil
 			}
-			connMu.Unlock()
+			runtime.connMu.Unlock()
 			return err
 		}
 		if err := conn.WriteMessage(websocket.TextMessage, payload); err != nil {
 			_ = conn.Close()
-			connMu.Lock()
-			if c.conn == conn {
-				c.conn = nil
+			runtime.connMu.Lock()
+			if runtime.conn == conn {
+				runtime.conn = nil
 			}
-			connMu.Unlock()
+			runtime.connMu.Unlock()
 			return err
 		}
 
@@ -625,9 +622,7 @@ func NewCard(round *Round) Card {
 	card := Card{
 		ID:          uuid.NewString(),
 		RoundID:     round.ID,
-		connMu:      &sync.Mutex{},
-		updateSeq:   &atomic.Uint64{},
-		writeMu:     &sync.Mutex{},
+		runtime:     &cardRuntime{},
 		Autoplay:    true,
 		Card:        len(round.Cards) + 1,
 		Completions: NewDefaultCompletions(),
