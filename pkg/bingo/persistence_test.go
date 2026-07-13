@@ -152,6 +152,37 @@ func TestCompletedRoundDoesNotToggleFreeSpace(t *testing.T) {
 	}
 }
 
+func TestCheckWebSocketOrigin(t *testing.T) {
+	tests := []struct {
+		name       string
+		host       string
+		origin     string
+		acceptable bool
+	}{
+		{name: "missing origin", host: "example.com", acceptable: true},
+		{name: "same origin", host: "example.com", origin: "https://example.com", acceptable: true},
+		{name: "local proxy", host: "localhost:8080", origin: "http://localhost:5173", acceptable: true},
+		{name: "local IP proxy", host: "127.0.0.1:8080", origin: "http://127.0.0.1:5173", acceptable: true},
+		{name: "different origin", host: "example.com", origin: "https://attacker.example", acceptable: false},
+		{name: "local origin against production", host: "example.com", origin: "http://localhost:5173", acceptable: false},
+		{name: "malformed origin", host: "example.com", origin: "://invalid", acceptable: false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			request := httptest.NewRequest("GET", "http://"+test.host+"/ws", nil)
+			request.Host = test.host
+			if test.origin != "" {
+				request.Header.Set("Origin", test.origin)
+			}
+
+			if actual := checkWebSocketOrigin(request); actual != test.acceptable {
+				t.Fatalf("checkWebSocketOrigin() = %v, want %v", actual, test.acceptable)
+			}
+		})
+	}
+}
+
 func TestCardJSONDoesNotPersistRuntimeMainPointer(t *testing.T) {
 	round := NewRound(&Bingo{}, 75)
 	card, err := round.AddCard()

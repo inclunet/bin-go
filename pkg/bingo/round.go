@@ -3,6 +3,10 @@ package bingo
 import (
 	"encoding/json"
 	"fmt"
+	"net"
+	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -151,10 +155,7 @@ func (r *Round) UncheckNumberForAll(number int) *Round {
 }
 
 func (r *Round) RestoreRuntime() {
-	r.upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
+	r.upgrader = newWebsocketUpgrader()
 
 	for i := range r.Cards {
 		r.Cards[i].RoundID = r.ID
@@ -256,16 +257,48 @@ func nextRoundNumber(bingo *Bingo) int {
 	return next
 }
 
+func newWebsocketUpgrader() websocket.Upgrader {
+	return websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin:     checkWebSocketOrigin,
+	}
+}
+
+func checkWebSocketOrigin(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		return true
+	}
+
+	originURL, err := url.Parse(origin)
+	if err != nil || originURL.Host == "" {
+		return false
+	}
+	if strings.EqualFold(originURL.Host, r.Host) {
+		return true
+	}
+
+	requestURL, err := url.Parse("//" + r.Host)
+	if err != nil {
+		return false
+	}
+	return isLoopbackHost(originURL.Hostname()) && isLoopbackHost(requestURL.Hostname())
+}
+
+func isLoopbackHost(host string) bool {
+	return strings.EqualFold(host, "localhost") ||
+		strings.EqualFold(host, "localhost.localdomain") ||
+		net.ParseIP(host).IsLoopback()
+}
+
 func NewRound(bingo *Bingo, roundType int) Round {
 	round := Round{
-		ID:    uuid.NewString(),
-		Round: nextRoundNumber(bingo),
-		Type:  roundType,
-		upgrader: websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-		},
-		Cards: []Card{},
+		ID:       uuid.NewString(),
+		Round:    nextRoundNumber(bingo),
+		Type:     roundType,
+		upgrader: newWebsocketUpgrader(),
+		Cards:    []Card{},
 	}
 
 	round.AddCard()
