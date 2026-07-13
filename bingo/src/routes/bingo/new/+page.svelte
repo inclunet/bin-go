@@ -7,7 +7,9 @@
 
     const handleNewRoundEvent = async () => {
         $card = await callApi($card, `/api/bingo/0/new/${$card.Type}`, "GET");
-        localStorage.setItem(`bingo-host:${$card.RoundID}`, $card.ID);
+        if (!$card.RoundID || !$card.ID) {
+            return;
+        }
         goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 </script>

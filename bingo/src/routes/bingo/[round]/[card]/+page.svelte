@@ -55,7 +55,9 @@
 
     const handleNewRoundEvent = async () => {
         await updateCard(`/api/bingo/${$card.RoundID}/new/${$card.Type}`);
-        localStorage.setItem(`bingo-host:${$card.RoundID}`, $card.ID);
+        if (!$card.RoundID || !$card.ID) {
+            return;
+        }
         goto(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
