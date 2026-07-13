@@ -17,6 +17,7 @@ type Bingo struct {
 	store      Store
 	roundsByID map[string]*Round
 	roundLocks map[string]*sync.Mutex
+	creationMu sync.Mutex
 	mu         sync.RWMutex
 }
 
@@ -61,20 +62,6 @@ func (b *Bingo) getRoundAndLock(roundID string) (*Round, *sync.Mutex, error) {
 	return round, roundLock, nil
 }
 
-func (b *Bingo) removeRound(roundID string) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	for i, round := range b.Rounds {
-		if round.ID == roundID {
-			b.Rounds = append(b.Rounds[:i], b.Rounds[i+1:]...)
-			break
-		}
-	}
-	delete(b.roundsByID, roundID)
-	delete(b.roundLocks, roundID)
-}
-
 func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 	round, roundLock, err := b.getRoundAndLock(server.GetURLParam(r, "round"))
 
@@ -100,34 +87,30 @@ func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 }
 
 func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
+	b.creationMu.Lock()
+	defer b.creationMu.Unlock()
+
 	b.mu.Lock()
 
 	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
 
 	round := &newRound
-	newRoundLock := &sync.Mutex{}
-	newRoundLock.Lock()
-	b.Rounds = append(b.Rounds, round)
-	b.roundsByID[round.ID] = round
-	b.roundLocks[round.ID] = newRoundLock
 	old := b.roundsByID[server.GetURLParam(r, "round")]
 	oldLock := b.roundLocks[server.GetURLParam(r, "round")]
 	b.mu.Unlock()
-	defer newRoundLock.Unlock()
 
 	card, err := round.GetCard(0)
 
 	if err != nil {
-		b.removeRound(round.ID)
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
+	players := 0
 	if old != nil {
 		oldLock.Lock()
 		defer oldLock.Unlock()
 
 		if old.NextRoundID != "" {
-			b.removeRound(round.ID)
 			return server.NewResponseError(http.StatusConflict, errors.New("round already has a next round"))
 		}
 
@@ -139,21 +122,28 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 			previousNextRoundIDs[i] = old.Cards[i].NextRoundID
 		}
 
-		players := old.SetNextRoundForAll(round)
+		players = old.SetNextRoundForAll(round)
 		if err := b.persistRounds(r.Context(), round, old); err != nil {
 			old.NextRoundID = previousRoundID
 			for i := range old.Cards {
 				old.Cards[i].NextRound = previousNextRounds[i]
 				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
 			}
-			b.removeRound(round.ID)
 			return persistenceResponseError("rounds cannot be saved", err)
 		}
+	} else if err := b.persistRound(r.Context(), round); err != nil {
+		return persistenceResponseError("round cannot be saved", err)
+	}
+
+	b.mu.Lock()
+	b.Rounds = append(b.Rounds, round)
+	b.roundsByID[round.ID] = round
+	b.roundLocks[round.ID] = &sync.Mutex{}
+	b.mu.Unlock()
+
+	if old != nil {
 		old.Publish()
 		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", players)
-	} else if err := b.persistRound(r.Context(), round); err != nil {
-		b.removeRound(round.ID)
-		return persistenceResponseError("round cannot be saved", err)
 	}
 
 	b.Log("Add Bingo Round", card)
