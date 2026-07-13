@@ -3,6 +3,7 @@ package bingo
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -18,9 +19,10 @@ type Round struct {
 }
 
 type RoundMutation struct {
-	snapshot    []byte
-	connections []*websocket.Conn
-	upgrader    websocket.Upgrader
+	snapshot     []byte
+	connections  []*websocket.Conn
+	writeMutexes []*sync.Mutex
+	upgrader     websocket.Upgrader
 }
 
 func (r *Round) AddCard() (*Card, error) {
@@ -160,6 +162,7 @@ func (r *Round) RestoreRuntime() {
 		r.Cards[i].Round = r.Round
 		r.Cards[i].Type = r.Type
 		r.Cards[i].conn = nil
+		r.Cards[i].writeMu = &sync.Mutex{}
 	}
 
 	r.RelinkCards()
@@ -184,15 +187,18 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 	}
 
 	connections := make([]*websocket.Conn, len(r.Cards))
+	writeMutexes := make([]*sync.Mutex, len(r.Cards))
 	for i := range r.Cards {
 		connections[i] = r.Cards[i].conn
+		writeMutexes[i] = r.Cards[i].writeMu
 		r.Cards[i].conn = nil
 	}
 
 	return &RoundMutation{
-		snapshot:    snapshot,
-		connections: connections,
-		upgrader:    r.upgrader,
+		snapshot:     snapshot,
+		connections:  connections,
+		writeMutexes: writeMutexes,
+		upgrader:     r.upgrader,
 	}, nil
 }
 
@@ -218,6 +224,11 @@ func (m *RoundMutation) attachConnections(round *Round) {
 	for i := range round.Cards {
 		if i < len(m.connections) {
 			round.Cards[i].conn = m.connections[i]
+		}
+		if i < len(m.writeMutexes) && m.writeMutexes[i] != nil {
+			round.Cards[i].writeMu = m.writeMutexes[i]
+		} else {
+			round.Cards[i].writeMu = &sync.Mutex{}
 		}
 	}
 }

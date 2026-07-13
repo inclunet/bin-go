@@ -319,37 +319,48 @@ func (b *Bingo) LiveHandler(w http.ResponseWriter, r *http.Request) {
 		response.SendHasJson(w)
 		return
 	}
-	defer roundLock.Unlock()
 
 	card, err := round.GetCardByID(server.GetURLParam(r, "card"))
 
 	if err != nil {
+		roundLock.Unlock()
 		response, err := server.NewResponseError(http.StatusNotFound, fmt.Errorf("card not found"))
 		server.Logger.Error(err.Error())
 		response.SendHasJson(w)
 		return
 	}
 
-	round.upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	upgrader := round.upgrader
+	roundLock.Unlock()
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	conn, err := round.upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
-		response, err := server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("websocket connection error: %v", err))
-		server.Logger.Error(err.Error())
-		response.SendHasJson(w)
+		server.Logger.Error("websocket upgrade failed", "error", err)
 		return
 	}
 
+	round, roundLock, err = b.getRoundAndLock(server.GetURLParam(r, "round"))
+	if err != nil {
+		_ = conn.Close()
+		return
+	}
+	card, err = round.GetCardByID(server.GetURLParam(r, "card"))
+	if err != nil {
+		roundLock.Unlock()
+		_ = conn.Close()
+		return
+	}
 	if !card.SetConn(conn) {
-		response, err := server.NewResponseError(http.StatusInternalServerError, fmt.Errorf("websocket connection error: %v", err))
-		server.Logger.Error(err.Error())
-		response.SendHasJson(w)
+		roundLock.Unlock()
+		_ = conn.Close()
 		return
-
 	}
-
-	card.UpdateCard()
+	roundLock.Unlock()
+	if err := card.UpdateCard(); err != nil {
+		_ = conn.Close()
+	}
 }
 
 func (b *Bingo) Log(msg string, card *Card, complement ...any) {

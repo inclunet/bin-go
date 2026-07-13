@@ -176,7 +176,7 @@ func (s *PostgresStore) SaveRounds(ctx context.Context, rounds ...*Round) error 
 	if err != nil {
 		return fmt.Errorf("begin saving bingo rounds: %w", err)
 	}
-	defer tx.Rollback(ctx) //nolint:errcheck
+	defer tx.Rollback(context.Background()) //nolint:errcheck
 
 	for _, round := range rounds {
 		if err := saveRound(ctx, tx, round); err != nil {

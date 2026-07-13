@@ -3,6 +3,7 @@ package bingo
 import (
 	"fmt"
 	"sort"
+	"sync"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -17,6 +18,7 @@ type Card struct {
 	Card           int
 	Checked        int
 	conn           *websocket.Conn
+	writeMu        *sync.Mutex
 	Completions    *Completions
 	Finished       bool
 	LastCompletion string
@@ -472,7 +474,12 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 		return false
 	}
 
+	if c.writeMu == nil {
+		c.writeMu = &sync.Mutex{}
+	}
+	c.writeMu.Lock()
 	c.conn = conn
+	c.writeMu.Unlock()
 
 	return true
 }
@@ -535,6 +542,12 @@ func (c *Card) UncheckNumber(number int) bool {
 }
 
 func (c *Card) UpdateCard() error {
+	if c.writeMu == nil {
+		c.writeMu = &sync.Mutex{}
+	}
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
+
 	if c.conn == nil {
 		return nil
 	}
@@ -555,6 +568,7 @@ func NewCard(round *Round) Card {
 	card := Card{
 		ID:          uuid.NewString(),
 		RoundID:     round.ID,
+		writeMu:     &sync.Mutex{},
 		Autoplay:    true,
 		Card:        len(round.Cards) + 1,
 		Completions: NewDefaultCompletions(),
