@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -21,6 +22,8 @@ type Round struct {
 type RoundMutation struct {
 	snapshot     []byte
 	connections  []*websocket.Conn
+	connMutexes  []*sync.Mutex
+	updateSeqs   []*atomic.Uint64
 	writeMutexes []*sync.Mutex
 	upgrader     websocket.Upgrader
 }
@@ -162,6 +165,8 @@ func (r *Round) RestoreRuntime() {
 		r.Cards[i].Round = r.Round
 		r.Cards[i].Type = r.Type
 		r.Cards[i].conn = nil
+		r.Cards[i].connMu = &sync.Mutex{}
+		r.Cards[i].updateSeq = &atomic.Uint64{}
 		r.Cards[i].writeMu = &sync.Mutex{}
 	}
 
@@ -187,21 +192,33 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 	}
 
 	connections := make([]*websocket.Conn, len(r.Cards))
+	connMutexes := make([]*sync.Mutex, len(r.Cards))
+	updateSeqs := make([]*atomic.Uint64, len(r.Cards))
 	writeMutexes := make([]*sync.Mutex, len(r.Cards))
 	for i := range r.Cards {
+		if r.Cards[i].connMu == nil {
+			r.Cards[i].connMu = &sync.Mutex{}
+		}
 		if r.Cards[i].writeMu == nil {
 			r.Cards[i].writeMu = &sync.Mutex{}
 		}
-		r.Cards[i].writeMu.Lock()
+		if r.Cards[i].updateSeq == nil {
+			r.Cards[i].updateSeq = &atomic.Uint64{}
+		}
+		r.Cards[i].connMu.Lock()
 		connections[i] = r.Cards[i].conn
+		connMutexes[i] = r.Cards[i].connMu
+		updateSeqs[i] = r.Cards[i].updateSeq
 		writeMutexes[i] = r.Cards[i].writeMu
 		r.Cards[i].conn = nil
-		r.Cards[i].writeMu.Unlock()
+		r.Cards[i].connMu.Unlock()
 	}
 
 	return &RoundMutation{
 		snapshot:     snapshot,
 		connections:  connections,
+		connMutexes:  connMutexes,
+		updateSeqs:   updateSeqs,
 		writeMutexes: writeMutexes,
 		upgrader:     r.upgrader,
 	}, nil
@@ -236,16 +253,26 @@ func (r *Round) Publish() {
 
 func (m *RoundMutation) attachConnections(round *Round) {
 	for i := range round.Cards {
+		if i < len(m.connMutexes) && m.connMutexes[i] != nil {
+			round.Cards[i].connMu = m.connMutexes[i]
+		} else {
+			round.Cards[i].connMu = &sync.Mutex{}
+		}
 		if i < len(m.writeMutexes) && m.writeMutexes[i] != nil {
 			round.Cards[i].writeMu = m.writeMutexes[i]
 		} else {
 			round.Cards[i].writeMu = &sync.Mutex{}
 		}
-		round.Cards[i].writeMu.Lock()
+		if i < len(m.updateSeqs) && m.updateSeqs[i] != nil {
+			round.Cards[i].updateSeq = m.updateSeqs[i]
+		} else {
+			round.Cards[i].updateSeq = &atomic.Uint64{}
+		}
+		round.Cards[i].connMu.Lock()
 		if i < len(m.connections) {
 			round.Cards[i].conn = m.connections[i]
 		}
-		round.Cards[i].writeMu.Unlock()
+		round.Cards[i].connMu.Unlock()
 	}
 }
 

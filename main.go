@@ -30,7 +30,7 @@ func main() {
 
 	pool, err := database.Open(context.Background())
 	if err != nil {
-		if strings.EqualFold(os.Getenv("REQUIRE_DATABASE"), "true") {
+		if strings.EqualFold(strings.TrimSpace(os.Getenv("REQUIRE_DATABASE")), "true") {
 			server.Logger.Error("Database startup failed", "error", err)
 			os.Exit(1)
 		}

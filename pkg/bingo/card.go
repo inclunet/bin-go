@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,6 +21,8 @@ type Card struct {
 	Card           int
 	Checked        int
 	conn           *websocket.Conn
+	connMu         *sync.Mutex
+	updateSeq      *atomic.Uint64
 	writeMu        *sync.Mutex
 	Completions    *Completions
 	Finished       bool
@@ -476,13 +479,13 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 		return false
 	}
 
-	if c.writeMu == nil {
-		c.writeMu = &sync.Mutex{}
+	if c.connMu == nil {
+		c.connMu = &sync.Mutex{}
 	}
-	c.writeMu.Lock()
+	c.connMu.Lock()
 	previous := c.conn
 	c.conn = conn
-	c.writeMu.Unlock()
+	c.connMu.Unlock()
 	if previous != nil && previous != conn {
 		_ = previous.Close()
 	}
@@ -556,38 +559,58 @@ func (c *Card) UpdateCard() error {
 	return send()
 }
 
-// PrepareUpdate snapshots the card while its caller holds the round lock and
-// reserves the next WebSocket write. The returned function performs network
-// I/O after the caller releases the round lock.
+// PrepareUpdate snapshots the card while its caller holds the round lock. The
+// returned function serializes network I/O without holding the round lock.
 func (c *Card) PrepareUpdate() (func() error, error) {
 	if c.writeMu == nil {
 		c.writeMu = &sync.Mutex{}
 	}
-	c.writeMu.Lock()
-
-	if c.conn == nil {
-		c.writeMu.Unlock()
-		return func() error { return nil }, nil
+	if c.connMu == nil {
+		c.connMu = &sync.Mutex{}
 	}
 
 	payload, err := json.Marshal(c)
 	if err != nil {
-		c.writeMu.Unlock()
 		return nil, err
 	}
 
+	c.connMu.Lock()
 	conn := c.conn
+	c.connMu.Unlock()
+	if conn == nil {
+		return func() error { return nil }, nil
+	}
+	if c.updateSeq == nil {
+		c.updateSeq = &atomic.Uint64{}
+	}
+	writeMu := c.writeMu
+	connMu := c.connMu
+	updateSeq := c.updateSeq
+	sequence := updateSeq.Add(1)
+
 	return func() error {
-		defer c.writeMu.Unlock()
+		writeMu.Lock()
+		defer writeMu.Unlock()
+		if sequence != updateSeq.Load() {
+			return nil
+		}
 
 		if err := conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
 			_ = conn.Close()
-			c.conn = nil
+			connMu.Lock()
+			if c.conn == conn {
+				c.conn = nil
+			}
+			connMu.Unlock()
 			return err
 		}
 		if err := conn.WriteMessage(websocket.TextMessage, payload); err != nil {
 			_ = conn.Close()
-			c.conn = nil
+			connMu.Lock()
+			if c.conn == conn {
+				c.conn = nil
+			}
+			connMu.Unlock()
 			return err
 		}
 
@@ -602,6 +625,8 @@ func NewCard(round *Round) Card {
 	card := Card{
 		ID:          uuid.NewString(),
 		RoundID:     round.ID,
+		connMu:      &sync.Mutex{},
+		updateSeq:   &atomic.Uint64{},
 		writeMu:     &sync.Mutex{},
 		Autoplay:    true,
 		Card:        len(round.Cards) + 1,
