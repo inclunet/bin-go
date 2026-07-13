@@ -65,24 +65,8 @@
 </script>
 
 <div class="battleship-board-wrapper">
-	<!-- Labels das colunas (A-J) -->
-	<div class="col-labels" aria-hidden="true">
-		{#each colLetters as letter}
-			<span>{letter}</span>
-		{/each}
-	</div>
-	
-	<!-- Labels das linhas (1-10) -->
-	<div class="row-labels" aria-hidden="true">
-		{#each rowNumbers as number}
-			<span>{number}</span>
-		{/each}
-	</div>
-	
-	<!-- Tabuleiro principal (loops keyeados para recriar botão quando estado do navio muda) -->
-	<p id="board-instructions" class="sr-only">Tabuleiro interativo. Use NVDA+Espaço para entrar em modo foco. Depois use as setas para mover, Enter para atirar ou posicionar. Em modo navegação (browse) apenas o conteúdo visual é lido; para ouvir coordenadas e estado das células ative o modo foco.</p>
-	<div
-		class="battleship-board"
+	<p id="board-instructions" class="sr-only">Tabuleiro interativo. Use NVDA+Espaço para foco. Setas movem; Enter confirma ação.</p>
+	<div class="board-inner battleship-board integrated"
 		class:setup-mode={mode === 'setup'}
 		class:playing-mode={mode === 'playing'}
 		class:my-turn={isMyTurn}
@@ -92,57 +76,55 @@
 		aria-label="Tabuleiro {mode === 'setup' ? 'posicionamento' : (mode === 'playing' ? (isMyTurn ? 'ataque, seu turno' : 'defesa, turno do oponente') : 'visualização')}"
 		aria-describedby="board-instructions"
 	>
+		<!-- Primeira linha: canto vazio + letras -->
+		<div class="cell header-corner" aria-hidden="true"></div>
+		{#each colLetters as letter}
+			<div class="cell header-col" aria-hidden="true">{letter}</div>
+		{/each}
+		<!-- Demais linhas -->
 		{#each board as boardRow, r}
-			<div role="row" aria-rowindex={r + 1} class="grid-row">
-				{#each boardRow as cell, c (r + '-' + c) }
-					<div
-						id={cellId(r, c)}
-						data-row={r}
-						data-col={c}
-						tabindex={row === r && col === c ? 0 : -1}
-						role="gridcell"
-						aria-roledescription="célula"
-						aria-rowindex={r + 1}
-						aria-colindex={c + 1}
-						class="battleship-cell {getCellClass(r, c)}"
-						aria-busy={isPending(r,c) ? 'true' : 'false'}
-						on:click={() => handleCellClick(r, c)}
-						on:focus={() => handleCellFocus(r, c)}
-						on:keydown={handleKeydown}
-					>
-						<!-- Texto acessível único dentro da célula para modo browse (sem aria-label para evitar perda de leitura). -->
-						<span class="sr-only-accessible">{getCellLabel(r, c, shipNames)}{isPending(r,c) ? ' aguardando confirmação' : ''}</span>
-						<span class="cell-coord" aria-hidden="true">{colLetters[c]}{rowNumbers[r]}</span>
-						<span class="cell-content" aria-hidden="true">
-							{#if getCellState(r, c) === 'ship'}
-								🚢
-							{:else if getCellState(r, c) === 'hit'}
-								💥
-							{:else if getCellState(r, c) === 'miss'}
-								🌊
-							{:else if getCellState(r, c) === 'sunk'}
-								☠️
-							{/if}
-						</span>
-						{#if isPending(r,c)}
-							<span class="pending-indicator" aria-hidden="true"></span>
-						{/if}
-					</div>
-				{/each}
+			<!-- Cabeçalho da linha -->
+			<div class="cell header-row" aria-hidden="true">{rowNumbers[r]}</div>
+			{#each boardRow as cell, c (r + '-' + c)}
+				<div
+					id={cellId(r,c)}
+					data-row={r}
+					data-col={c}
+					tabindex={row===r && col===c ? 0 : -1}
+					role="gridcell"
+					aria-roledescription="célula"
+					aria-rowindex={r+1}
+					aria-colindex={c+1}
+					class="battleship-cell {getCellClass(r,c)}"
+					aria-busy={isPending(r,c) ? 'true' : 'false'}
+					on:click={() => handleCellClick(r,c)}
+					on:focus={() => handleCellFocus(r,c)}
+					on:keydown={handleKeydown}
+			>
+				<span class="sr-only-accessible">{getCellLabel(r,c, shipNames)}{isPending(r,c) ? ' aguardando confirmação' : ''}</span>
+				<span class="cell-content" aria-hidden="true">{#if getCellState(r,c) === 'ship'}🚢{:else if getCellState(r,c) === 'hit'}💥{:else if getCellState(r,c) === 'miss'}🌊{:else if getCellState(r,c) === 'sunk'}☠️{/if}</span>
+				{#if isPending(r,c)}<span class="pending-indicator" aria-hidden="true"></span>{/if}
 			</div>
+			{/each}
 		{/each}
 	</div>
-
 </div>
 
 <style>
-	.battleship-board-wrapper {
-		position: relative;
-		padding: 2.5rem 2.5rem 0 2.5rem;
-		/* espaço para labels externos */
-		width: fit-content;
-		margin: 0 auto;
+		.battleship-board-wrapper {
+		--gutter: clamp(0.6rem, 2.2vw, 2rem);
+			padding: var(--gutter) var(--gutter) 0 var(--gutter);
+			max-width: 100%;
+			margin: 0 auto;
+			display: flex;
+			justify-content: center;
+			align-items: flex-start;
+			/* Evitar que o container ocupe largura maior que o tabuleiro e pareça "colado" à esquerda quando dentro de pais .container com padding */
+			width: 100%;
 	}
+		.board-inner { flex:0 1 auto; }
+	/* Layout integrado 11x11: remove necessidade de wrappers de labels */
+	.top-labels, .left-labels { display:none !important; }
 
 	.col-labels, .row-labels {
 		font-size: 0.85rem;
@@ -152,45 +134,48 @@
 		font-family: system-ui, sans-serif;
 	}
 
-	.col-labels {
-		position: absolute;
-		top: 0;
-		left: 2.5rem;
-		display: grid;
-		grid-template-columns: repeat(10, 1fr);
-		width: calc(100% - 2.5rem);
-		transform: translateY(-55%);
-		pointer-events: none;
-	}
-	.col-labels span { text-align: center; }
-
-	.row-labels {
-		position: absolute;
-		left: 0;
-		top: 2.5rem;
-		display: grid;
-		grid-template-rows: repeat(10, 1fr);
-		height: calc(100% - 2.5rem);
-		transform: translateX(-55%);
-		pointer-events: none;
-	}
-	.row-labels span { display: flex; align-items: center; justify-content: center; }
+	/* Antigo sistema de labels absolutas removido */
 
 	/* Responsividade do tabuleiro: tamanho quadrado fluido baseado na largura disponível */
-	.battleship-board {
+	.battleship-board.integrated {
 		display: grid;
-		grid-template-columns: repeat(10, 1fr);
-		grid-template-rows: repeat(10, 1fr);
-		/* Usa clamp para limitar tamanho máximo mantendo legibilidade em desktop e adaptação em mobile */
-		--board-size: clamp(280px, 90vw, 600px);
-		width: var(--board-size);
-		height: var(--board-size);
+		grid-template-columns: repeat(11, 1fr);
+		grid-template-rows: repeat(11, 1fr);
+		/* Novo sizing: dependente do wrapper, não do viewport direto, para evitar assimetria de safe-area no iPhone */
+		--board-max: 640px;
+		--board-min: 260px;
+		width: 100%;
+		max-width: var(--board-max);
+		aspect-ratio: 1 / 1;
+		/* Altura automática respeita aspect-ratio; garante mínimo via min() usando clamp nas células */
+		min-width: var(--board-min);
+		min-height: var(--board-min);
 		border: 3px solid #3a5f91;
 		border-radius: 1rem;
 		background: #101922;
 		position: relative;
 		box-shadow: 0 0 0 3px rgba(43, 127, 244, 0.35);
 		overflow: hidden;
+		contain: layout paint size;
+		margin: 0 auto;
+	}
+	/* iOS Safari ajuste de cálculo (usa vmin para reduzir discrepância de safe-area horizontal) */
+	@supports (-webkit-touch-callout: none) {
+		@media (max-width: 480px) {
+			.battleship-board { --board-size: clamp(var(--board-min), calc(100vmin - 5rem), 480px); }
+			.board-grid { gap:0.3rem 0.5rem; }
+			.top-labels, .left-labels { font-size:0.7rem; }
+		}
+	}
+
+	@media (max-width: 600px) {
+		.battleship-board-wrapper { --gutter: clamp(0.5rem, 3vw, 1.2rem); }
+		.battleship-board.integrated { max-width: min(100%, 540px); }
+	}
+
+	/* iPhone / telas muito estreitas em portrait: remover labels laterais para aproveitar 100% da largura e evitar sensação de tabuleiro "pivotado" */
+	@media (max-width: 600px) and (orientation: portrait) {
+		.battleship-board.integrated { max-width: 100%; }
 	}
 	
 	.battleship-cell {
@@ -202,11 +187,13 @@
 		color: #f5f7fa;
 		cursor: pointer;
 		user-select: none;
-		transition: all 0.2s ease;
-		font-size: 1.2rem;
+		transition: background .2s ease, box-shadow .2s ease;
+		font-size: clamp(0.7rem, 1.2vw + 0.35rem, 1.2rem);
 		position: relative;
 		padding: 0;
-		min-height: 45px;
+		min-height: 40px;
+		/* Evitar que user zoom gere quebra do grid */
+		min-width: 0;
 	}
 	
 	.battleship-cell:hover:not(:disabled) {
@@ -273,23 +260,27 @@
 	}
 	
 	.cell-content {
-		font-size: 1.5rem;
+		font-size: clamp(0.85rem, 1.6vw + 0.4rem, 1.5rem);
 		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+		pointer-events: none;
 	}
 
 	/* Coordenada visual pequena para apoiar navegação em modo browse de leitores */
-	.cell-coord {
-		position: absolute;
-		top: 2px;
-		left: 4px;
-		font-size: 0.55rem;
-		font-weight: 600;
-		letter-spacing: .5px;
-		color: rgba(255,255,255,0.55);
-		text-shadow: 0 0 2px rgba(0,0,0,0.8);
-		pointer-events: none;
-		user-select: none;
+	.cell-coord { display:none; }
+	.header-col, .header-row, .header-corner {
+		background:#132231;
+		font-size:0.65rem;
+		font-weight:600;
+		letter-spacing:.05em;
+		display:flex;
+		align-items:center;
+		justify-content:center;
+		color:#c7d5e0;
+		user-select:none;
 	}
+	.header-corner { border:1px solid #2c4d6b; }
+	.header-col { border:1px solid #2c4d6b; }
+	.header-row { border:1px solid #2c4d6b; }
 	
 	/* Modos do tabuleiro */
 	.battleship-board.setup-mode {
@@ -319,29 +310,34 @@
 	}
 	
 	/* Responsividade */
-	@media (max-width: 768px) {
-		.battleship-board-wrapper { padding: 2rem 1.5rem 0 1.5rem; }
-		.battleship-board { --board-size: clamp(260px, 92vw, 480px); }
-		.battleship-cell { min-height: 32px; }
-		.cell-content { font-size: 1.1rem; }
-		.col-labels, .row-labels { font-size: 0.8rem; }
-		.col-labels { top: -1.3rem; }
-		.row-labels { left: -1.3rem; }
+	@media (max-width: 820px) {
+		/* Reduzir gutter e garantir board caiba sem scroll */
+		.battleship-board-wrapper { --gutter: clamp(0.5rem, 1.5vw, 1.25rem); }
+		.col-labels, .row-labels { font-size: 0.78rem; }
+		.battleship-cell { min-height: 34px; }
 	}
-	
-	@media (max-width: 480px) {
-		.battleship-board-wrapper { padding: 1.6rem 1rem 0 1rem; }
-		.battleship-board { --board-size: clamp(240px, 94vw, 420px); }
-		.battleship-cell { min-height: 24px; }
-		.cell-content { font-size: 0.9rem; }
+
+	@media (max-width: 560px) {
+		.battleship-board-wrapper { --gutter: clamp(0.4rem, 1.2vw, 1rem); }
 		.col-labels, .row-labels { font-size: 0.7rem; }
 		.cell-coord { font-size: 0.5rem; }
+		.battleship-cell { min-height: 30px; }
+	}
+
+	@media (max-width: 400px) {
+		.battleship-board-wrapper { --gutter: clamp(0.35rem, 1vw, 0.8rem); }
+		.battleship-cell { min-height: 26px; }
 	}
 
 	@media (max-width: 360px) {
-		.battleship-board { --board-size: clamp(220px, 96vw, 360px); }
-		.battleship-cell { min-height: 22px; }
-		.cell-content { font-size: 0.75rem; }
+		.battleship-cell { min-height: 24px; }
+		.cell-content { font-size: clamp(0.7rem, 1.4vw + 0.35rem, 0.95rem); }
+	}
+
+	/* Paisagem (teclado virtual ou barra do navegador reduzindo altura): limitar pelo vh */
+	@media (max-height: 620px) and (orientation: landscape) {
+		.battleship-board.integrated { max-width: min(100%, 520px); }
+		.battleship-cell { min-height: 20px; }
 	}
 
 	/* Reutiliza padrão de classe escondida para labels explícitos das células */

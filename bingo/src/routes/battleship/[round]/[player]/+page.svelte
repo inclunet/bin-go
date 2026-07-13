@@ -1109,8 +1109,21 @@
 
 <style>
 	.battleship-container {
-		max-width: 800px;
+		max-width: 100%;
 		width: 100%;
+		padding-left: 0;
+		padding-right: 0;
+		margin: 0;
+	}
+	/* Força seções internas a centralizar e usar largura total disponível do viewport até limite confortável */
+	.scoreboard-container,
+	.status-container,
+	.board-container,
+	.setup-info,
+	.view-controls,
+	.actions { margin-left:auto; margin-right:auto; }
+	.scoreboard-container, .status-container { max-width:680px; width:100%; }
+	.board-container { max-width: min(100%, 680px); width:100%; }
 	}
 
 	.scoreboard-container,
@@ -1164,10 +1177,7 @@
 		margin-left: 1rem;
 	}
 
-	.board-container {
-		width: 100%;
-		max-width: 600px;
-	}
+	.board-container { width:100%; }
 
 	.actions {
 		text-align: center;
@@ -1186,10 +1196,8 @@
 	}
 
 	@media (max-width: 768px) {
-		.battleship-container {
-			padding-left: 1rem;
-			padding-right: 1rem;
-		}
+		.battleship-container { padding-left:0; padding-right:0; }
+		.board-container, .scoreboard-container, .status-container { max-width: 100%; }
 
 		.setup-controls {
 			flex-direction: column;
@@ -1222,6 +1230,10 @@
 		pointer-events: none;
 	}
 	.bs-debug-overlay strong { display:block; margin-bottom:.3rem; color:#fff; }
+	@media (max-width: 600px){
+		.battleship-container { padding-left:0; padding-right:0; }
+		.board-container, .scoreboard-container, .status-container { max-width:100%; padding-left:0; padding-right:0; }
+	}
 </style>
 
 <!-- estilos consolidados: debug overlay movido para o bloco principal -->

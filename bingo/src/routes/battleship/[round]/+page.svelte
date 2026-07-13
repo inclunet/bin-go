@@ -92,7 +92,7 @@
 
 <PageTitle title="Selecionar Jogador" game="Batalha Naval" />
 
-<div class="container py-4 d-flex flex-column align-items-center" style="max-width: 640px;">
+<div class="container py-4 d-flex flex-column align-items-center battleship-select-container">
 	<h2 class="text-center mb-4">Partida {roundParam}</h2>
 
 	{#if loading}
@@ -186,6 +186,8 @@
 </div>
 
 <style>
+	.battleship-select-container { max-width:100%; width:100%; padding-left:0; padding-right:0; }
+	.battleship-select-container > * { width:100%; }
 	.selection-container {
 		width: 100%;
 		max-width: 560px;
@@ -274,6 +276,7 @@
 			grid-template-columns: 1fr;
 			gap: 1.5rem;
 		}
+		.battleship-select-container { padding-left:0; padding-right:0; }
 		
 		.player-card {
 			padding: 1.5rem 1rem;

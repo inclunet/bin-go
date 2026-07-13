@@ -70,7 +70,7 @@ let shareLabel = 'Compartilhar link da rodada';
 
 <PageTitle title="Escolher jogador" game="Jogo da velha inclusivo" />
 
-<div class="container py-4" style="max-width:52rem;">
+<div class="container py-4 tictac-select-container">
 	<h2 class="h1 mb-3">Rodada {roundParam}</h2>
 	{#if !loading && !errorMsg}
 		<div class="scoreboard mb-3" aria-hidden="true"><strong>Placar:</strong> X {scoreX} - {scoreO} O {#if scoreDraw>0}<span class="draws">(Empates {scoreDraw})</span>{/if}</div>
@@ -117,6 +117,8 @@ let shareLabel = 'Compartilhar link da rodada';
 </div>
 
 <style>
+	.tictac-select-container { max-width:100%; width:100%; padding-left:0; padding-right:0; }
+	.tictac-select-container > * { width:100%; }
 	.mini-board { display:inline-flex; flex-direction:column; border:2px solid #444; border-radius:.4rem; overflow:hidden; }
 	.mini-row { display:flex; }
 	.mini-row span { width:2.4rem; height:2.4rem; display:inline-flex; align-items:center; justify-content:center; font-weight:600; background:#1f1f1f; color:#eee; border-right:1px solid #333; border-bottom:1px solid #333; font-size:1.2rem; }
@@ -131,4 +133,5 @@ let shareLabel = 'Compartilhar link da rodada';
 	.qr-inline { background:#152635; border:1px solid #2c4d6b; padding:.9rem .9rem 1rem; border-radius:.75rem; width:160px; display:flex; flex-direction:column; }
 	.qr-inline img { width:100%; height:auto; background:#fff; border-radius:.4rem; padding:.3rem; box-shadow:0 0 0 3px rgba(255,255,255,.05); }
 	@media (max-width:600px){ .qr-share-wrapper{ flex-direction:column; align-items:flex-start; } .qr-inline{ width:180px; } }
+	@media (max-width:600px){ .tictac-select-container { padding-left:0; padding-right:0; } }
 </style>
