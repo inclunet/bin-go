@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { goto } from "$app/navigation";
     import CardHeader from "$lib/bingo/CardHeader.svelte";
     import Card from "$lib/bingo/Card.svelte";
@@ -26,6 +26,15 @@
     let checkAudio;
 
     let config = false;
+    let socket;
+    let pollingInterval;
+    let leavingPage = false;
+
+    const startPolling = () => {
+        if (!leavingPage && !pollingInterval) {
+            pollingInterval = setInterval(poolingUpdater, 1000);
+        }
+    };
 
     const handleAutoplayEvent = async () => {
         await updateCard(`/api/bingo/${$card.RoundID}/${$card.ID}/autoplay`);
@@ -58,7 +67,9 @@
         if (!$card.RoundID || !$card.ID) {
             return;
         }
-        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
+        leavingPage = true;
+        socket?.close();
+        window.location.assign(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
     const handlePlayCheckSoundEvent = async () => {
@@ -98,7 +109,7 @@
     };
 
     const liveUpdater = async () => {
-        const socket = new window.WebSocket(
+        socket = new window.WebSocket(
             getWSEndpoint(`/ws/bingo/${$card.RoundID}/${$card.ID}`)
         );
 
@@ -113,11 +124,11 @@
         });
 
         socket.addEventListener("close", (event) => {
-            setInterval(poolingUpdater, 1000);
+            startPolling();
         });
 
         socket.addEventListener("error", (event) => {
-            setInterval(poolingUpdater, 1000);
+            startPolling();
         });
     };
 
@@ -129,7 +140,7 @@
         if ("WebSocket" in window) {
             liveUpdater();
         } else {
-            setInterval(poolingUpdater, 1000);
+            startPolling();
         }
     };
 
@@ -166,6 +177,13 @@
     $: table_draw = $card.Card == 1 ? true : false;
 
     onMount(loadCard);
+    onDestroy(() => {
+        leavingPage = true;
+        socket?.close();
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+        }
+    });
 </script>
 
 <PageTitle
