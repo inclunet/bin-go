@@ -311,6 +311,26 @@ func TestQueueUpdateKeepsOnlyLatestPendingSend(t *testing.T) {
 	}
 }
 
+func TestUpdateCardWithoutConnectionDoesNotStartWriter(t *testing.T) {
+	card := Card{runtime: &cardRuntime{}}
+	send, err := card.PrepareUpdate()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if send != nil {
+		t.Fatal("PrepareUpdate returned a send function without a connection")
+	}
+	if err := card.UpdateCard(); err != nil {
+		t.Fatal(err)
+	}
+
+	card.runtime.queueMu.Lock()
+	defer card.runtime.queueMu.Unlock()
+	if card.runtime.writerRunning || card.runtime.pendingSend != nil {
+		t.Fatal("UpdateCard started a writer without a connection")
+	}
+}
+
 func TestNewCardResponseSnapshotsMutableState(t *testing.T) {
 	round := NewRound(&Bingo{}, 75)
 	card, err := round.GetCard(0)

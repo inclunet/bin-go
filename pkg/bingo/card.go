@@ -568,24 +568,26 @@ func (c *Card) UpdateCard() error {
 		return err
 	}
 
-	c.QueueUpdate(send)
+	if send != nil {
+		c.QueueUpdate(send)
+	}
 	return nil
 }
 
 // PrepareUpdate snapshots the card while its caller holds the round lock. The
 // returned function serializes network I/O without holding the round lock.
 func (c *Card) PrepareUpdate() (func() error, error) {
-	payload, err := json.Marshal(c)
-	if err != nil {
-		return nil, err
-	}
-
 	runtime := c.getRuntime()
 	runtime.connMu.Lock()
 	conn := runtime.conn
 	runtime.connMu.Unlock()
 	if conn == nil {
-		return func() error { return nil }, nil
+		return nil, nil
+	}
+
+	payload, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
 	}
 	sequence := runtime.updateSeq.Add(1)
 

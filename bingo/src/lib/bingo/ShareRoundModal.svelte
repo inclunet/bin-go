@@ -6,18 +6,37 @@
     export let organizerUrl = "";
 
     const dispatch = createEventDispatcher();
-    let firstButton;
+    /** @type {HTMLButtonElement | null} */
+    let firstButton = null;
+    /** @type {HTMLElement | null} */
+    let dialog = null;
+    /** @type {HTMLElement | null} */
+    let previouslyFocused = null;
+    let wasOpen = false;
     let statusMessage = "";
 
-    $: if (open) {
+    $: if (open && !wasOpen) {
+        wasOpen = true;
         statusMessage = "";
+        previouslyFocused =
+            typeof document === "undefined"
+                ? null
+                : /** @type {HTMLElement | null} */ (document.activeElement);
         tick().then(() => firstButton?.focus());
+    }
+
+    $: if (!open && wasOpen) {
+        wasOpen = false;
+        const focusTarget = previouslyFocused;
+        previouslyFocused = null;
+        tick().then(() => focusTarget?.focus?.());
     }
 
     const close = () => {
         dispatch("close");
     };
 
+    /** @param {string} url @param {string} successMessage */
     const copyLink = async (url, successMessage) => {
         try {
             await navigator.clipboard.writeText(url);
@@ -36,7 +55,10 @@
             });
             statusMessage = "Convite compartilhado.";
         } catch (error) {
-            if (error?.name !== "AbortError") {
+            if (
+                !(error instanceof DOMException) ||
+                error.name !== "AbortError"
+            ) {
                 statusMessage = "Não foi possível compartilhar o convite.";
             }
         }
@@ -53,9 +75,48 @@
         );
     };
 
+    /** @param {KeyboardEvent} event */
     const handleKeydown = (event) => {
-        if (open && event.key === "Escape") {
+        if (!open) {
+            return;
+        }
+        if (event.key === "Escape") {
             close();
+            return;
+        }
+        if (event.key !== "Tab" || !dialog) {
+            return;
+        }
+
+        const focusable = /** @type {HTMLElement[]} */ (
+            Array.from(
+                dialog.querySelectorAll(
+                    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                )
+            )
+        );
+        if (focusable.length === 0) {
+            event.preventDefault();
+            dialog.focus();
+            return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (
+            event.shiftKey &&
+            (document.activeElement === first ||
+                !dialog.contains(document.activeElement))
+        ) {
+            event.preventDefault();
+            last.focus();
+        } else if (
+            !event.shiftKey &&
+            (document.activeElement === last ||
+                !dialog.contains(document.activeElement))
+        ) {
+            event.preventDefault();
+            first.focus();
         }
     };
 </script>
@@ -65,8 +126,10 @@
 {#if open}
     <div class="modal-backdrop" role="presentation" on:click|self={close}>
         <section
+            bind:this={dialog}
             class="share-modal"
             role="dialog"
+            tabindex="-1"
             aria-modal="true"
             aria-labelledby="share-round-title"
         >
@@ -97,7 +160,7 @@
                     <button type="button" on:click={shareOnWhatsApp}>
                         Compartilhar pelo WhatsApp
                     </button>
-                    {#if typeof navigator !== "undefined" && navigator.share}
+                    {#if typeof navigator !== "undefined" && Reflect.has(navigator, "share")}
                         <button type="button" on:click={shareParticipantLink}>
                             Mais opções
                         </button>
