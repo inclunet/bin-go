@@ -34,10 +34,13 @@ type Card struct {
 }
 
 type cardRuntime struct {
-	conn      *websocket.Conn
-	connMu    sync.Mutex
-	updateSeq atomic.Uint64
-	writeMu   sync.Mutex
+	conn          *websocket.Conn
+	connMu        sync.Mutex
+	updateSeq     atomic.Uint64
+	writeMu       sync.Mutex
+	queueMu       sync.Mutex
+	pendingSend   func() error
+	writerRunning bool
 }
 
 func (c *Card) getRuntime() *cardRuntime {
@@ -613,6 +616,36 @@ func (c *Card) PrepareUpdate() (func() error, error) {
 
 		return nil
 	}, nil
+}
+
+func (c *Card) QueueUpdate(send func() error) {
+	runtime := c.getRuntime()
+	runtime.queueMu.Lock()
+	runtime.pendingSend = send
+	if runtime.writerRunning {
+		runtime.queueMu.Unlock()
+		return
+	}
+	runtime.writerRunning = true
+	runtime.queueMu.Unlock()
+
+	go runtime.runWriter()
+}
+
+func (runtime *cardRuntime) runWriter() {
+	for {
+		runtime.queueMu.Lock()
+		send := runtime.pendingSend
+		runtime.pendingSend = nil
+		if send == nil {
+			runtime.writerRunning = false
+			runtime.queueMu.Unlock()
+			return
+		}
+		runtime.queueMu.Unlock()
+
+		_ = send()
+	}
 }
 
 // NewCard creates a new bingo card.

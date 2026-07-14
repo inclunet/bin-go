@@ -224,9 +224,7 @@ func (r *Round) Publish() {
 	for i := range r.Cards {
 		send, err := r.Cards[i].PrepareUpdate()
 		if err == nil {
-			go func(send func() error) {
-				_ = send()
-			}(send)
+			r.Cards[i].QueueUpdate(send)
 		}
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -262,6 +263,51 @@ func TestAddRoundsHandlerReturnsExistingNextRound(t *testing.T) {
 	}
 	if len(game.Rounds) != 2 {
 		t.Fatalf("retry created %d rounds, want 2", len(game.Rounds))
+	}
+}
+
+func TestQueueUpdateKeepsOnlyLatestPendingSend(t *testing.T) {
+	card := Card{runtime: &cardRuntime{}}
+	started := make(chan struct{})
+	release := make(chan struct{})
+	done := make(chan struct{})
+	var executedMu sync.Mutex
+	executed := []int{}
+
+	card.QueueUpdate(func() error {
+		executedMu.Lock()
+		executed = append(executed, 0)
+		executedMu.Unlock()
+		close(started)
+		<-release
+		return nil
+	})
+	<-started
+
+	for i := 1; i <= 10; i++ {
+		value := i
+		card.QueueUpdate(func() error {
+			executedMu.Lock()
+			executed = append(executed, value)
+			executedMu.Unlock()
+			if value == 10 {
+				close(done)
+			}
+			return nil
+		})
+	}
+	close(release)
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("latest queued update was not sent")
+	}
+
+	executedMu.Lock()
+	defer executedMu.Unlock()
+	if len(executed) != 2 || executed[0] != 0 || executed[1] != 10 {
+		t.Fatalf("executed updates %v, want [0 10]", executed)
 	}
 }
 
