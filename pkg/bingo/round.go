@@ -275,7 +275,10 @@ func checkWebSocketOrigin(r *http.Request) bool {
 	if err != nil || originURL.Host == "" {
 		return false
 	}
-	if strings.EqualFold(originURL.Host, r.Host) {
+	if !strings.EqualFold(originURL.Scheme, "http") && !strings.EqualFold(originURL.Scheme, "https") {
+		return false
+	}
+	if sameWebSocketOrigin(r, originURL) {
 		return true
 	}
 
@@ -284,6 +287,33 @@ func checkWebSocketOrigin(r *http.Request) bool {
 		return false
 	}
 	return isLoopbackHost(originURL.Hostname()) && isLoopbackHost(requestURL.Hostname())
+}
+
+func sameWebSocketOrigin(r *http.Request, originURL *url.URL) bool {
+	if !strings.EqualFold(originURL.Scheme, "http") && !strings.EqualFold(originURL.Scheme, "https") {
+		return false
+	}
+
+	requestURL, err := url.Parse("//" + r.Host)
+	if err != nil || !strings.EqualFold(originURL.Hostname(), requestURL.Hostname()) {
+		return false
+	}
+
+	return normalizedPort(originURL.Scheme, originURL.Port()) ==
+		normalizedPort(requestScheme(r), requestURL.Port())
+}
+
+func normalizedPort(scheme, port string) string {
+	if port != "" {
+		return port
+	}
+	if strings.EqualFold(scheme, "https") || strings.EqualFold(scheme, "wss") {
+		return "443"
+	}
+	if strings.EqualFold(scheme, "http") || strings.EqualFold(scheme, "ws") {
+		return "80"
+	}
+	return ""
 }
 
 func isLoopbackHost(host string) bool {

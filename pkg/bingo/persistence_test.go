@@ -157,14 +157,19 @@ func TestCheckWebSocketOrigin(t *testing.T) {
 		name       string
 		host       string
 		origin     string
+		forwarded  string
 		acceptable bool
 	}{
 		{name: "missing origin", host: "example.com", acceptable: true},
-		{name: "same origin", host: "example.com", origin: "https://example.com", acceptable: true},
+		{name: "same origin", host: "example.com", origin: "http://example.com", acceptable: true},
+		{name: "implicit HTTPS port", host: "example.com:443", origin: "https://example.com", forwarded: "https", acceptable: true},
+		{name: "explicit HTTPS port", host: "example.com", origin: "https://example.com:443", forwarded: "https", acceptable: true},
+		{name: "different default scheme", host: "example.com:80", origin: "https://example.com", forwarded: "https", acceptable: false},
 		{name: "local proxy", host: "localhost:8080", origin: "http://localhost:5173", acceptable: true},
 		{name: "local IP proxy", host: "127.0.0.1:8080", origin: "http://127.0.0.1:5173", acceptable: true},
 		{name: "different origin", host: "example.com", origin: "https://attacker.example", acceptable: false},
 		{name: "local origin against production", host: "example.com", origin: "http://localhost:5173", acceptable: false},
+		{name: "non-HTTP origin", host: "localhost:8080", origin: "ftp://localhost:5173", acceptable: false},
 		{name: "malformed origin", host: "example.com", origin: "://invalid", acceptable: false},
 	}
 
@@ -172,6 +177,9 @@ func TestCheckWebSocketOrigin(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest("GET", "http://"+test.host+"/ws", nil)
 			request.Host = test.host
+			if test.forwarded != "" {
+				request.Header.Set("X-Forwarded-Proto", test.forwarded)
+			}
 			if test.origin != "" {
 				request.Header.Set("Origin", test.origin)
 			}
