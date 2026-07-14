@@ -49,6 +49,19 @@ func persistenceResponseError(message string, err error) (*server.Response, erro
 	return server.NewResponseError(http.StatusInternalServerError, errors.New(message))
 }
 
+func newCardResponse(card *Card) (*server.Response, error) {
+	payload, err := json.Marshal(card)
+	if err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, errors.New("card response cannot be created"))
+	}
+
+	var snapshot Card
+	if err := json.Unmarshal(payload, &snapshot); err != nil {
+		return server.NewResponseError(http.StatusInternalServerError, errors.New("card response cannot be created"))
+	}
+	return server.NewResponse(&snapshot)
+}
+
 func (b *Bingo) getRoundAndLock(roundID string) (*Round, *sync.Mutex, error) {
 	b.mu.RLock()
 	round := b.roundsByID[roundID]
@@ -84,7 +97,7 @@ func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 
 	b.Log("Add Bingo Card", card)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
@@ -117,7 +130,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 			if err != nil {
 				return server.NewResponseError(http.StatusInternalServerError, errors.New("main card not found"))
 			}
-			return server.NewResponse(card)
+			return newCardResponse(card)
 		}
 	}
 
@@ -166,7 +179,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 
 	b.Log("Add Bingo Round", card)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
@@ -196,7 +209,7 @@ func (b *Bingo) CancelAlertHandler(r *http.Request) (*server.Response, error) {
 
 	b.Log("Cancel Bingo Alert", card)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
@@ -223,7 +236,7 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 	number := card.Draw()
 	if number == 0 {
 		mutation.Publish(round)
-		return server.NewResponse(card)
+		return newCardResponse(card)
 	}
 
 	checked, Unchecked := round.ToggleNumberForAll(number)
@@ -235,7 +248,7 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 
 	b.Log("Draw new Random Bingo Number", card, "number", number, "checked", checked, "unchecked", Unchecked)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
@@ -254,7 +267,7 @@ func (b *Bingo) GetCardsHandler(r *http.Request) (*server.Response, error) {
 
 	b.Log("Get Bingo Card", card)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) GetCardsQRHandler(r *http.Request) (*server.Response, error) {
@@ -459,7 +472,7 @@ func (b *Bingo) SetCompletionsHandler(h *http.Request) (*server.Response, error)
 
 	b.Log("Set new Completions Values for the bingo Round", card, "counter", counter, "completions", card.Completions)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, error) {
@@ -489,7 +502,7 @@ func (b *Bingo) ToggleCardsAutoplayHandler(r *http.Request) (*server.Response, e
 
 	b.Log("Toggle Bingo Card Autoplay", card)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) {
@@ -525,7 +538,7 @@ func (b *Bingo) ToggleNumbersHandler(r *http.Request) (*server.Response, error) 
 	}
 	mutation.Publish(round)
 
-	return server.NewResponse(card)
+	return newCardResponse(card)
 }
 
 func (b *Bingo) AddQrRoutes(routes *mux.Router) *Bingo {

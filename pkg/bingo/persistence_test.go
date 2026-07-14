@@ -311,6 +311,32 @@ func TestQueueUpdateKeepsOnlyLatestPendingSend(t *testing.T) {
 	}
 }
 
+func TestNewCardResponseSnapshotsMutableState(t *testing.T) {
+	round := NewRound(&Bingo{}, 75)
+	card, err := round.GetCard(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	response, err := newCardResponse(card)
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot := response.Body.(*Card)
+	originalRound := snapshot.Round
+	originalChecked := snapshot.Numbers[0][0].Checked
+
+	card.Round++
+	card.Numbers[0][0].Checked = !card.Numbers[0][0].Checked
+
+	if snapshot.Round != originalRound {
+		t.Fatalf("snapshot round changed to %d, want %d", snapshot.Round, originalRound)
+	}
+	if snapshot.Numbers[0][0].Checked != originalChecked {
+		t.Fatal("snapshot number changed with live card")
+	}
+}
+
 func TestCardJSONDoesNotPersistRuntimeMainPointer(t *testing.T) {
 	round := NewRound(&Bingo{}, 75)
 	card, err := round.AddCard()
