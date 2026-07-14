@@ -568,7 +568,8 @@ func (c *Card) UpdateCard() error {
 		return err
 	}
 
-	return send()
+	c.QueueUpdate(send)
+	return nil
 }
 
 // PrepareUpdate snapshots the card while its caller holds the round lock. The
