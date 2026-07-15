@@ -240,25 +240,33 @@ func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
 		}
 	}
 
-	if _, err := tx.Exec(ctx, `DELETE FROM bingo_draws WHERE round_id = $1`, roundID); err != nil {
-		return fmt.Errorf("clear bingo draws for round %s: %w", round.ID, err)
-	}
-
+	drawnNumbers := make([]int32, 0)
 	if len(round.Cards) > 0 {
 		for _, line := range round.Cards[0].Numbers {
 			for _, number := range line {
 				if !number.Checked || number.Number <= 0 {
 					continue
 				}
-
-				if _, err := tx.Exec(ctx, `
-					INSERT INTO bingo_draws (round_id, number)
-					VALUES ($1, $2)
-					ON CONFLICT DO NOTHING
-				`, roundID, number.Number); err != nil {
-					return fmt.Errorf("save bingo draw for round %s: %w", round.ID, err)
-				}
+				drawnNumbers = append(drawnNumbers, int32(number.Number))
 			}
+		}
+	}
+
+	if _, err := tx.Exec(ctx, `
+		DELETE FROM bingo_draws
+		WHERE round_id = $1
+			AND NOT (number = ANY($2::integer[]))
+	`, roundID, drawnNumbers); err != nil {
+		return fmt.Errorf("remove stale bingo draws for round %s: %w", round.ID, err)
+	}
+
+	for _, number := range drawnNumbers {
+		if _, err := tx.Exec(ctx, `
+			INSERT INTO bingo_draws (round_id, number)
+			VALUES ($1, $2)
+			ON CONFLICT DO NOTHING
+		`, roundID, number); err != nil {
+			return fmt.Errorf("save bingo draw for round %s: %w", round.ID, err)
 		}
 	}
 

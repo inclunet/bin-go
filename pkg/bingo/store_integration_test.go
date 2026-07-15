@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -67,6 +68,34 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 	if err := store.SaveRound(ctx, &round); err != nil {
 		t.Fatal(err)
 	}
+
+	roundID, err := uuid.Parse(round.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedDrawTime := time.Date(2020, time.January, 2, 3, 4, 5, 0, time.UTC)
+	if _, err := pool.Exec(ctx, `
+		UPDATE bingo_draws
+		SET created_at = $1
+		WHERE round_id = $2 AND number = $3
+	`, expectedDrawTime, roundID, drawn); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.SaveRound(ctx, &round); err != nil {
+		t.Fatal(err)
+	}
+	var persistedDrawTime time.Time
+	if err := pool.QueryRow(ctx, `
+		SELECT created_at
+		FROM bingo_draws
+		WHERE round_id = $1 AND number = $2
+	`, roundID, drawn).Scan(&persistedDrawTime); err != nil {
+		t.Fatal(err)
+	}
+	if !persistedDrawTime.Equal(expectedDrawTime) {
+		t.Fatalf("draw timestamp changed to %s, want %s", persistedDrawTime, expectedDrawTime)
+	}
+
 	loaded, err := store.LoadRounds(ctx)
 	if err != nil {
 		t.Fatal(err)
