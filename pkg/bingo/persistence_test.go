@@ -165,6 +165,7 @@ func TestCheckWebSocketOrigin(t *testing.T) {
 		{name: "same origin", host: "example.com", origin: "http://example.com", acceptable: true},
 		{name: "implicit HTTPS port", host: "example.com:443", origin: "https://example.com", forwarded: "https", acceptable: true},
 		{name: "explicit HTTPS port", host: "example.com", origin: "https://example.com:443", forwarded: "https", acceptable: true},
+		{name: "HTTPS proxy without scheme header", host: "example.com", origin: "https://example.com", acceptable: true},
 		{name: "different default scheme", host: "example.com:80", origin: "https://example.com", forwarded: "https", acceptable: false},
 		{name: "local proxy", host: "localhost:8080", origin: "http://localhost:5173", acceptable: true},
 		{name: "local IP proxy", host: "127.0.0.1:8080", origin: "http://127.0.0.1:5173", acceptable: true},

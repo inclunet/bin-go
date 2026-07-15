@@ -297,6 +297,13 @@ func sameWebSocketOrigin(r *http.Request, originURL *url.URL) bool {
 		return false
 	}
 
+	if requestURL.Port() == "" && originURL.Port() == "" && r.TLS == nil &&
+		strings.TrimSpace(r.Header.Get("X-Forwarded-Proto")) == "" {
+		// A TLS-terminating proxy may omit the external scheme. With matching
+		// hostnames and implicit ports, the browser Origin remains authoritative.
+		return true
+	}
+
 	return normalizedPort(originURL.Scheme, originURL.Port()) ==
 		normalizedPort(requestScheme(r), requestURL.Port())
 }
@@ -315,9 +322,12 @@ func normalizedPort(scheme, port string) string {
 }
 
 func isLoopbackHost(host string) bool {
-	return strings.EqualFold(host, "localhost") ||
-		strings.EqualFold(host, "localhost.localdomain") ||
-		net.ParseIP(host).IsLoopback()
+	if strings.EqualFold(host, "localhost") ||
+		strings.EqualFold(host, "localhost.localdomain") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 func NewRound(bingo *Bingo, roundType int) Round {
