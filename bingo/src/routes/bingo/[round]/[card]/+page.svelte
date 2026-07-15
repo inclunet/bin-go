@@ -394,6 +394,15 @@
 
     <audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
     <audio bind:this={checkAudio} src="/pop.mp3"></audio>
+{:else}
+    <PageTitle title="Inclubingo - Carregando cartela" game="Inclubingo" />
+    <div class="loading-card" role="status" aria-live="polite">
+        <span class="loading-indicator" aria-hidden="true"></span>
+        <div>
+            <h2>Preparando sua cartela</h2>
+            <p>Aguarde enquanto carregamos os dados desta rodada.</p>
+        </div>
+    </div>
 {/if}
 
 <style>
@@ -406,6 +415,52 @@
     }
     h3 {
         font-size: 2.3rem;
+    }
+
+    .loading-card {
+        display: flex;
+        width: min(60rem, calc(100% - 3rem));
+        min-height: 14rem;
+        align-items: center;
+        gap: 2rem;
+        margin: 4rem auto;
+        padding: 2.4rem;
+        border-left: 0.6rem solid var(--primary-color, #2b7ef4);
+        border-radius: 0.8rem;
+        background: var(--white, #fff);
+        box-shadow: 0 0.6rem 1.8rem rgba(29, 29, 29, 0.14);
+    }
+
+    .loading-card h2,
+    .loading-card p {
+        margin: 0;
+    }
+
+    .loading-card p {
+        line-height: 1.6;
+    }
+
+    .loading-indicator {
+        width: 4rem;
+        height: 4rem;
+        flex: 0 0 auto;
+        border: 0.5rem solid #d8e5f8;
+        border-top-color: var(--primary-color, #2b7ef4);
+        border-radius: 50%;
+        animation: loading-spin 0.9s linear infinite;
+    }
+
+    @keyframes loading-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .loading-indicator {
+            animation: none;
+            border-color: var(--primary-color, #2b7ef4);
+        }
     }
 
     .table_draw {
