@@ -43,6 +43,14 @@
         </p>
         <Adds />
         <Play {roundID} />
+    {:else}
+        <div class="loading-invite" role="status" aria-live="polite">
+            <span class="loading-indicator" aria-hidden="true"></span>
+            <div>
+                <h2>Preparando o convite</h2>
+                <p>Aguarde enquanto carregamos os dados desta rodada.</p>
+            </div>
+        </div>
     {/if}
 </div>
 
@@ -59,6 +67,54 @@
         padding: 0 10px 0 10px;
         font-size: 1.8rem;
     }
+
+    .loading-invite {
+        display: flex;
+        width: min(60rem, calc(100% - 3rem));
+        min-height: 14rem;
+        align-items: center;
+        gap: 2rem;
+        margin: 4rem auto;
+        padding: 2.4rem;
+        border-left: 0.6rem solid var(--primary-color, #2b7ef4);
+        border-radius: 0.8rem;
+        background: var(--white, #fff);
+        box-shadow: 0 0.6rem 1.8rem rgba(29, 29, 29, 0.14);
+    }
+
+    .loading-invite h2,
+    .loading-invite p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .loading-invite p {
+        line-height: 1.6;
+    }
+
+    .loading-indicator {
+        width: 4rem;
+        height: 4rem;
+        flex: 0 0 auto;
+        border: 0.5rem solid #d8e5f8;
+        border-top-color: var(--primary-color, #2b7ef4);
+        border-radius: 50%;
+        animation: loading-spin 0.9s linear infinite;
+    }
+
+    @keyframes loading-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .loading-indicator {
+            animation: none;
+            border-color: var(--primary-color, #2b7ef4);
+        }
+    }
+
     @media (max-width: 450px) {
         h2 {
             margin: 0;
