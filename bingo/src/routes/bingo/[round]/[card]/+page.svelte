@@ -103,6 +103,9 @@
     };
 
     const handlePlayCheckSoundEvent = async () => {
+        if (!checkAudio) {
+            return;
+        }
         checkAudio.pause();
         checkAudio.currentTime = 0;
         checkAudio.play();
@@ -141,7 +144,7 @@
     };
 
     const isBingo = () => {
-        if ($card.Card > 1) {
+        if ($card.Card > 1 && bingoAudio) {
             if ($card.Bingo) {
                 bingoAudio.play();
             } else {
@@ -392,8 +395,6 @@
         />
     </TableModalCard>
 
-    <audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
-    <audio bind:this={checkAudio} src="/pop.mp3"></audio>
 {:else}
     <PageTitle title="Inclubingo - Carregando cartela" game="Inclubingo" />
     <div class="loading-card" role="status" aria-live="polite">
@@ -404,6 +405,9 @@
         </div>
     </div>
 {/if}
+
+<audio bind:this={bingoAudio} src="/sms.mp3" loop></audio>
+<audio bind:this={checkAudio} src="/pop.mp3"></audio>
 
 <style>
     :root {
