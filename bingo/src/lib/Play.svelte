@@ -5,6 +5,7 @@
     import {
         forgetPlayerCard,
         getPlayerCardID,
+        getPlayerID,
         rememberPlayerCard,
     } from "./bingo/playerCards";
 
@@ -44,7 +45,10 @@
         const created = await callApiResult(
             $card,
             `/api/bingo/${roundID}/0`,
-            "GET"
+            "GET",
+            null,
+            false,
+            { "X-Bingo-Player-ID": getPlayerID() }
         );
         if (
             !created.ok ||

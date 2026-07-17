@@ -1,4 +1,5 @@
 const storageKey = "inclubingo-player-cards";
+const playerIDKey = "inclubingo-player-id";
 
 /** @returns {Record<string, string>} */
 const loadCards = () => {
@@ -36,4 +37,13 @@ export const forgetPlayerCard = (roundID) => {
     const cards = loadCards();
     delete cards[roundID];
     localStorage.setItem(storageKey, JSON.stringify(cards));
+};
+
+export const getPlayerID = () => {
+    let playerID = localStorage.getItem(playerIDKey);
+    if (!playerID) {
+        playerID = crypto.randomUUID();
+        localStorage.setItem(playerIDKey, playerID);
+    }
+    return playerID;
 };

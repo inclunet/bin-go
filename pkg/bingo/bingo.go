@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/inclunet/bin-go/pkg/server"
 )
@@ -84,11 +85,22 @@ func (b *Bingo) AddCardsHandler(r *http.Request) (*server.Response, error) {
 	}
 	defer roundLock.Unlock()
 
+	playerID := strings.TrimSpace(r.Header.Get("X-Bingo-Player-ID"))
+	if _, err := uuid.Parse(playerID); err != nil {
+		return server.NewResponseError(http.StatusBadRequest, errors.New("valid player id is required"))
+	}
+	for i := range round.Cards {
+		if round.Cards[i].PlayerID == playerID {
+			return newCardResponse(&round.Cards[i])
+		}
+	}
+
 	card, err := round.AddCard()
 
 	if err != nil {
 		return server.NewResponseError(http.StatusInternalServerError, errors.New("new card cannot be added"))
 	}
+	card.PlayerID = playerID
 	if err := b.persistRound(r.Context(), round); err != nil {
 		round.Cards = round.Cards[:len(round.Cards)-1]
 		round.RelinkCards()

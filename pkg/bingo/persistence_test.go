@@ -267,6 +267,47 @@ func TestAddRoundsHandlerReturnsExistingNextRound(t *testing.T) {
 	}
 }
 
+func TestAddCardsHandlerReturnsExistingCardForPlayer(t *testing.T) {
+	game := New(nil)
+	roundRequest := mux.SetURLVars(
+		httptest.NewRequest("GET", "/api/bingo/0/new/75", nil),
+		map[string]string{"round": "0", "type": "75"},
+	)
+	roundResponse, err := game.AddRoundsHandler(roundRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	roundID := roundResponse.Body.(*Card).RoundID
+	playerID := uuid.NewString()
+
+	addCard := func() *Card {
+		t.Helper()
+		request := mux.SetURLVars(
+			httptest.NewRequest("GET", "/api/bingo/round/0", nil),
+			map[string]string{"round": roundID},
+		)
+		request.Header.Set("X-Bingo-Player-ID", playerID)
+		response, err := game.AddCardsHandler(request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return response.Body.(*Card)
+	}
+
+	first := addCard()
+	second := addCard()
+	if first.ID != second.ID {
+		t.Fatalf("same player received cards %s and %s", first.ID, second.ID)
+	}
+	round, err := game.GetRoundByID(roundID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(round.Cards) != 2 {
+		t.Fatalf("round has %d cards, want organizer and one player", len(round.Cards))
+	}
+}
+
 func TestQueueUpdateKeepsOnlyLatestPendingSend(t *testing.T) {
 	card := Card{runtime: &cardRuntime{}}
 	started := make(chan struct{})
@@ -376,6 +417,9 @@ func TestCardJSONDoesNotPersistRuntimeMainPointer(t *testing.T) {
 	}
 	if _, exists := state["Main"]; exists {
 		t.Fatal("runtime Main pointer was serialized")
+	}
+	if _, exists := state["PlayerID"]; exists {
+		t.Fatal("anonymous player ID was serialized")
 	}
 }
 

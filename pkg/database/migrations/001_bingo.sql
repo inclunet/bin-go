@@ -11,6 +11,7 @@ CREATE TABLE bingo_cards (
     id UUID PRIMARY KEY,
     round_id UUID NOT NULL REFERENCES bingo_rounds(id) ON DELETE CASCADE,
     display_number INTEGER NOT NULL CHECK (display_number > 0),
+    player_id UUID,
     state JSONB NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -18,6 +19,9 @@ CREATE TABLE bingo_cards (
 );
 
 CREATE INDEX bingo_cards_round_id_idx ON bingo_cards(round_id);
+CREATE UNIQUE INDEX bingo_cards_round_player_idx
+    ON bingo_cards(round_id, player_id)
+    WHERE player_id IS NOT NULL;
 
 CREATE TABLE bingo_draws (
     round_id UUID NOT NULL REFERENCES bingo_rounds(id) ON DELETE CASCADE,

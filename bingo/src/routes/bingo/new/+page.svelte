@@ -28,6 +28,9 @@
         window.location.assign(
             `/bingo/${$card.RoundID}/${$card.ID}/lobby`
         );
+        window.setTimeout(() => {
+            creating = false;
+        }, 2000);
     };
 </script>
 

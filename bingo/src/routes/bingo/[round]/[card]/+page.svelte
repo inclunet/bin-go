@@ -2,7 +2,6 @@
     import { onDestroy, onMount } from "svelte";
     import CardHeader from "$lib/bingo/CardHeader.svelte";
     import Card from "$lib/bingo/Card.svelte";
-    import { rememberPlayerCard } from "$lib/bingo/playerCards";
     import { card } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
@@ -205,9 +204,6 @@
             loadError =
                 "Não foi possível carregar esta cartela. Verifique o link e tente novamente.";
             return;
-        }
-        if ($card.Card > 1) {
-            rememberPlayerCard($card.RoundID, $card.ID);
         }
         cardLoaded = true;
         loadError = "";

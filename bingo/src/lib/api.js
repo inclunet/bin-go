@@ -18,6 +18,7 @@ export const callApi = async (data, url = "", method = "GET", body = null) => {
  * @param {string} method
  * @param {unknown} body
  * @param {boolean} redirectOnServerError
+ * @param {Record<string, string>} additionalHeaders
  * @returns {Promise<{data: T, ok: boolean}>}
  */
 export const callApiResult = async (
@@ -25,7 +26,8 @@ export const callApiResult = async (
     url = "",
     method = "GET",
     body = null,
-    redirectOnServerError = false
+    redirectOnServerError = false,
+    additionalHeaders = {}
 ) => {
     const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
     try {
@@ -34,6 +36,7 @@ export const callApiResult = async (
             headers: {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json",
+                ...additionalHeaders,
             },
             body: (body) ? JSON.stringify(body) : null,
         });

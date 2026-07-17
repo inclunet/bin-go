@@ -72,7 +72,7 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 	}
 
 	cardRows, err := s.pool.Query(ctx, `
-		SELECT id, round_id, display_number, state
+		SELECT id, round_id, display_number, player_id, state
 		FROM bingo_cards
 		ORDER BY round_id, display_number
 	`)
@@ -86,11 +86,12 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 			id            uuid.UUID
 			roundID       uuid.UUID
 			displayNumber int
+			playerID      pgtype.UUID
 			state         []byte
 			card          Card
 		)
 
-		if err := cardRows.Scan(&id, &roundID, &displayNumber, &state); err != nil {
+		if err := cardRows.Scan(&id, &roundID, &displayNumber, &playerID, &state); err != nil {
 			return nil, fmt.Errorf("scan bingo card: %w", err)
 		}
 		if err := json.Unmarshal(state, &card); err != nil {
@@ -100,6 +101,9 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 		card.ID = id.String()
 		card.RoundID = roundID.String()
 		card.Card = displayNumber
+		if playerID.Valid {
+			card.PlayerID = uuid.UUID(playerID.Bytes).String()
+		}
 
 		round := roundByID[card.RoundID]
 		if round == nil {
@@ -228,14 +232,24 @@ func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
 			return fmt.Errorf("encode bingo card %s: %w", card.ID, err)
 		}
 
+		var playerID interface{}
+		if card.PlayerID != "" {
+			parsed, err := uuid.Parse(card.PlayerID)
+			if err != nil {
+				return fmt.Errorf("parse bingo player id %q: %w", card.PlayerID, err)
+			}
+			playerID = parsed
+		}
+
 		if _, err := tx.Exec(ctx, `
-			INSERT INTO bingo_cards (id, round_id, display_number, state)
-			VALUES ($1, $2, $3, $4)
+			INSERT INTO bingo_cards (id, round_id, display_number, player_id, state)
+			VALUES ($1, $2, $3, $4, $5)
 			ON CONFLICT (id) DO UPDATE SET
 				display_number = EXCLUDED.display_number,
+				player_id = EXCLUDED.player_id,
 				state = EXCLUDED.state,
 				updated_at = NOW()
-		`, cardID, roundID, card.Card, state); err != nil {
+		`, cardID, roundID, card.Card, playerID, state); err != nil {
 			return fmt.Errorf("save bingo card %s: %w", card.ID, err)
 		}
 	}

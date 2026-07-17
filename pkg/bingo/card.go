@@ -29,7 +29,8 @@ type Card struct {
 	NextRoundID    string
 	Round          int
 	Type           int
-	Main           *Card `json:"-"`
+	Main           *Card  `json:"-"`
+	PlayerID       string `json:"-"`
 	Numbers        [][5]Number
 }
 
