@@ -32,7 +32,7 @@ func NewPostgresStore(pool *pgxpool.Pool) Store {
 
 func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, display_number, type, next_round_id
+		SELECT id, display_number, type, next_round_id, creation_id
 		FROM bingo_rounds
 		ORDER BY display_number
 	`)
@@ -48,10 +48,11 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 		var (
 			id          uuid.UUID
 			nextRoundID pgtype.UUID
+			creationID  pgtype.UUID
 			round       = &Round{}
 		)
 
-		if err := rows.Scan(&id, &round.Round, &round.Type, &nextRoundID); err != nil {
+		if err := rows.Scan(&id, &round.Round, &round.Type, &nextRoundID, &creationID); err != nil {
 			return nil, fmt.Errorf("scan bingo round: %w", err)
 		}
 
@@ -59,6 +60,9 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 		if nextRoundID.Valid {
 			nextID := uuid.UUID(nextRoundID.Bytes)
 			round.NextRoundID = nextID.String()
+		}
+		if creationID.Valid {
+			round.CreationID = uuid.UUID(creationID.Bytes).String()
 		}
 		round.Cards = []Card{}
 		rounds = append(rounds, round)
@@ -208,16 +212,25 @@ func saveRound(ctx context.Context, tx pgx.Tx, round *Round) error {
 		}
 		nextRoundID = parsed
 	}
+	var creationID interface{}
+	if round.CreationID != "" {
+		parsed, err := uuid.Parse(round.CreationID)
+		if err != nil {
+			return fmt.Errorf("parse bingo round creation id: %w", err)
+		}
+		creationID = parsed
+	}
 
 	if _, err := tx.Exec(ctx, `
-		INSERT INTO bingo_rounds (id, display_number, type, next_round_id)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO bingo_rounds (id, display_number, type, next_round_id, creation_id)
+		VALUES ($1, $2, $3, $4, $5)
 		ON CONFLICT (id) DO UPDATE SET
 			display_number = EXCLUDED.display_number,
 			type = EXCLUDED.type,
 			next_round_id = EXCLUDED.next_round_id,
+			creation_id = EXCLUDED.creation_id,
 			updated_at = NOW()
-	`, roundID, round.Round, round.Type, nextRoundID); err != nil {
+	`, roundID, round.Round, round.Type, nextRoundID, creationID); err != nil {
 		return fmt.Errorf("save bingo round %s: %w", round.ID, err)
 	}
 

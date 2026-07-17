@@ -4,6 +4,7 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import StartRound from "$lib/StartRound.svelte";
     import ShareRoundModal from "$lib/bingo/ShareRoundModal.svelte";
+    import { clearRoundCreationID } from "$lib/bingo/playerCards";
     import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
 
@@ -36,6 +37,7 @@
         }
 
         $card = result.data;
+        clearRoundCreationID();
         participantUrl = `${window.location.origin}/bingo/${$card.RoundID}/new`;
         organizerUrl = `${window.location.origin}/bingo/${$card.RoundID}/${$card.ID}/lobby`;
         loaded = true;

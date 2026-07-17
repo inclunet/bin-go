@@ -234,6 +234,7 @@ func TestAddRoundsHandlerReturnsExistingNextRound(t *testing.T) {
 		httptest.NewRequest("GET", "/api/bingo/0/new/75", nil),
 		map[string]string{"round": "0", "type": "75"},
 	)
+	initialRequest.Header.Set("X-Bingo-Creation-ID", uuid.NewString())
 	initialResponse, err := game.AddRoundsHandler(initialRequest)
 	if err != nil {
 		t.Fatal(err)
@@ -273,12 +274,59 @@ func TestAddRoundsHandlerReturnsExistingNextRound(t *testing.T) {
 	}
 }
 
+func TestAddRoundsHandlerReturnsExistingInitialRound(t *testing.T) {
+	game := New(nil)
+	creationID := uuid.NewString()
+
+	createRound := func() *Card {
+		t.Helper()
+		request := mux.SetURLVars(
+			httptest.NewRequest("GET", "/api/bingo/0/new/75", nil),
+			map[string]string{"round": "0", "type": "75"},
+		)
+		request.Header.Set("X-Bingo-Creation-ID", creationID)
+		response, err := game.AddRoundsHandler(request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return response.Body.(*Card)
+	}
+
+	first := createRound()
+	second := createRound()
+	if first.RoundID != second.RoundID || first.ID != second.ID {
+		t.Fatal("same creation request produced different rounds")
+	}
+	if len(game.Rounds) != 1 {
+		t.Fatalf("game has %d rounds, want 1", len(game.Rounds))
+	}
+}
+
+func TestAddRoundsHandlerRejectsUnknownParentRound(t *testing.T) {
+	game := New(nil)
+	request := mux.SetURLVars(
+		httptest.NewRequest("GET", "/api/bingo/missing/card/new/75", nil),
+		map[string]string{
+			"round": uuid.NewString(),
+			"card":  uuid.NewString(),
+			"type":  "75",
+		},
+	)
+	if _, err := game.AddRoundsHandler(request); err == nil {
+		t.Fatal("unknown parent round created an orphan round")
+	}
+	if len(game.Rounds) != 0 {
+		t.Fatalf("game has %d orphan rounds", len(game.Rounds))
+	}
+}
+
 func TestAddCardsHandlerReturnsExistingCardForPlayer(t *testing.T) {
 	game := New(nil)
 	roundRequest := mux.SetURLVars(
 		httptest.NewRequest("GET", "/api/bingo/0/new/75", nil),
 		map[string]string{"round": "0", "type": "75"},
 	)
+	roundRequest.Header.Set("X-Bingo-Creation-ID", uuid.NewString())
 	roundResponse, err := game.AddRoundsHandler(roundRequest)
 	if err != nil {
 		t.Fatal(err)

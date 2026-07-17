@@ -116,9 +116,10 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	b.creationMu.Lock()
 	defer b.creationMu.Unlock()
 
+	roundID := server.GetURLParam(r, "round")
 	b.mu.RLock()
-	old := b.roundsByID[server.GetURLParam(r, "round")]
-	oldLock := b.roundLocks[server.GetURLParam(r, "round")]
+	old := b.roundsByID[roundID]
+	oldLock := b.roundLocks[roundID]
 	b.mu.RUnlock()
 
 	players := 0
@@ -144,6 +145,36 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 			}
 			return newCardResponse(card)
 		}
+	} else {
+		if roundID != "0" {
+			return server.NewResponseError(http.StatusNotFound, errors.New("round not found"))
+		}
+		creationID := strings.TrimSpace(r.Header.Get("X-Bingo-Creation-ID"))
+		if _, err := uuid.Parse(creationID); err != nil {
+			return server.NewResponseError(http.StatusBadRequest, errors.New("valid creation id is required"))
+		}
+
+		var existingRoundID string
+		b.mu.RLock()
+		for _, existing := range b.Rounds {
+			if existing.CreationID == creationID {
+				existingRoundID = existing.ID
+				break
+			}
+		}
+		b.mu.RUnlock()
+		if existingRoundID != "" {
+			existing, existingLock, err := b.getRoundAndLock(existingRoundID)
+			if err != nil {
+				return server.NewResponseError(http.StatusInternalServerError, errors.New("existing round not found"))
+			}
+			defer existingLock.Unlock()
+			card, err := existing.GetCard(0)
+			if err != nil {
+				return server.NewResponseError(http.StatusInternalServerError, errors.New("main card not found"))
+			}
+			return newCardResponse(card)
+		}
 	}
 
 	b.mu.Lock()
@@ -151,6 +182,9 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	b.mu.Unlock()
 
 	round := &newRound
+	if old == nil {
+		round.CreationID = strings.TrimSpace(r.Header.Get("X-Bingo-Creation-ID"))
+	}
 	card, err := round.GetCard(0)
 	if err != nil {
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))

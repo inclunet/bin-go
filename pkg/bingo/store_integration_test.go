@@ -58,6 +58,7 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 	}
 
 	round := NewRound(&Bingo{}, 75)
+	round.CreationID = uuid.NewString()
 	player, err := round.AddCard()
 	if err != nil {
 		t.Fatal(err)
@@ -111,6 +112,9 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 	}
 	if loaded[0].ID != round.ID || loaded[0].Cards[1].ID != round.Cards[1].ID {
 		t.Fatal("round or card UUID did not survive the database round trip")
+	}
+	if loaded[0].CreationID != round.CreationID {
+		t.Fatal("round creation ID did not survive the database round trip")
 	}
 	if loaded[0].Cards[1].PlayerID != player.PlayerID {
 		t.Fatal("anonymous player ID did not survive the database round trip")

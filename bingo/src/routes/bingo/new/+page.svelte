@@ -3,6 +3,7 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
+    import { getRoundCreationID } from "$lib/bingo/playerCards";
 
     let createError = "";
     let creating = false;
@@ -16,7 +17,10 @@
         const result = await callApiResult(
             $card,
             `/api/bingo/0/new/${$card.Type}`,
-            "GET"
+            "GET",
+            null,
+            false,
+            { "X-Bingo-Creation-ID": getRoundCreationID() }
         );
         if (!result.ok || !result.data.RoundID || !result.data.ID) {
             createError =

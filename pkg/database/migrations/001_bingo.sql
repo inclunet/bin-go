@@ -3,9 +3,14 @@ CREATE TABLE bingo_rounds (
     display_number BIGINT NOT NULL UNIQUE,
     type INTEGER NOT NULL CHECK (type > 0),
     next_round_id UUID REFERENCES bingo_rounds(id),
+    creation_id UUID,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX bingo_rounds_creation_id_idx
+    ON bingo_rounds(creation_id)
+    WHERE creation_id IS NOT NULL;
 
 CREATE TABLE bingo_cards (
     id UUID PRIMARY KEY,

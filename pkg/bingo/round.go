@@ -18,6 +18,7 @@ type Round struct {
 	Round       int
 	Type        int
 	NextRoundID string
+	CreationID  string `json:"-"`
 	upgrader    websocket.Upgrader
 }
 
