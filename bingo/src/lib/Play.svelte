@@ -15,20 +15,12 @@
     /** @param {string} cardID */
     const openCard = (cardID) => {
         window.location.assign(`/bingo/${roundID}/${cardID}`);
+        window.setTimeout(() => {
+            opening = false;
+        }, 2000);
     };
 
-    const startGame = async () => {
-        if (opening) {
-            return;
-        }
-        if (!roundID) {
-            playError = "Não foi possível identificar a rodada.";
-            return;
-        }
-
-        opening = true;
-        playError = "";
-
+    const openOrCreateCard = async () => {
         const existingCardID = getPlayerCardID(roundID);
         if (existingCardID) {
             const existing = await callApiResult(
@@ -44,7 +36,7 @@
             ) {
                 $card = existing.data;
                 openCard(existingCardID);
-                return;
+                return true;
             }
             forgetPlayerCard(roundID);
         }
@@ -62,12 +54,41 @@
         ) {
             playError =
                 "Não foi possível abrir a cartela. Verifique sua conexão e tente novamente.";
-            opening = false;
-            return;
+            return false;
         }
         $card = created.data;
         rememberPlayerCard(roundID, created.data.ID);
         openCard(created.data.ID);
+        return true;
+    };
+
+    const startGame = async () => {
+        if (opening) {
+            return;
+        }
+        if (!roundID) {
+            playError = "Não foi possível identificar a rodada.";
+            return;
+        }
+
+        opening = true;
+        playError = "";
+
+        try {
+            const navigated = navigator.locks
+                ? await navigator.locks.request(
+                      `inclubingo-card-${roundID}`,
+                      openOrCreateCard
+                  )
+                : await openOrCreateCard();
+            if (!navigated) {
+                opening = false;
+            }
+        } catch {
+            playError =
+                "Não foi possível abrir a cartela. Verifique sua conexão e tente novamente.";
+            opening = false;
+        }
     };
 </script>
 
