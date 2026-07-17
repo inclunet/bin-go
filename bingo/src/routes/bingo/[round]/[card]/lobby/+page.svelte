@@ -4,7 +4,10 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import StartRound from "$lib/StartRound.svelte";
     import ShareRoundModal from "$lib/bingo/ShareRoundModal.svelte";
-    import { clearRoundCreationID } from "$lib/bingo/playerCards";
+    import {
+        clearPendingLobbyURL,
+        clearRoundCreationID,
+    } from "$lib/bingo/playerCards";
     import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
 
@@ -31,6 +34,7 @@
             !result.data.RoundID ||
             result.data.Card !== 1
         ) {
+            clearPendingLobbyURL();
             loadError =
                 "Não foi possível abrir o acesso do organizador desta rodada.";
             return;

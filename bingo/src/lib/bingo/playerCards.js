@@ -2,6 +2,7 @@ const storageKey = "inclubingo-player-cards";
 const playerIDKey = "inclubingo-player-id";
 const roundCreationIDKey = "inclubingo-pending-round-creation-id";
 const pendingLobbyURLKey = "inclubingo-pending-organizer-lobby-url";
+const pendingLobbySourceCardKey = "inclubingo-pending-lobby-source-card";
 
 /** @returns {Record<string, string>} */
 const loadCards = () => {
@@ -61,13 +62,29 @@ export const getRoundCreationID = () => {
 
 export const clearRoundCreationID = () => {
     localStorage.removeItem(roundCreationIDKey);
-    localStorage.removeItem(pendingLobbyURLKey);
+    clearPendingLobbyURL();
 };
 
-/** @param {string} lobbyURL */
-export const rememberPendingLobbyURL = (lobbyURL) => {
+/**
+ * @param {string} lobbyURL
+ * @param {string} sourceCardID
+ */
+export const rememberPendingLobbyURL = (lobbyURL, sourceCardID = "") => {
     localStorage.setItem(pendingLobbyURLKey, lobbyURL);
+    if (sourceCardID) {
+        localStorage.setItem(pendingLobbySourceCardKey, sourceCardID);
+    } else {
+        localStorage.removeItem(pendingLobbySourceCardKey);
+    }
 };
 
 export const getPendingLobbyURL = () =>
     localStorage.getItem(pendingLobbyURLKey) || "";
+
+export const getPendingLobbySourceCardID = () =>
+    localStorage.getItem(pendingLobbySourceCardKey) || "";
+
+export const clearPendingLobbyURL = () => {
+    localStorage.removeItem(pendingLobbyURLKey);
+    localStorage.removeItem(pendingLobbySourceCardKey);
+};

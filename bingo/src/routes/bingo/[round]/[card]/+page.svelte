@@ -3,6 +3,7 @@
     import CardHeader from "$lib/bingo/CardHeader.svelte";
     import Card from "$lib/bingo/Card.svelte";
     import {
+        getPendingLobbySourceCardID,
         getPendingLobbyURL,
         rememberPendingLobbyURL,
     } from "$lib/bingo/playerCards";
@@ -94,6 +95,7 @@
     };
 
     const handleNewRoundEvent = async () => {
+        const sourceCardID = $card.ID;
         const updated = await updateCard(
             `/api/bingo/${$card.RoundID}/${$card.ID}/new/${$card.Type}`
         );
@@ -101,7 +103,7 @@
             return;
         }
         const lobbyURL = `/bingo/${$card.RoundID}/${$card.ID}/lobby`;
-        rememberPendingLobbyURL(lobbyURL);
+        rememberPendingLobbyURL(lobbyURL, sourceCardID);
         leavingPage = true;
         socket?.close();
         window.location.assign(lobbyURL);
@@ -294,7 +296,12 @@
 
     onMount(() => {
         const pendingLobbyURL = getPendingLobbyURL();
-        if (pendingLobbyURL) {
+        const pendingSourceCardID = getPendingLobbySourceCardID();
+        if (
+            pendingLobbyURL &&
+            pendingSourceCardID &&
+            pendingSourceCardID === String(data.Card)
+        ) {
             leavingPage = true;
             window.location.assign(pendingLobbyURL);
             return;
