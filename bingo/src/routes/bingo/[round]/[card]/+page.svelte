@@ -95,6 +95,16 @@
     };
 
     const handleNewRoundEvent = async () => {
+        const pendingLobbyURL = getPendingLobbyURL();
+        const pendingSourceCardID = getPendingLobbySourceCardID();
+        if (
+            pendingLobbyURL &&
+            pendingSourceCardID === String(data.Card)
+        ) {
+            window.location.assign(pendingLobbyURL);
+            return;
+        }
+
         const sourceCardID = $card.ID;
         const updated = await updateCard(
             `/api/bingo/${$card.RoundID}/${$card.ID}/new/${$card.Type}`
