@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -43,18 +44,29 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 	}
 	defer pool.Close()
 
-	migration, err := os.ReadFile(filepath.Join("..", "database", "migrations", "001_bingo.sql"))
+	migrationPaths, err := filepath.Glob(filepath.Join("..", "database", "migrations", "*.sql"))
 	if err != nil {
 		t.Fatal(err)
 	}
+	if len(migrationPaths) == 0 {
+		t.Fatal("no database migrations found")
+	}
+	sort.Strings(migrationPaths)
+
 	connection, err := pool.Acquire(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, migrationErr := connection.Conn().PgConn().Exec(ctx, string(migration)).ReadAll()
-	connection.Release()
-	if migrationErr != nil {
-		t.Fatal(migrationErr)
+	defer connection.Release()
+
+	for _, migrationPath := range migrationPaths {
+		migration, err := os.ReadFile(migrationPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := connection.Conn().PgConn().Exec(ctx, string(migration)).ReadAll(); err != nil {
+			t.Fatalf("apply migration %s: %v", filepath.Base(migrationPath), err)
+		}
 	}
 
 	round := NewRound(&Bingo{}, 75)
