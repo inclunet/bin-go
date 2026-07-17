@@ -3,10 +3,21 @@
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
-    import { getRoundCreationID } from "$lib/bingo/playerCards";
+    import {
+        clearRoundCreationID,
+        getRoundCreationID,
+    } from "$lib/bingo/playerCards";
 
     let createError = "";
     let creating = false;
+    let createdLobbyURL = "";
+
+    const openCreatedLobby = () => {
+        window.location.assign(createdLobbyURL);
+        window.setTimeout(() => {
+            creating = false;
+        }, 2000);
+    };
 
     const handleNewRoundEvent = async () => {
         if (creating) {
@@ -14,6 +25,10 @@
         }
         creating = true;
         createError = "";
+        if (createdLobbyURL) {
+            openCreatedLobby();
+            return;
+        }
         const result = await callApiResult(
             $card,
             `/api/bingo/0/new/${$card.Type}`,
@@ -29,12 +44,9 @@
             return;
         }
         $card = result.data;
-        window.location.assign(
-            `/bingo/${$card.RoundID}/${$card.ID}/lobby`
-        );
-        window.setTimeout(() => {
-            creating = false;
-        }, 2000);
+        createdLobbyURL = `/bingo/${$card.RoundID}/${$card.ID}/lobby`;
+        clearRoundCreationID();
+        openCreatedLobby();
     };
 </script>
 
