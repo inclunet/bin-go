@@ -100,9 +100,12 @@ func TestAddingCardRelinksMainCard(t *testing.T) {
 
 func TestRoundMutationRestoresFailedDraw(t *testing.T) {
 	round := NewRound(&Bingo{}, 75)
-	if _, err := round.AddCard(); err != nil {
+	player, err := round.AddCard()
+	if err != nil {
 		t.Fatal(err)
 	}
+	player.PlayerID = uuid.NewString()
+	playerID := player.PlayerID
 
 	mutation, err := round.BeginMutation()
 	if err != nil {
@@ -119,6 +122,9 @@ func TestRoundMutationRestoresFailedDraw(t *testing.T) {
 	}
 	if round.Cards[0].LastNumber != 0 {
 		t.Fatalf("main card kept last number %d after rollback", round.Cards[0].LastNumber)
+	}
+	if round.Cards[1].PlayerID != playerID {
+		t.Fatal("rollback discarded anonymous player ID")
 	}
 }
 

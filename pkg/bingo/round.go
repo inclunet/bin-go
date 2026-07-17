@@ -25,6 +25,7 @@ type RoundMutation struct {
 	snapshot    []byte
 	connections []*websocket.Conn
 	runtimes    []*cardRuntime
+	playerIDs   []string
 	upgrader    websocket.Upgrader
 }
 
@@ -187,7 +188,9 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 
 	connections := make([]*websocket.Conn, len(r.Cards))
 	runtimes := make([]*cardRuntime, len(r.Cards))
+	playerIDs := make([]string, len(r.Cards))
 	for i := range r.Cards {
+		playerIDs[i] = r.Cards[i].PlayerID
 		runtime := r.Cards[i].getRuntime()
 		runtime.connMu.Lock()
 		connections[i] = runtime.conn
@@ -200,6 +203,7 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 		snapshot:    snapshot,
 		connections: connections,
 		runtimes:    runtimes,
+		playerIDs:   playerIDs,
 		upgrader:    r.upgrader,
 	}, nil
 }
@@ -210,6 +214,11 @@ func (m *RoundMutation) Restore(round *Round) error {
 	}
 
 	round.upgrader = m.upgrader
+	for i := range round.Cards {
+		if i < len(m.playerIDs) {
+			round.Cards[i].PlayerID = m.playerIDs[i]
+		}
+	}
 	round.RelinkCards()
 	m.attachConnections(round)
 	return nil
