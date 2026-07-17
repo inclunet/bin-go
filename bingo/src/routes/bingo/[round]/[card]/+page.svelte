@@ -1,8 +1,8 @@
 <script>
     import { onDestroy, onMount } from "svelte";
-    import { goto } from "$app/navigation";
     import CardHeader from "$lib/bingo/CardHeader.svelte";
     import Card from "$lib/bingo/Card.svelte";
+    import { rememberPlayerCard } from "$lib/bingo/playerCards";
     import { card } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
@@ -26,7 +26,9 @@
     let checkAudio;
 
     let config = false;
+    /** @type {WebSocket | undefined} */
     let socket;
+    /** @type {ReturnType<typeof setInterval> | undefined} */
     let pollingInterval;
     let pollingInFlight = false;
     let leavingPage = false;
@@ -204,6 +206,9 @@
                 "Não foi possível carregar esta cartela. Verifique o link e tente novamente.";
             return;
         }
+        if ($card.Card > 1) {
+            rememberPlayerCard($card.RoundID, $card.ID);
+        }
         cardLoaded = true;
         loadError = "";
 
@@ -230,16 +235,28 @@
     };
 
     const redirectToNextRound = () => {
+        if (leavingPage) {
+            return;
+        }
+
         if ($card.Round == 0) {
-            goto("/");
+            leavingPage = true;
+            socket?.close();
+            window.location.assign("/");
+            return;
         }
 
         if ($card.Card == 0) {
-            goto(`/bingo/${$card.RoundID}/new`);
+            leavingPage = true;
+            socket?.close();
+            window.location.assign(`/bingo/${$card.RoundID}/new`);
+            return;
         }
 
         if ($card.NextRoundID && $card.Card > 1) {
-            goto(`/bingo/${$card.NextRoundID}/new`);
+            leavingPage = true;
+            socket?.close();
+            window.location.assign(`/bingo/${$card.NextRoundID}/new`);
         }
     };
 

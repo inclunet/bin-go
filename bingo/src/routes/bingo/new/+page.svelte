@@ -1,13 +1,18 @@
 <script>
-    import { goto } from "$app/navigation";
     import NewRound from "$lib/NewRound.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
 
     let createError = "";
+    let creating = false;
 
     const handleNewRoundEvent = async () => {
+        if (creating) {
+            return;
+        }
+        creating = true;
+        createError = "";
         const result = await callApiResult(
             $card,
             `/api/bingo/0/new/${$card.Type}`,
@@ -16,11 +21,13 @@
         if (!result.ok || !result.data.RoundID || !result.data.ID) {
             createError =
                 "Não foi possível criar a rodada. Tente novamente em alguns instantes.";
+            creating = false;
             return;
         }
-        createError = "";
         $card = result.data;
-        goto(`/bingo/${$card.RoundID}/${$card.ID}/lobby`);
+        window.location.assign(
+            `/bingo/${$card.RoundID}/${$card.ID}/lobby`
+        );
     };
 </script>
 
@@ -31,7 +38,11 @@
     <p class="text-center my-3">
         Vamos Jogar! Escolha a quantidade de bolinhas que serão sorteadas:
     </p>
-    <NewRound on:click={handleNewRoundEvent} />
+    <NewRound
+        on:click={handleNewRoundEvent}
+        disabled={creating}
+        ariaBusy={creating}
+    />
     {#if createError}
         <p class="alert alert-danger" role="alert">{createError}</p>
     {/if}

@@ -1,5 +1,4 @@
 <script>
-    import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import Button from "$lib/Button.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
@@ -43,7 +42,7 @@
     };
 
     const startRound = () => {
-        goto(`/bingo/${$card.RoundID}/${$card.ID}`);
+        window.location.assign(`/bingo/${$card.RoundID}/${$card.ID}`);
     };
 
     onMount(loadRound);
