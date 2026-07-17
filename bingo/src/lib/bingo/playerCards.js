@@ -1,6 +1,7 @@
 const storageKey = "inclubingo-player-cards";
 const playerIDKey = "inclubingo-player-id";
 const roundCreationIDKey = "inclubingo-pending-round-creation-id";
+const pendingLobbyURLKey = "inclubingo-pending-organizer-lobby-url";
 
 /** @returns {Record<string, string>} */
 const loadCards = () => {
@@ -60,4 +61,13 @@ export const getRoundCreationID = () => {
 
 export const clearRoundCreationID = () => {
     localStorage.removeItem(roundCreationIDKey);
+    localStorage.removeItem(pendingLobbyURLKey);
 };
+
+/** @param {string} lobbyURL */
+export const rememberPendingLobbyURL = (lobbyURL) => {
+    localStorage.setItem(pendingLobbyURLKey, lobbyURL);
+};
+
+export const getPendingLobbyURL = () =>
+    localStorage.getItem(pendingLobbyURLKey) || "";

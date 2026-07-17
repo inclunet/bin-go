@@ -1,11 +1,13 @@
 <script>
+    import { onMount } from "svelte";
     import NewRound from "$lib/NewRound.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
     import {
-        clearRoundCreationID,
+        getPendingLobbyURL,
         getRoundCreationID,
+        rememberPendingLobbyURL,
     } from "$lib/bingo/playerCards";
 
     let createError = "";
@@ -45,9 +47,13 @@
         }
         $card = result.data;
         createdLobbyURL = `/bingo/${$card.RoundID}/${$card.ID}/lobby`;
-        clearRoundCreationID();
+        rememberPendingLobbyURL(createdLobbyURL);
         openCreatedLobby();
     };
+
+    onMount(() => {
+        createdLobbyURL = getPendingLobbyURL();
+    });
 </script>
 
 <PageTitle title="Nova Rodada" game="Inclubingo" />

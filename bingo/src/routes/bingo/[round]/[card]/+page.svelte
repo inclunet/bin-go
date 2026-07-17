@@ -2,6 +2,10 @@
     import { onDestroy, onMount } from "svelte";
     import CardHeader from "$lib/bingo/CardHeader.svelte";
     import Card from "$lib/bingo/Card.svelte";
+    import {
+        getPendingLobbyURL,
+        rememberPendingLobbyURL,
+    } from "$lib/bingo/playerCards";
     import { card } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
     import Adds from "$lib/Adds.svelte";
@@ -96,11 +100,11 @@
         if (!updated) {
             return;
         }
+        const lobbyURL = `/bingo/${$card.RoundID}/${$card.ID}/lobby`;
+        rememberPendingLobbyURL(lobbyURL);
         leavingPage = true;
         socket?.close();
-        window.location.assign(
-            `/bingo/${$card.RoundID}/${$card.ID}/lobby`
-        );
+        window.location.assign(lobbyURL);
     };
 
     const handlePlayCheckSoundEvent = async () => {
@@ -288,7 +292,15 @@
 
     $: table_draw = $card.Card == 1 ? true : false;
 
-    onMount(loadCard);
+    onMount(() => {
+        const pendingLobbyURL = getPendingLobbyURL();
+        if (pendingLobbyURL) {
+            leavingPage = true;
+            window.location.assign(pendingLobbyURL);
+            return;
+        }
+        loadCard();
+    });
     onDestroy(() => {
         leavingPage = true;
         socket?.close();
