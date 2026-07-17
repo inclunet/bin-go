@@ -27,6 +27,7 @@
         }
         creating = true;
         createError = "";
+        createdLobbyURL = getPendingLobbyURL();
         if (createdLobbyURL) {
             openCreatedLobby();
             return;
