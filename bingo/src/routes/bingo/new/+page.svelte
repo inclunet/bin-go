@@ -1,11 +1,9 @@
 <script>
-    import { onMount } from "svelte";
     import NewRound from "$lib/NewRound.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
     import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
     import {
-        getPendingLobbyURL,
         getRoundCreationID,
         rememberPendingLobbyURL,
     } from "$lib/bingo/playerCards";
@@ -27,11 +25,6 @@
         }
         creating = true;
         createError = "";
-        createdLobbyURL = getPendingLobbyURL();
-        if (createdLobbyURL) {
-            openCreatedLobby();
-            return;
-        }
         const result = await callApiResult(
             $card,
             `/api/bingo/0/new/${$card.Type}`,
@@ -51,10 +44,6 @@
         rememberPendingLobbyURL(createdLobbyURL);
         openCreatedLobby();
     };
-
-    onMount(() => {
-        createdLobbyURL = getPendingLobbyURL();
-    });
 </script>
 
 <PageTitle title="Nova Rodada" game="Inclubingo" />
