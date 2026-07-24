@@ -52,7 +52,8 @@
     let bingoSoundSilenced = false;
     let soundGeneration = 0;
     let syncGeneration = 0;
-    let liveMessageGeneration = 0;
+    let updateGeneration = 0;
+    let foregroundUpdates = 0;
     /** @type {WakeLockSentinel | undefined} */
     let screenWakeLock;
     let wakeLockNeedsAction = false;
@@ -275,11 +276,14 @@
         soundStatus = "stopped";
         bingoDismissError = "";
         dismissingBingo = true;
+        foregroundUpdates++;
+        updateGeneration++;
         const result = await callApiResult(
             $card,
             `/api/bingo/${$card.RoundID}/${$card.ID}/cancel`,
             "GET"
         );
+        foregroundUpdates--;
         if (!result.ok || !isValidCard(result.data)) {
             actionError =
                 "Não foi possível atualizar a cartela. Tente novamente.";
@@ -292,6 +296,7 @@
         bingoDismissError = "";
         dismissingBingo = false;
         syncGeneration++;
+        updateGeneration++;
         $card = result.data;
         isBingo();
         const previousSocket = socket;
@@ -302,18 +307,24 @@
     };
 
     const handleSaveCompletions = async () => {
+        foregroundUpdates++;
+        const requestUpdateGeneration = ++updateGeneration;
         const result = await callApiResult(
             $card,
             `/api/bingo/${$card.RoundID}/${$card.ID}/completions`,
             "POST",
             $card.Completions
         );
+        foregroundUpdates--;
         if (!result.ok || !isValidCard(result.data)) {
             actionError =
                 "Não foi possível salvar as configurações. Tente novamente.";
             return;
         }
         actionError = "";
+        if (requestUpdateGeneration !== updateGeneration) {
+            return;
+        }
         $card = result.data;
     };
 
@@ -414,7 +425,7 @@
                 if (!isValidCard(updated)) {
                     throw new Error("invalid card update");
                 }
-                liveMessageGeneration++;
+                updateGeneration++;
                 $card = updated;
                 stopPolling();
                 actionError = "";
@@ -472,14 +483,15 @@
     };
 
     const poolingUpdater = async () => {
-        if (pollingInFlight) {
+        if (pollingInFlight || foregroundUpdates > 0) {
             return;
         }
         pollingInFlight = true;
         try {
             await updateCard(
                 `/api/bingo/${$card.RoundID}/${$card.ID}`,
-                false
+                false,
+                true
             );
         } finally {
             pollingInFlight = false;
@@ -506,13 +518,24 @@
         }
     };
 
-    const updateCard = async (path = "", reportError = true) => {
+    const updateCard = async (
+        path = "",
+        reportError = true,
+        background = false
+    ) => {
         const requestGeneration = syncGeneration;
-        const requestLiveMessageGeneration = liveMessageGeneration;
+        if (!background) {
+            foregroundUpdates++;
+            updateGeneration++;
+        }
+        const requestUpdateGeneration = updateGeneration;
         const result = await callApiResult($card, path, "GET");
+        if (!background) {
+            foregroundUpdates--;
+        }
         if (
             requestGeneration !== syncGeneration ||
-            requestLiveMessageGeneration !== liveMessageGeneration
+            requestUpdateGeneration !== updateGeneration
         ) {
             return true;
         }
