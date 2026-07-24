@@ -49,12 +49,62 @@
     let bingoSoundSilenced = false;
     let soundGeneration = 0;
     let syncGeneration = 0;
+    /** @type {WakeLockSentinel | undefined} */
+    let screenWakeLock;
+    let wakeLockNeedsAction = false;
+    let requestingWakeLock = false;
 
     const isValidCard = (value) =>
         value.ID &&
         value.RoundID &&
         value.Round > 0 &&
         value.Card > 0;
+
+    const requestScreenWakeLock = async () => {
+        if (
+            leavingPage ||
+            requestingWakeLock ||
+            screenWakeLock ||
+            document.visibilityState !== "visible" ||
+            !("wakeLock" in navigator)
+        ) {
+            return;
+        }
+
+        requestingWakeLock = true;
+        try {
+            const wakeLock = await navigator.wakeLock.request("screen");
+            if (leavingPage) {
+                await wakeLock.release();
+                return;
+            }
+            screenWakeLock = wakeLock;
+            wakeLockNeedsAction = false;
+            wakeLock.addEventListener(
+                "release",
+                () => {
+                    screenWakeLock = undefined;
+                    if (
+                        !leavingPage &&
+                        document.visibilityState === "visible"
+                    ) {
+                        wakeLockNeedsAction = true;
+                    }
+                },
+                { once: true }
+            );
+        } catch {
+            wakeLockNeedsAction = true;
+        } finally {
+            requestingWakeLock = false;
+        }
+    };
+
+    const handleVisibilityChange = () => {
+        if (document.visibilityState === "visible") {
+            requestScreenWakeLock();
+        }
+    };
 
     const startPolling = () => {
         if (!leavingPage && !pollingInterval) {
@@ -460,10 +510,18 @@
             window.location.assign(pendingLobbyURL);
             return;
         }
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        requestScreenWakeLock();
         loadCard();
     });
     onDestroy(() => {
         leavingPage = true;
+        document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange
+        );
+        screenWakeLock?.release();
+        screenWakeLock = undefined;
         socket?.close();
         stopPolling();
         if (reconnectTimeout) {
@@ -485,6 +543,19 @@
     />
     {#if actionError}
         <p class="alert alert-danger text-center" role="alert">{actionError}</p>
+    {/if}
+    {#if wakeLockNeedsAction}
+        <div class="wake-lock-notice" aria-live="polite">
+            <span>A tela pode apagar durante a partida.</span>
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-light"
+                disabled={requestingWakeLock}
+                on:click={requestScreenWakeLock}
+            >
+                {requestingWakeLock ? "Ativando…" : "Manter tela ligada"}
+            </button>
+        </div>
     {/if}
     <div class="container container-card">
     {#if $card.Card == 1}
@@ -613,6 +684,20 @@
     }
     h3 {
         font-size: 2.3rem;
+    }
+
+    .wake-lock-notice {
+        display: flex;
+        width: fit-content;
+        max-width: calc(100% - 3rem);
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem auto;
+        padding: 0.8rem 1.2rem;
+        border-radius: 0.8rem;
+        background: #174c86;
+        color: #fff;
+        font-size: 1.4rem;
     }
 
     .loading-card {
