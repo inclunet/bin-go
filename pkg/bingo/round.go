@@ -27,6 +27,7 @@ type RoundMutation struct {
 	connections []*websocket.Conn
 	runtimes    []*cardRuntime
 	playerIDs   []string
+	creationID  string
 	upgrader    websocket.Upgrader
 }
 
@@ -205,6 +206,7 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 		connections: connections,
 		runtimes:    runtimes,
 		playerIDs:   playerIDs,
+		creationID:  r.CreationID,
 		upgrader:    r.upgrader,
 	}, nil
 }
@@ -214,6 +216,7 @@ func (m *RoundMutation) Restore(round *Round) error {
 		return fmt.Errorf("restore bingo round: %w", err)
 	}
 
+	round.CreationID = m.creationID
 	round.upgrader = m.upgrader
 	for i := range round.Cards {
 		if i < len(m.playerIDs) {
