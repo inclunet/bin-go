@@ -125,15 +125,17 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	players := 0
 	if old != nil {
 		oldLock.Lock()
-		defer oldLock.Unlock()
 
 		organizer, err := old.GetCardByID(server.GetURLParam(r, "card"))
 		if err != nil || organizer.Card != 1 {
+			oldLock.Unlock()
 			return server.NewResponseError(http.StatusNotFound, errors.New("organizer card not found"))
 		}
 
-		if old.NextRoundID != "" {
-			next, nextLock, err := b.getRoundAndLock(old.NextRoundID)
+		nextRoundID := old.NextRoundID
+		oldLock.Unlock()
+		if nextRoundID != "" {
+			next, nextLock, err := b.getRoundAndLock(nextRoundID)
 			if err != nil {
 				return server.NewResponseError(http.StatusInternalServerError, errors.New("next round not found"))
 			}
@@ -182,9 +184,7 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusBadRequest, errors.New("valid round type is required"))
 	}
 
-	b.mu.Lock()
 	newRound := NewRound(b, roundType)
-	b.mu.Unlock()
 
 	round := &newRound
 	if old == nil {
@@ -195,7 +195,31 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		return server.NewResponseError(http.StatusNotFound, errors.New("main card not found"))
 	}
 
+	publishRound := func() {
+		b.mu.Lock()
+		b.Rounds = append(b.Rounds, round)
+		b.roundsByID[round.ID] = round
+		b.roundLocks[round.ID] = &sync.Mutex{}
+		b.mu.Unlock()
+	}
+	unpublishRound := func() {
+		b.mu.Lock()
+		delete(b.roundsByID, round.ID)
+		delete(b.roundLocks, round.ID)
+		for i := range b.Rounds {
+			if b.Rounds[i].ID == round.ID {
+				b.Rounds = append(b.Rounds[:i], b.Rounds[i+1:]...)
+				break
+			}
+		}
+		b.mu.Unlock()
+	}
+
 	if old != nil {
+		// Publish the unguessable new UUID before linking the old round so
+		// readers can never observe an unresolved NextRoundID.
+		publishRound()
+		oldLock.Lock()
 		previousRoundID := old.NextRoundID
 		previousNextRounds := make([]int, len(old.Cards))
 		previousNextRoundIDs := make([]string, len(old.Cards))
@@ -211,20 +235,19 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 				old.Cards[i].NextRound = previousNextRounds[i]
 				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
 			}
+			oldLock.Unlock()
+			unpublishRound()
 			return persistenceResponseError("rounds cannot be saved", err)
 		}
+		old.Publish()
+		oldLock.Unlock()
 	} else if err := b.persistRound(r.Context(), round); err != nil {
 		return persistenceResponseError("round cannot be saved", err)
+	} else {
+		publishRound()
 	}
 
-	b.mu.Lock()
-	b.Rounds = append(b.Rounds, round)
-	b.roundsByID[round.ID] = round
-	b.roundLocks[round.ID] = &sync.Mutex{}
-	b.mu.Unlock()
-
 	if old != nil {
-		old.Publish()
 		b.Log("Redirect Old Players to the New Bingo Round", card, "from", old.Round, "to", round.Round, "players", players)
 	}
 
