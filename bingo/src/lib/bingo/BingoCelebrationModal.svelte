@@ -1,9 +1,17 @@
 <script>
-    import { createEventDispatcher, onDestroy, onMount, tick } from "svelte";
+    import {
+        afterUpdate,
+        createEventDispatcher,
+        onDestroy,
+        onMount,
+        tick,
+    } from "svelte";
 
     export let cardNumber = 0;
     export let completion = "";
-    export let soundBlocked = false;
+    export let soundStatus = "idle";
+    export let dismissError = "";
+    export let dismissing = false;
 
     const dispatch = createEventDispatcher();
     /** @type {HTMLElement | null} */
@@ -46,10 +54,18 @@
         if (!first || !last) {
             event.preventDefault();
             dialog.focus();
-        } else if (event.shiftKey && document.activeElement === first) {
+        } else if (
+            event.shiftKey &&
+            (document.activeElement === first ||
+                !dialog.contains(document.activeElement))
+        ) {
             event.preventDefault();
             last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
+        } else if (
+            !event.shiftKey &&
+            (document.activeElement === last ||
+                !dialog.contains(document.activeElement))
+        ) {
             event.preventDefault();
             first.focus();
         }
@@ -62,6 +78,12 @@
         previousBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
         tick().then(() => dismissButton?.focus());
+    });
+
+    afterUpdate(() => {
+        if (dialog && !dialog.contains(document.activeElement)) {
+            dismissButton?.focus();
+        }
     });
 
     onDestroy(() => {
@@ -95,17 +117,27 @@
         </header>
 
         <div class="sound-status" aria-live="polite">
-            {#if soundBlocked}
+            {#if soundStatus === "blocked"}
                 <span aria-hidden="true">🔇</span>
                 <p>O navegador bloqueou o som. Ative-o pelo botão abaixo.</p>
-            {:else}
+            {:else if soundStatus === "playing"}
                 <span aria-hidden="true">🔊</span>
                 <p>O aviso sonoro está tocando.</p>
+            {:else if soundStatus === "stopped"}
+                <span aria-hidden="true">🔇</span>
+                <p>O aviso sonoro foi interrompido.</p>
+            {:else}
+                <span aria-hidden="true">🔊</span>
+                <p>Preparando o aviso sonoro…</p>
             {/if}
         </div>
 
+        {#if dismissError}
+            <p class="dismiss-error" role="alert">{dismissError}</p>
+        {/if}
+
         <div class="actions">
-            {#if soundBlocked}
+            {#if soundStatus === "blocked"}
                 <button class="secondary-action" type="button" on:click={playSound}>
                     Ativar som
                 </button>
@@ -114,9 +146,11 @@
                 bind:this={dismissButton}
                 class="primary-action"
                 type="button"
+                disabled={dismissing}
+                aria-busy={dismissing}
                 on:click={dismiss}
             >
-                Parar aviso
+                {dismissing ? "Fechando…" : "Parar aviso"}
             </button>
         </div>
     </section>
@@ -228,6 +262,16 @@
         background: #f5f9ff;
     }
 
+    .dismiss-error {
+        margin: 1.6rem 3.2rem 0;
+        padding: 1.2rem 1.6rem;
+        border-left: 0.6rem solid var(--tertiary-color, #982a35);
+        border-radius: 0.4rem;
+        background: #fff4f5;
+        font-size: 1.6rem;
+        text-align: left;
+    }
+
     button {
         min-width: 15rem;
         padding: 1rem 1.4rem;
@@ -253,6 +297,11 @@
         filter: brightness(0.88);
     }
 
+    button:disabled {
+        cursor: wait;
+        opacity: 0.72;
+    }
+
     @media (max-width: 520px) {
         .confetti {
             gap: 0.6rem;
@@ -270,6 +319,10 @@
 
         .sound-status {
             margin: 0 2rem;
+        }
+
+        .dismiss-error {
+            margin: 1.6rem 2rem 0;
         }
 
         .actions {

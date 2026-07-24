@@ -44,7 +44,10 @@
     let cardLoaded = false;
     let loadError = "";
     let actionError = "";
-    let soundBlocked = false;
+    let soundStatus = "idle";
+    let bingoDismissError = "";
+    let dismissingBingo = false;
+    let bingoSoundSilenced = false;
 
     const isValidCard = (value) =>
         value.ID &&
@@ -166,6 +169,17 @@
     };
 
     const handleCancelBingoAlertEvent = async () => {
+        if (dismissingBingo) {
+            return;
+        }
+        bingoSoundSilenced = true;
+        if (bingoAudio) {
+            bingoAudio.pause();
+            bingoAudio.currentTime = 0;
+        }
+        soundStatus = "stopped";
+        bingoDismissError = "";
+        dismissingBingo = true;
         const result = await callApiResult(
             $card,
             `/api/bingo/${$card.RoundID}/${$card.ID}/cancel`,
@@ -174,9 +188,14 @@
         if (!result.ok || !isValidCard(result.data)) {
             actionError =
                 "Não foi possível atualizar a cartela. Tente novamente.";
+            bingoDismissError =
+                "Não foi possível fechar o aviso. O som foi interrompido; tente novamente.";
+            dismissingBingo = false;
             return;
         }
         actionError = "";
+        bingoDismissError = "";
+        dismissingBingo = false;
         $card = result.data;
         isBingo();
     };
@@ -198,26 +217,31 @@
     };
 
     const playBingoSound = async () => {
+        bingoSoundSilenced = false;
+        soundStatus = "starting";
         if (!bingoAudio) {
-            soundBlocked = true;
+            soundStatus = "blocked";
             return;
         }
         try {
             await bingoAudio.play();
-            soundBlocked = false;
+            soundStatus = "playing";
         } catch {
-            soundBlocked = true;
+            soundStatus = "blocked";
         }
     };
 
     const isBingo = () => {
         if ($card.Card > 1) {
-            if ($card.Bingo) {
+            if ($card.Bingo && !bingoSoundSilenced) {
                 void playBingoSound();
-            } else if (bingoAudio) {
-                bingoAudio.pause();
-                bingoAudio.currentTime = 0;
-                soundBlocked = false;
+            } else if (!$card.Bingo) {
+                bingoSoundSilenced = false;
+                soundStatus = "idle";
+                if (bingoAudio) {
+                    bingoAudio.pause();
+                    bingoAudio.currentTime = 0;
+                }
             }
         }
     };
@@ -527,7 +551,9 @@
         <BingoCelebrationModal
             cardNumber={$card.Card}
             completion={$card.LastCompletion}
-            {soundBlocked}
+            {soundStatus}
+            dismissError={bingoDismissError}
+            dismissing={dismissingBingo}
             on:playSound={playBingoSound}
             on:dismiss={handleCancelBingoAlertEvent}
         />
