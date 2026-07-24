@@ -52,6 +52,7 @@
     let bingoSoundSilenced = false;
     let soundGeneration = 0;
     let syncGeneration = 0;
+    let liveMessageGeneration = 0;
     /** @type {WakeLockSentinel | undefined} */
     let screenWakeLock;
     let wakeLockNeedsAction = false;
@@ -397,7 +398,6 @@
                 clearTimeout(connectionTimeout);
                 connectionTimeout = undefined;
             }
-            stopPolling();
             actionError = "";
         });
 
@@ -414,7 +414,9 @@
                 if (!isValidCard(updated)) {
                     throw new Error("invalid card update");
                 }
+                liveMessageGeneration++;
                 $card = updated;
+                stopPolling();
                 actionError = "";
                 loadError = "";
                 redirectToNextRound();
@@ -506,8 +508,12 @@
 
     const updateCard = async (path = "", reportError = true) => {
         const requestGeneration = syncGeneration;
+        const requestLiveMessageGeneration = liveMessageGeneration;
         const result = await callApiResult($card, path, "GET");
-        if (requestGeneration !== syncGeneration) {
+        if (
+            requestGeneration !== syncGeneration ||
+            requestLiveMessageGeneration !== liveMessageGeneration
+        ) {
             return true;
         }
         if (!result.ok) {
