@@ -1,6 +1,7 @@
 <script>
     import { onDestroy, onMount } from "svelte";
     import CardHeader from "$lib/bingo/CardHeader.svelte";
+    import BingoCelebrationModal from "$lib/bingo/BingoCelebrationModal.svelte";
     import Card from "$lib/bingo/Card.svelte";
     import {
         getPendingLobbySourceCardID,
@@ -43,6 +44,7 @@
     let cardLoaded = false;
     let loadError = "";
     let actionError = "";
+    let soundBlocked = false;
 
     const isValidCard = (value) =>
         value.ID &&
@@ -195,13 +197,27 @@
         $card = result.data;
     };
 
+    const playBingoSound = async () => {
+        if (!bingoAudio) {
+            soundBlocked = true;
+            return;
+        }
+        try {
+            await bingoAudio.play();
+            soundBlocked = false;
+        } catch {
+            soundBlocked = true;
+        }
+    };
+
     const isBingo = () => {
-        if ($card.Card > 1 && bingoAudio) {
+        if ($card.Card > 1) {
             if ($card.Bingo) {
-                bingoAudio.play();
-            } else {
+                void playBingoSound();
+            } else if (bingoAudio) {
                 bingoAudio.pause();
                 bingoAudio.currentTime = 0;
+                soundBlocked = false;
             }
         }
     };
@@ -506,6 +522,16 @@
         <Adds />
     </div>
     </div>
+
+    {#if $card.Card > 1 && $card.Bingo}
+        <BingoCelebrationModal
+            cardNumber={$card.Card}
+            completion={$card.LastCompletion}
+            {soundBlocked}
+            on:playSound={playBingoSound}
+            on:dismiss={handleCancelBingoAlertEvent}
+        />
+    {/if}
 
     <TableModalCard title="Configurações">
         <Completions
