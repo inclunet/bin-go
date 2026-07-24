@@ -82,7 +82,11 @@
 
     afterUpdate(() => {
         if (dialog && !dialog.contains(document.activeElement)) {
-            dismissButton?.focus();
+            if (dismissButton && !dismissButton.disabled) {
+                dismissButton.focus();
+            } else {
+                dialog.focus();
+            }
         }
     });
 

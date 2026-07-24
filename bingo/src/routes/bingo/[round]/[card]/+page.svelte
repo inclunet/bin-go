@@ -233,7 +233,11 @@
 
     const isBingo = () => {
         if ($card.Card > 1) {
-            if ($card.Bingo && !bingoSoundSilenced) {
+            if (
+                $card.Bingo &&
+                !bingoSoundSilenced &&
+                soundStatus === "idle"
+            ) {
                 void playBingoSound();
             } else if (!$card.Bingo) {
                 bingoSoundSilenced = false;
