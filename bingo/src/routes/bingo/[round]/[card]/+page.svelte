@@ -61,6 +61,9 @@
         value.Card > 0;
 
     const requestScreenWakeLock = async () => {
+        if (screenWakeLock?.released) {
+            screenWakeLock = undefined;
+        }
         if (
             leavingPage ||
             requestingWakeLock ||
@@ -83,16 +86,23 @@
             wakeLock.addEventListener(
                 "release",
                 () => {
-                    screenWakeLock = undefined;
-                    if (
-                        !leavingPage &&
-                        document.visibilityState === "visible"
-                    ) {
-                        wakeLockNeedsAction = true;
+                    if (screenWakeLock === wakeLock) {
+                        screenWakeLock = undefined;
+                        if (
+                            !leavingPage &&
+                            document.visibilityState === "visible"
+                        ) {
+                            wakeLockNeedsAction = true;
+                        }
                     }
                 },
                 { once: true }
             );
+            if (wakeLock.released) {
+                screenWakeLock = undefined;
+                wakeLockNeedsAction =
+                    document.visibilityState === "visible";
+            }
         } catch {
             wakeLockNeedsAction = true;
         } finally {
@@ -334,6 +344,7 @@
         const connection = new window.WebSocket(
             getWSEndpoint(`/ws/bingo/${$card.RoundID}/${$card.ID}`)
         );
+        const connectionGeneration = syncGeneration;
         socket = connection;
         connectionTimeout = setTimeout(() => {
             if (
@@ -358,7 +369,11 @@
         });
 
         connection.addEventListener("message", (event) => {
-            if (socket !== connection || leavingPage) {
+            if (
+                socket !== connection ||
+                leavingPage ||
+                connectionGeneration !== syncGeneration
+            ) {
                 return;
             }
             try {
