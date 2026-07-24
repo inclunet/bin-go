@@ -38,6 +38,8 @@
     let reconnectTimeout;
     /** @type {ReturnType<typeof setTimeout> | undefined} */
     let connectionTimeout;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    let navigationRecoveryTimeout;
     let pollingInFlight = false;
     let leavingPage = false;
     let navigationPending = false;
@@ -118,7 +120,7 @@
     };
 
     const startPolling = () => {
-        if (!leavingPage && !pollingInterval) {
+        if (!leavingPage && !navigationPending && !pollingInterval) {
             poolingUpdater();
             pollingInterval = setInterval(poolingUpdater, 1000);
         }
@@ -134,6 +136,7 @@
     const scheduleReconnect = () => {
         if (
             leavingPage ||
+            navigationPending ||
             reconnectTimeout ||
             !("WebSocket" in window)
         ) {
@@ -192,6 +195,7 @@
             return;
         }
         navigationPending = true;
+        stopPolling();
         try {
             window.location.assign(target);
         } catch {
@@ -200,10 +204,19 @@
                 "Não foi possível abrir a próxima página. Tente novamente.";
             return;
         }
-        setTimeout(() => {
+        navigationRecoveryTimeout = setTimeout(() => {
             // A successful navigation destroys this component. If the browser
             // cancels it, keep the current card connected and retryable.
+            navigationRecoveryTimeout = undefined;
             navigationPending = false;
+            requestScreenWakeLock();
+            if (!cardLoaded) {
+                loadCard();
+            } else if ("WebSocket" in window) {
+                liveUpdater();
+            } else {
+                startPolling();
+            }
         }, 1000);
     };
 
@@ -353,6 +366,7 @@
     const liveUpdater = () => {
         if (
             leavingPage ||
+            navigationPending ||
             socket?.readyState === WebSocket.OPEN ||
             socket?.readyState === WebSocket.CONNECTING
         ) {
@@ -527,6 +541,7 @@
     $: table_draw = $card.Card == 1 ? true : false;
 
     onMount(() => {
+        document.addEventListener("visibilitychange", handleVisibilityChange);
         const pendingLobbyURL = getPendingLobbyURL();
         const pendingSourceCardID = getPendingLobbySourceCardID();
         if (
@@ -535,8 +550,8 @@
             pendingSourceCardID === String(data.Card)
         ) {
             navigateTo(pendingLobbyURL);
+            return;
         }
-        document.addEventListener("visibilitychange", handleVisibilityChange);
         requestScreenWakeLock();
         loadCard();
     });
@@ -555,6 +570,9 @@
         }
         if (connectionTimeout) {
             clearTimeout(connectionTimeout);
+        }
+        if (navigationRecoveryTimeout) {
+            clearTimeout(navigationRecoveryTimeout);
         }
     });
 </script>
