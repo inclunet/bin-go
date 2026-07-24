@@ -1,23 +1,19 @@
 <script>
     import { onMount } from "svelte";
 
-    export let compact = false;
-
     onMount(() => {
         (adsbygoogle = window.adsbygoogle || []).push({});
     });
 </script>
 
-<section class="container-adds" class:compact>
-    <h2>{compact ? "Anúncio" : "Anúncios"}</h2>
-    {#if !compact}
-        <p>
-            <em>
-                Os Anúncios patrocinam o desenvolvimento e a manutenção deste
-                jogo de Bingo acessível.
-            </em>
-        </p>
-    {/if}
+<section class="container-adds">
+    <h2>Anúncios</h2>
+    <p>
+        <em>
+            Os Anúncios patrocinam o desenvolvimento e a manutenção deste jogo
+            de Bingo acessível.
+        </em>
+    </p>
 
     <!-- Transição do Bingo -->
     <ins
@@ -50,17 +46,6 @@
         border: 0.1rem solid #f5f539;
         padding: 1.5rem;
         border-radius: 1rem;
-    }
-
-    .compact {
-        width: 100%;
-    }
-
-    .compact h2 {
-        margin: 0 0 0.4rem;
-        color: #666;
-        font-size: 1.4rem;
-        font-weight: 400;
     }
 
     @media (max-width: 573px) {

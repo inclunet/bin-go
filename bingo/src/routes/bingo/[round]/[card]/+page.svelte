@@ -10,7 +10,6 @@
     } from "$lib/bingo/playerCards";
     import { card } from "../../../../lib/bingo";
     import PageTitle from "$lib/PageTitle.svelte";
-    import Adds from "$lib/Adds.svelte";
     import Play from "$lib/Play.svelte";
     import { callApiResult, getWSEndpoint } from "$lib/api";
     import Completions from "$lib/bingo/Completions.svelte";
@@ -567,14 +566,6 @@
             on:playCheckSound={handlePlayCheckSoundEvent}
         />
     </div>
-    <div
-        class="anuncio"
-        class:table_client
-        class:table_draw
-        data-table_client={table_client}
-    >
-        <Adds compact />
-    </div>
     </div>
 
     {#if $card.Card > 1 && $card.Bingo}
@@ -694,20 +685,13 @@
         display: flex;
         justify-content: flex-start;
     }
-    .anuncio {
-        max-width: 46rem;
-    }
-    .anuncio[data-table_client="true"] {
-        max-width: 32rem;
-    }
 
     @media (min-width: 1150px) {
         .table-horizontal {
             display: grid;
             grid-template-areas:
                 "container-qr_code info-card-header cardHeader"
-                "tableCard tableCard tableCard"
-                "anuncio anuncio anuncio";
+                "tableCard tableCard tableCard";
             gap: 3.5rem 2rem;
         }
         .table-horizontal .info-card-header h2 {
@@ -721,10 +705,6 @@
         }
         .table-card {
             grid-area: tableCard;
-        }
-        .anuncio {
-            grid-area: anuncio;
-            justify-self: center;
         }
         .container-qr_code {
             grid-area: container-qr_code;
@@ -756,15 +736,6 @@
         .table_draw {
             justify-content: center;
         }
-        .anuncio {
-            flex-grow: 0;
-            width: 30%;
-        }
-
-        .anuncio[data-table_client="true"] {
-            width: 25%;
-        }
-
         .table-card[data-table_client="true"] {
             width: auto;
         }
@@ -776,12 +747,6 @@
     }
 
     @media (max-width: 970px) {
-        .anuncio[data-table_client="true"] {
-            margin-top: 1rem;
-            flex-basis: 32rem;
-            margin-right: auto;
-            margin-left: auto;
-        }
         .info-card-client,
         .table-card[data-table_client="true"] {
             flex-basis: 45%;
@@ -793,15 +758,8 @@
             justify-content: center;
         }
 
-        .anuncio {
-            margin: 0;
-            flex-grow: 1;
-        }
     }
     @media (max-width: 767px) {
-        .anuncio {
-            flex-basis: 50%;
-        }
         .info-card-header {
             display: flex;
             flex-direction: row;
@@ -824,11 +782,6 @@
         .container-card {
             margin-top: 17px;
         }
-        .anuncio {
-            display: flex;
-            justify-content: center;
-        }
-
         .table-card[data-table_client="true"],
         .info-card-client {
             flex-basis: 100%;

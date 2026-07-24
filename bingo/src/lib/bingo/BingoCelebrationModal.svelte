@@ -108,11 +108,9 @@
 <dialog
     bind:this={dialog}
     class="celebration-modal"
-    role="alertdialog"
     tabindex="-1"
     aria-modal="true"
     aria-labelledby="bingo-title"
-    aria-describedby="bingo-message"
     on:cancel|preventDefault={dismiss}
 >
         <header>
