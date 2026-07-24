@@ -65,7 +65,7 @@
         <section class="lobby-card" aria-labelledby="lobby-title">
             <header class="lobby-heading">
                 <p class="eyebrow">Painel do organizador</p>
-                <h2 id="lobby-title">Rodada #{$card.Round}</h2>
+                <h2 id="lobby-title">Sorteio #{$card.Round}</h2>
                 <p>
                     Convide os participantes e inicie a rodada quando todos
                     estiverem com suas cartelas.
@@ -102,7 +102,7 @@
                     <div class="qr-code">
                         <img
                             src="/qr/bingo/{$card.RoundID}"
-                            alt="QR Code para participantes entrarem na rodada {$card.Round}"
+                            alt="QR Code para participantes entrarem no sorteio {$card.Round}"
                         />
                     </div>
                     <figcaption>

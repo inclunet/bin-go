@@ -34,6 +34,10 @@
     let socket;
     /** @type {ReturnType<typeof setInterval> | undefined} */
     let pollingInterval;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    let reconnectTimeout;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    let connectionTimeout;
     let pollingInFlight = false;
     let leavingPage = false;
     let cardLoaded = false;
@@ -48,8 +52,30 @@
 
     const startPolling = () => {
         if (!leavingPage && !pollingInterval) {
+            poolingUpdater();
             pollingInterval = setInterval(poolingUpdater, 1000);
         }
+    };
+
+    const stopPolling = () => {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = undefined;
+        }
+    };
+
+    const scheduleReconnect = () => {
+        if (
+            leavingPage ||
+            reconnectTimeout ||
+            !("WebSocket" in window)
+        ) {
+            return;
+        }
+        reconnectTimeout = setTimeout(() => {
+            reconnectTimeout = undefined;
+            liveUpdater();
+        }, 3000);
     };
 
     const handleAutoplayEvent = async () => {
@@ -180,16 +206,46 @@
         }
     };
 
-    const liveUpdater = async () => {
-        socket = new window.WebSocket(
+    const liveUpdater = () => {
+        if (
+            leavingPage ||
+            socket?.readyState === WebSocket.OPEN ||
+            socket?.readyState === WebSocket.CONNECTING
+        ) {
+            return;
+        }
+
+        startPolling();
+        const connection = new window.WebSocket(
             getWSEndpoint(`/ws/bingo/${$card.RoundID}/${$card.ID}`)
         );
+        socket = connection;
+        connectionTimeout = setTimeout(() => {
+            if (
+                socket === connection &&
+                connection.readyState === WebSocket.CONNECTING
+            ) {
+                connection.close();
+            }
+        }, 10000);
 
-        socket.addEventListener("open", (event) => {
-            //this.update(JSON.parse(event.data));
+        connection.addEventListener("open", () => {
+            if (socket !== connection || leavingPage) {
+                connection.close();
+                return;
+            }
+            if (connectionTimeout) {
+                clearTimeout(connectionTimeout);
+                connectionTimeout = undefined;
+            }
+            stopPolling();
+            actionError = "";
         });
 
-        socket.addEventListener("message", (event) => {
+        connection.addEventListener("message", (event) => {
+            if (socket !== connection || leavingPage) {
+                return;
+            }
             try {
                 const updated = JSON.parse(event.data);
                 if (!isValidCard(updated)) {
@@ -203,16 +259,26 @@
             } catch (error) {
                 actionError =
                     "A atualização em tempo real foi interrompida. Tentando reconectar.";
-                socket?.close();
+                connection.close();
                 startPolling();
             }
         });
 
-        socket.addEventListener("close", (event) => {
+        connection.addEventListener("close", () => {
+            if (connectionTimeout) {
+                clearTimeout(connectionTimeout);
+                connectionTimeout = undefined;
+            }
+            if (socket !== connection || leavingPage) {
+                return;
+            }
+            socket = undefined;
             startPolling();
+            scheduleReconnect();
         });
 
-        socket.addEventListener("error", (event) => {
+        connection.addEventListener("error", () => {
+            connection.close();
             startPolling();
         });
     };
@@ -330,8 +396,12 @@
     onDestroy(() => {
         leavingPage = true;
         socket?.close();
-        if (pollingInterval) {
-            clearInterval(pollingInterval);
+        stopPolling();
+        if (reconnectTimeout) {
+            clearTimeout(reconnectTimeout);
+        }
+        if (connectionTimeout) {
+            clearTimeout(connectionTimeout);
         }
     });
 </script>
@@ -341,7 +411,7 @@
     <p class="alert alert-danger text-center" role="alert">{loadError}</p>
 {:else if cardLoaded}
     <PageTitle
-        title="Inclubingo - Cartela {$card.Card}, rodada {$card.Round}"
+        title="Inclubingo - Cartela {$card.Card}, sorteio {$card.Round}"
         game="Inclubingo"
     />
     {#if actionError}
@@ -358,7 +428,7 @@
                     <div class="info-card-header">
                         <h2>Cartela de Bingo #{$card.Card}</h2>
                         <h3 class="info-card-header-round">
-                            Rodada #{$card.Round}
+                            Sorteio #{$card.Round}
                         </h3>
                     </div>
                     <div class="cardHeader">
@@ -379,7 +449,7 @@
                     <div class="info-card-header">
                         <h2>Cartela de Bingo #{$card.Card}</h2>
                         <h3 class="info-card-header-round">
-                            Rodada #{$card.Round}
+                            Sorteio #{$card.Round}
                         </h3>
                     </div>
                     <div class="cardHeader">
@@ -400,7 +470,7 @@
             <div class="info-card-header">
                 <h2>Cartela de Bingo #{$card.Card}</h2>
                 <h3 class="info-card-header-round">
-                    Rodada #{$card.Round}
+                    Sorteio #{$card.Round}
                 </h3>
             </div>
             <div class="cardHeader">

@@ -37,7 +37,7 @@
     {#if loadError}
         <p class="alert alert-danger text-center" role="alert">{loadError}</p>
     {:else if loaded}
-        <h2>Rodada #{roundNumber}</h2>
+        <h2>Sorteio #{roundNumber}</h2>
         <p class="text-center my-3">
             Para gerar sua cartela, clique no botão “Jogar” abaixo.
         </p>
