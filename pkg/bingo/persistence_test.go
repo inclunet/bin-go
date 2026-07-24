@@ -428,6 +428,46 @@ func TestQueueUpdateKeepsOnlyLatestPendingSend(t *testing.T) {
 	}
 }
 
+func TestBeginMutationInvalidatesQueuedUpdates(t *testing.T) {
+	round := NewRound(&Bingo{}, 75)
+	card, err := round.GetCard(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	runtime := card.getRuntime()
+	sequence := runtime.updateSeq.Add(1)
+	staleSent := false
+	staleSend := func() error {
+		runtime.writeMu.Lock()
+		defer runtime.writeMu.Unlock()
+		if sequence == runtime.updateSeq.Load() {
+			staleSent = true
+		}
+		return nil
+	}
+	runtime.queueMu.Lock()
+	runtime.pendingSend = staleSend
+	runtime.writerRunning = true
+	runtime.queueMu.Unlock()
+
+	if _, err := round.BeginMutation(); err != nil {
+		t.Fatal(err)
+	}
+
+	runtime.queueMu.Lock()
+	pending := runtime.pendingSend
+	runtime.queueMu.Unlock()
+	if pending != nil {
+		t.Fatal("BeginMutation kept a stale pending websocket update")
+	}
+	if err := staleSend(); err != nil {
+		t.Fatal(err)
+	}
+	if staleSent {
+		t.Fatal("BeginMutation did not invalidate an in-flight websocket update")
+	}
+}
+
 func TestUpdateCardWithoutConnectionDoesNotStartWriter(t *testing.T) {
 	card := Card{runtime: &cardRuntime{}}
 	send, err := card.PrepareUpdate()

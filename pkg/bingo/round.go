@@ -194,11 +194,17 @@ func (r *Round) BeginMutation() (*RoundMutation, error) {
 	for i := range r.Cards {
 		playerIDs[i] = r.Cards[i].PlayerID
 		runtime := r.Cards[i].getRuntime()
+		runtime.writeMu.Lock()
+		runtime.updateSeq.Add(1)
+		runtime.queueMu.Lock()
+		runtime.pendingSend = nil
+		runtime.queueMu.Unlock()
 		runtime.connMu.Lock()
 		connections[i] = runtime.conn
 		runtimes[i] = runtime
 		runtime.conn = nil
 		runtime.connMu.Unlock()
+		runtime.writeMu.Unlock()
 	}
 
 	return &RoundMutation{
