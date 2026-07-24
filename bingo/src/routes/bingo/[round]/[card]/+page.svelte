@@ -106,13 +106,22 @@
         }
 
         const sourceCardID = $card.ID;
-        const updated = await updateCard(
-            `/api/bingo/${$card.RoundID}/${$card.ID}/new/${$card.Type}`
+        const result = await callApiResult(
+            $card,
+            `/api/bingo/${$card.RoundID}/${$card.ID}/new/${$card.Type}`,
+            "GET"
         );
-        if (!updated) {
+        if (
+            !result.ok ||
+            !isValidCard(result.data) ||
+            result.data.Card !== 1
+        ) {
+            actionError =
+                "Não foi possível criar a próxima rodada. Tente novamente.";
             return;
         }
-        const lobbyURL = `/bingo/${$card.RoundID}/${$card.ID}/lobby`;
+        actionError = "";
+        const lobbyURL = `/bingo/${result.data.RoundID}/${result.data.ID}/lobby`;
         rememberPendingLobbyURL(lobbyURL, sourceCardID);
         leavingPage = true;
         socket?.close();

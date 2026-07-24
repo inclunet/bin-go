@@ -1,5 +1,5 @@
 <script>
-    import { createEventDispatcher, tick } from "svelte";
+    import { createEventDispatcher, onDestroy, tick } from "svelte";
 
     export let open = false;
     export let participantUrl = "";
@@ -14,6 +14,7 @@
     let previouslyFocused = null;
     let wasOpen = false;
     let statusMessage = "";
+    let previousBodyOverflow = "";
 
     $: if (open && !wasOpen) {
         wasOpen = true;
@@ -22,6 +23,10 @@
             typeof document === "undefined"
                 ? null
                 : /** @type {HTMLElement | null} */ (document.activeElement);
+        if (typeof document !== "undefined") {
+            previousBodyOverflow = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+        }
         tick().then(() => firstButton?.focus());
     }
 
@@ -29,6 +34,9 @@
         wasOpen = false;
         const focusTarget = previouslyFocused;
         previouslyFocused = null;
+        if (typeof document !== "undefined") {
+            document.body.style.overflow = previousBodyOverflow;
+        }
         tick().then(() => focusTarget?.focus?.());
     }
 
@@ -119,6 +127,12 @@
             first.focus();
         }
     };
+
+    onDestroy(() => {
+        if (wasOpen && typeof document !== "undefined") {
+            document.body.style.overflow = previousBodyOverflow;
+        }
+    });
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
