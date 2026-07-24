@@ -29,7 +29,12 @@ export const callApiResult = async (
     redirectOnServerError = false,
     additionalHeaders = {}
 ) => {
-    const token = (localStorage.getItem("token")) ? localStorage.getItem("token") : "";
+    let token = "";
+    try {
+        token = localStorage.getItem("token") || "";
+    } catch {
+        // Authentication storage is best effort in restricted browsers.
+    }
     try {
         const response = await fetch(url, {
             method: method,
@@ -42,8 +47,14 @@ export const callApiResult = async (
         });
 
         if (response.status === 401) {
-            localStorage.removeItem("token");
-            window.location.href = "/user/login";
+            try {
+                localStorage.removeItem("token");
+            } catch {
+                // The failed request still redirects when storage is blocked.
+            }
+            if (typeof window !== "undefined") {
+                window.location.href = "/user/login";
+            }
         }
 
         if (response.status === 404) {
