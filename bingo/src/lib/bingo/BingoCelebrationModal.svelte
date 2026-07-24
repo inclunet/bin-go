@@ -109,10 +109,6 @@
         aria-labelledby="bingo-title"
         aria-describedby="bingo-message"
     >
-        <div class="confetti" aria-hidden="true">
-            <span>B</span><span>I</span><span>N</span><span>G</span><span>O</span>
-        </div>
-
         <header>
             <p class="eyebrow">Cartela #{cardNumber}</p>
             <h2 id="bingo-title">BINGO!</h2>
@@ -121,21 +117,16 @@
             </p>
         </header>
 
-        <div class="sound-status" aria-live="polite">
-            {#if soundStatus === "blocked"}
+        {#if soundStatus === "blocked" || soundStatus === "stopped"}
+            <div class="sound-status" aria-live="polite">
                 <span aria-hidden="true">🔇</span>
-                <p>O navegador bloqueou o som. Ative-o pelo botão abaixo.</p>
-            {:else if soundStatus === "playing"}
-                <span aria-hidden="true">🔊</span>
-                <p>O aviso sonoro está tocando.</p>
-            {:else if soundStatus === "stopped"}
-                <span aria-hidden="true">🔇</span>
-                <p>O aviso sonoro foi interrompido.</p>
-            {:else}
-                <span aria-hidden="true">🔊</span>
-                <p>Preparando o aviso sonoro…</p>
-            {/if}
-        </div>
+                <p>
+                    {soundStatus === "blocked"
+                        ? "O navegador bloqueou o som."
+                        : "O aviso sonoro foi interrompido."}
+                </p>
+            </div>
+        {/if}
 
         {#if dismissError}
             <p class="dismiss-error" role="alert">{dismissError}</p>
@@ -165,52 +156,41 @@
     .celebration-backdrop {
         position: fixed;
         inset: 0;
-        z-index: 1100;
+        z-index: 2147483647;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 1.5rem;
-        background: rgba(29, 29, 29, 0.78);
+        padding: 0;
+        background: var(--white, #fff);
+        pointer-events: auto;
     }
 
     .celebration-modal {
-        width: min(56rem, 100%);
-        overflow: hidden;
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+        min-height: 100dvh;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 3.2rem 2rem;
         border: 0;
-        border-radius: 1.2rem;
-        background: var(--white, #fff);
+        border-radius: 0;
+        background:
+            radial-gradient(
+                circle at center,
+                rgba(43, 126, 244, 0.1),
+                transparent 42%
+            ),
+            var(--white, #fff);
         color: var(--senary-color, #1d1d1d);
         text-align: center;
-        box-shadow: 0 1.2rem 3.6rem rgba(0, 0, 0, 0.3);
-    }
-
-    .confetti {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        padding: 2.4rem 2rem 0;
-    }
-
-    .confetti span {
-        display: grid;
-        width: 5.2rem;
-        height: 5.2rem;
-        place-items: center;
-        border-radius: 50%;
-        background: var(--primary-color, #2b7ef4);
-        color: var(--white, #fff);
-        font-size: 2.6rem;
-        font-weight: 800;
-        box-shadow: 0 0.4rem 0 #174f9d;
-    }
-
-    .confetti span:nth-child(even) {
-        background: var(--tertiary-color, #982a35);
-        box-shadow: 0 0.4rem 0 #681923;
     }
 
     header {
-        padding: 2.4rem 3.2rem 2rem;
+        width: min(48rem, 100%);
+        padding: 0 0 2rem;
     }
 
     .eyebrow {
@@ -225,7 +205,7 @@
     h2 {
         margin: 0.4rem 0;
         color: var(--primary-color, #2b7ef4);
-        font-size: clamp(4.8rem, 12vw, 7.2rem);
+        font-size: clamp(4.2rem, 10vw, 6rem);
         line-height: 1;
     }
 
@@ -240,8 +220,9 @@
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        margin: 0 3.2rem;
-        padding: 1.4rem 1.6rem;
+        width: min(42rem, 100%);
+        margin: 0;
+        padding: 1rem 1.4rem;
         border-left: 0.6rem solid var(--primary-color, #2b7ef4);
         border-radius: 0.4rem;
         background: #f5f9ff;
@@ -261,14 +242,13 @@
         display: flex;
         justify-content: center;
         gap: 1.2rem;
-        margin-top: 2.4rem;
-        padding: 2.4rem 3.2rem;
-        border-top: 0.1rem solid #d8e5f8;
-        background: #f5f9ff;
+        margin-top: 2rem;
+        padding: 0;
     }
 
     .dismiss-error {
-        margin: 1.6rem 3.2rem 0;
+        width: min(42rem, 100%);
+        margin: 1.6rem 0 0;
         padding: 1.2rem 1.6rem;
         border-left: 0.6rem solid var(--tertiary-color, #982a35);
         border-radius: 0.4rem;
@@ -308,31 +288,21 @@
     }
 
     @media (max-width: 520px) {
-        .confetti {
-            gap: 0.6rem;
-        }
-
-        .confetti span {
-            width: 4rem;
-            height: 4rem;
-            font-size: 2rem;
-        }
-
         header {
-            padding: 2rem;
+            padding-bottom: 1.6rem;
         }
 
         .sound-status {
-            margin: 0 2rem;
+            margin: 0;
         }
 
         .dismiss-error {
-            margin: 1.6rem 2rem 0;
+            margin: 1.6rem 0 0;
         }
 
         .actions {
             flex-direction: column;
-            padding: 2rem;
+            width: min(32rem, 100%);
         }
 
         button {
@@ -346,39 +316,11 @@
         .celebration-modal {
             animation: celebrate-in 220ms ease-out;
         }
-
-        .confetti span {
-            animation: ball-pop 420ms ease-out both;
-        }
-
-        .confetti span:nth-child(2) {
-            animation-delay: 50ms;
-        }
-
-        .confetti span:nth-child(3) {
-            animation-delay: 100ms;
-        }
-
-        .confetti span:nth-child(4) {
-            animation-delay: 150ms;
-        }
-
-        .confetti span:nth-child(5) {
-            animation-delay: 200ms;
-        }
     }
 
     @keyframes celebrate-in {
         from {
             opacity: 0;
-            transform: scale(0.92);
-        }
-    }
-
-    @keyframes ball-pop {
-        from {
-            opacity: 0;
-            transform: translateY(-1.5rem) scale(0.7);
         }
     }
 </style>

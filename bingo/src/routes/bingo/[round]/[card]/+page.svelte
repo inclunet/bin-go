@@ -573,7 +573,7 @@
         class:table_draw
         data-table_client={table_client}
     >
-        <Adds />
+        <Adds compact />
     </div>
     </div>
 
@@ -694,6 +694,12 @@
         display: flex;
         justify-content: flex-start;
     }
+    .anuncio {
+        max-width: 46rem;
+    }
+    .anuncio[data-table_client="true"] {
+        max-width: 32rem;
+    }
 
     @media (min-width: 1150px) {
         .table-horizontal {
@@ -718,6 +724,7 @@
         }
         .anuncio {
             grid-area: anuncio;
+            justify-self: center;
         }
         .container-qr_code {
             grid-area: container-qr_code;
@@ -771,7 +778,9 @@
     @media (max-width: 970px) {
         .anuncio[data-table_client="true"] {
             margin-top: 1rem;
-            flex-basis: 100%;
+            flex-basis: 32rem;
+            margin-right: auto;
+            margin-left: auto;
         }
         .info-card-client,
         .table-card[data-table_client="true"] {
