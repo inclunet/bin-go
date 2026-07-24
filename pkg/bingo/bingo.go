@@ -204,10 +204,9 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 	}
 
 	if old != nil {
-		// Keep the registry and parent round consistent while the transaction
-		// links both records. Round creation is rare, so correctness here is
-		// preferable to exposing an unpersisted round to concurrent handlers.
-		b.mu.Lock()
+		// Keep the parent locked through persistence, then publish the child
+		// before readers can observe the new link. getRoundAndLock releases
+		// b.mu before waiting on oldLock, so this does not invert nested locks.
 		oldLock.Lock()
 		previousRoundID := old.NextRoundID
 		previousNextRounds := make([]int, len(old.Cards))
@@ -225,9 +224,9 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
 			}
 			oldLock.Unlock()
-			b.mu.Unlock()
 			return persistenceResponseError("rounds cannot be saved", err)
 		}
+		b.mu.Lock()
 		b.Rounds = append(b.Rounds, round)
 		b.roundsByID[round.ID] = round
 		b.roundLocks[round.ID] = &sync.Mutex{}
@@ -306,14 +305,14 @@ func (b *Bingo) DrawHandler(r *http.Request) (*server.Response, error) {
 		return newCardResponse(card)
 	}
 
-	checked, Unchecked := round.ToggleNumberForAll(number)
+	checked, unchecked := round.ToggleNumberForAll(number)
 	if err := b.persistRound(r.Context(), round); err != nil {
 		_ = mutation.Restore(round)
 		return persistenceResponseError("draw cannot be saved", err)
 	}
 	mutation.Publish(round)
 
-	b.Log("Draw new Random Bingo Number", card, "number", number, "checked", checked, "unchecked", Unchecked)
+	b.Log("Draw new Random Bingo Number", card, "number", number, "checked", checked, "unchecked", unchecked)
 
 	return newCardResponse(card)
 }
