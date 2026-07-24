@@ -99,7 +99,7 @@ func (s *PostgresStore) LoadRounds(ctx context.Context) ([]*Round, error) {
 			return nil, fmt.Errorf("scan bingo card: %w", err)
 		}
 		if err := json.Unmarshal(state, &card); err != nil {
-			return nil, fmt.Errorf("decode bingo card %s: %w", id, err)
+			return nil, fmt.Errorf("decode bingo card %s: %w", id.String(), err)
 		}
 
 		card.ID = id.String()
