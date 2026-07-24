@@ -48,6 +48,7 @@
     let bingoDismissError = "";
     let dismissingBingo = false;
     let bingoSoundSilenced = false;
+    let soundGeneration = 0;
     let syncGeneration = 0;
 
     const isValidCard = (value) =>
@@ -174,6 +175,7 @@
             return;
         }
         bingoSoundSilenced = true;
+        soundGeneration++;
         if (bingoAudio) {
             bingoAudio.pause();
             bingoAudio.currentTime = 0;
@@ -224,6 +226,7 @@
     };
 
     const playBingoSound = async () => {
+        const playbackGeneration = ++soundGeneration;
         bingoSoundSilenced = false;
         soundStatus = "starting";
         if (!bingoAudio) {
@@ -232,9 +235,20 @@
         }
         try {
             await bingoAudio.play();
+            if (
+                playbackGeneration !== soundGeneration ||
+                bingoSoundSilenced ||
+                !$card.Bingo
+            ) {
+                bingoAudio.pause();
+                bingoAudio.currentTime = 0;
+                return;
+            }
             soundStatus = "playing";
         } catch {
-            soundStatus = "blocked";
+            if (playbackGeneration === soundGeneration) {
+                soundStatus = "blocked";
+            }
         }
     };
 
@@ -248,6 +262,7 @@
                 void playBingoSound();
             } else if (!$card.Bingo) {
                 bingoSoundSilenced = false;
+                soundGeneration++;
                 soundStatus = "idle";
                 if (bingoAudio) {
                     bingoAudio.pause();
