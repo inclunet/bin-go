@@ -134,7 +134,10 @@
             aria-labelledby="share-round-title"
         >
             <header>
-                <h2 id="share-round-title">Compartilhar rodada</h2>
+                <div>
+                    <p class="eyebrow">Opções da rodada</p>
+                    <h2 id="share-round-title">Compartilhar rodada</h2>
+                </div>
                 <button
                     class="close-button"
                     type="button"
@@ -202,11 +205,11 @@
         align-items: center;
         justify-content: center;
         padding: 1.5rem;
-        background: rgba(13, 31, 54, 0.78);
+        background: rgba(29, 29, 29, 0.72);
     }
 
     .share-modal {
-        width: min(68rem, 100%);
+        width: min(64rem, 100%);
         max-height: 90vh;
         overflow-y: auto;
         padding: 0;
@@ -214,7 +217,7 @@
         border-radius: 1.2rem;
         background: var(--white, #fff);
         color: var(--senary-color, #1d1d1d);
-        box-shadow: 0 1.2rem 3.6rem rgba(0, 0, 0, 0.32);
+        box-shadow: 0 0.8rem 2.4rem rgba(29, 29, 29, 0.16);
     }
 
     header,
@@ -227,7 +230,7 @@
 
     header {
         justify-content: space-between;
-        padding: 2rem 2.4rem;
+        padding: 2.8rem 3.2rem;
         background: linear-gradient(
             135deg,
             var(--primary-color, #2b7ef4),
@@ -237,14 +240,23 @@
     }
 
     header h2 {
+        margin: 0.3rem 0 0;
+        color: inherit;
+        font-size: 3.2rem;
+    }
+
+    .eyebrow {
         margin: 0;
         color: inherit;
-        font-size: 2.8rem;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
     }
 
     h3 {
-        margin: 0 0 0.8rem;
-        color: var(--primary-color, #2b7ef4);
+        margin: 0 0 1.2rem;
+        color: var(--senary-color, #1d1d1d);
     }
 
     .close-button {
@@ -266,11 +278,10 @@
     }
 
     .share-section {
-        margin: 2.4rem;
-        padding: 2rem;
-        border: 0.1rem solid #d8e5f8;
-        border-radius: 0.8rem;
-        background: #f5f9ff;
+        margin: 0;
+        padding: 3.2rem;
+        border: 0;
+        background: var(--white, #fff);
     }
 
     .share-section p {
@@ -279,8 +290,10 @@
     }
 
     .organizer {
-        border: 0;
+        margin: 0 3.2rem 2.4rem;
+        padding: 1.4rem 1.6rem;
         border-left: 0.6rem solid var(--tertiary-color, #982a35);
+        border-radius: 0.4rem;
         background: #fff4f5;
     }
 
@@ -294,6 +307,7 @@
         border-radius: 0.4rem;
         background: var(--primary-button-color, #2b7ef4);
         color: var(--black, #000);
+        font-size: 2rem;
         font-weight: 700;
         cursor: pointer;
     }
@@ -310,17 +324,18 @@
 
     .actions {
         flex-wrap: wrap;
+        gap: 1.2rem;
     }
 
     .status {
         min-height: 2.4rem;
-        margin: 0 2.4rem 1.2rem;
+        margin: 0 3.2rem 1.2rem;
         line-height: 1.5;
     }
 
     footer {
         justify-content: flex-end;
-        padding: 1.6rem 2.4rem 2.4rem;
+        padding: 2.4rem 3.2rem;
         border-top: 0.1rem solid #d8e5f8;
         background: #f5f9ff;
     }
@@ -332,17 +347,21 @@
         }
 
         header,
-        .share-section,
         footer {
-            padding: 1.6rem;
-        }
-
-        header h2 {
-            font-size: 2.3rem;
+            padding: 2rem;
         }
 
         .share-section {
-            margin: 1.6rem;
+            padding: 2rem;
+        }
+
+        header h2 {
+            font-size: 2.6rem;
+        }
+
+        .organizer {
+            margin: 0 2rem 2rem;
+            padding: 1.4rem 1.6rem;
         }
 
         .actions,
@@ -353,7 +372,7 @@
         }
 
         .status {
-            margin: 0 1.6rem 1rem;
+            margin: 0 2rem 1rem;
         }
     }
 </style>
