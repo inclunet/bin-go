@@ -1,13 +1,48 @@
 <script>
-    import { goto } from "$app/navigation";
     import NewRound from "$lib/NewRound.svelte";
     import PageTitle from "$lib/PageTitle.svelte";
-    import { callApi } from "$lib/api";
+    import { callApiResult } from "$lib/api";
     import { card } from "$lib/bingo";
+    import {
+        getRoundCreationID,
+        rememberPendingLobbyURL,
+    } from "$lib/bingo/playerCards";
+
+    let createError = "";
+    let creating = false;
+    let createdLobbyURL = "";
+
+    const openCreatedLobby = () => {
+        window.location.assign(createdLobbyURL);
+        window.setTimeout(() => {
+            creating = false;
+        }, 2000);
+    };
 
     const handleNewRoundEvent = async () => {
-        $card = await callApi($card, `/api/bingo/0/new/${$card.Type}`, "GET");
-        goto(`/bingo/${$card.Round}`);
+        if (creating) {
+            return;
+        }
+        creating = true;
+        createError = "";
+        const result = await callApiResult(
+            $card,
+            `/api/bingo/0/new/${$card.Type}`,
+            "GET",
+            null,
+            false,
+            { "X-Bingo-Creation-ID": getRoundCreationID() }
+        );
+        if (!result.ok || !result.data.RoundID || !result.data.ID) {
+            createError =
+                "Não foi possível criar a rodada. Tente novamente em alguns instantes.";
+            creating = false;
+            return;
+        }
+        $card = result.data;
+        createdLobbyURL = `/bingo/${$card.RoundID}/${$card.ID}/lobby`;
+        rememberPendingLobbyURL(createdLobbyURL);
+        openCreatedLobby();
     };
 </script>
 
@@ -18,7 +53,14 @@
     <p class="text-center my-3">
         Vamos Jogar! Escolha a quantidade de bolinhas que serão sorteadas:
     </p>
-    <NewRound on:click={handleNewRoundEvent} />
+    <NewRound
+        on:click={handleNewRoundEvent}
+        disabled={creating}
+        ariaBusy={creating}
+    />
+    {#if createError}
+        <p class="alert alert-danger" role="alert">{createError}</p>
+    {/if}
 </div>
 
 <style>

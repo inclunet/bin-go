@@ -16,7 +16,7 @@ O Inclugames é inteiramente desenvolvido com SvelteKit que é derivado do Svelt
 
 ## Preparando seu ambiente de desenvolvimento
 
-Este projeto requer [Go 1.22](https://golang.org/dl/) e [Node.js 20.17.0](https://nodejs.org/en/download/). Siga os passos abaixo para clonar o repositório e rodar o servidor da API:
+Este projeto requer [Go 1.25](https://golang.org/dl/) e [Node.js 20.17.0](https://nodejs.org/en/download/). Siga os passos abaixo para clonar o repositório e rodar o servidor da API:
 
 ### Clonando o Repositório
 
@@ -27,13 +27,39 @@ cd bin-go
 
 ### Rodando o Servidor da API
 
-Certifique-se de ter o Go 1.22 instalado. Para rodar o servidor, execute:
+Certifique-se de ter o Go 1.25 instalado. Para rodar o servidor, execute:
 
 ```sh
 go run main.go --port=8080
 ```
 
 A API estará disponível em `http://localhost:8080`.
+
+### Persistência do bingo
+
+Configure `DATABASE_URL` com uma conexão PostgreSQL antes de iniciar a API:
+
+```sh
+export DATABASE_URL='postgresql://user:password@host/database?sslmode=require'
+export DB_MAX_CONNS=5
+export REQUIRE_DATABASE=true
+go run main.go
+```
+
+No PowerShell:
+
+```powershell
+$env:DATABASE_URL = 'postgresql://user:password@host/database?sslmode=require'
+$env:DB_MAX_CONNS = '5'
+$env:REQUIRE_DATABASE = 'true'
+go run main.go
+```
+
+As migrations são executadas automaticamente durante o startup com um
+advisory lock do PostgreSQL. Sem `DATABASE_URL`, o bingo continua disponível
+em modo de memória para desenvolvimento, mas as rodadas são perdidas ao
+reiniciar o processo. Configure `REQUIRE_DATABASE=true` no ambiente de
+produção para impedir esse fallback.
 
 ## Preparando o Front-end
 

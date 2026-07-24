@@ -1,28 +1,54 @@
 package bingo
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
+	"sync"
+	"sync/atomic"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/inclunet/bin-go/pkg/utils"
 )
 
 type Card struct {
+	ID             string
+	RoundID        string
 	Autoplay       bool
 	Bingo          bool
 	Card           int
 	Checked        int
-	conn           *websocket.Conn
+	runtime        *cardRuntime
 	Completions    *Completions
 	Finished       bool
 	LastCompletion string
 	LastNumber     int
 	NextRound      int
+	NextRoundID    string
 	Round          int
 	Type           int
-	Main           *Card
+	Main           *Card  `json:"-"`
+	PlayerID       string `json:"-"`
 	Numbers        [][5]Number
+}
+
+type cardRuntime struct {
+	conn          *websocket.Conn
+	connMu        sync.Mutex
+	updateSeq     atomic.Uint64
+	writeMu       sync.Mutex
+	queueMu       sync.Mutex
+	pendingSend   func() error
+	writerRunning bool
+}
+
+func (c *Card) getRuntime() *cardRuntime {
+	if c.runtime == nil {
+		c.runtime = &cardRuntime{}
+	}
+	return c.runtime
 }
 
 func (c *Card) CancelAlert() {
@@ -468,15 +494,25 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 		return false
 	}
 
-	c.conn = conn
+	runtime := c.getRuntime()
+	runtime.writeMu.Lock()
+	runtime.connMu.Lock()
+	previous := runtime.conn
+	runtime.conn = conn
+	runtime.updateSeq.Add(1)
+	runtime.connMu.Unlock()
+	runtime.writeMu.Unlock()
+	if previous != nil && previous != conn {
+		_ = previous.Close()
+	}
 
 	return true
 }
 
-func (c *Card) SetNextRound(round int) bool {
+func (c *Card) SetNextRound(round int, roundID string) bool {
 	if c.NextRound == 0 && c.Round != round {
 		c.NextRound = round
-		c.UpdateCard()
+		c.NextRoundID = roundID
 		return true
 	}
 
@@ -531,17 +567,92 @@ func (c *Card) UncheckNumber(number int) bool {
 }
 
 func (c *Card) UpdateCard() error {
-	if c.conn == nil {
-		return nil
-	}
-
-	err := c.conn.WriteJSON(c)
-
+	send, err := c.PrepareUpdate()
 	if err != nil {
 		return err
 	}
 
+	if send != nil {
+		c.QueueUpdate(send)
+	}
 	return nil
+}
+
+// PrepareUpdate snapshots the card while its caller holds the round lock. The
+// returned function serializes network I/O without holding the round lock.
+func (c *Card) PrepareUpdate() (func() error, error) {
+	runtime := c.getRuntime()
+	runtime.connMu.Lock()
+	conn := runtime.conn
+	if conn == nil {
+		runtime.connMu.Unlock()
+		return nil, nil
+	}
+	sequence := runtime.updateSeq.Add(1)
+	runtime.connMu.Unlock()
+
+	payload, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	return func() error {
+		runtime.writeMu.Lock()
+		defer runtime.writeMu.Unlock()
+		if sequence != runtime.updateSeq.Load() {
+			return nil
+		}
+
+		if err := conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
+			_ = conn.Close()
+			runtime.connMu.Lock()
+			if runtime.conn == conn {
+				runtime.conn = nil
+			}
+			runtime.connMu.Unlock()
+			return err
+		}
+		if err := conn.WriteMessage(websocket.TextMessage, payload); err != nil {
+			_ = conn.Close()
+			runtime.connMu.Lock()
+			if runtime.conn == conn {
+				runtime.conn = nil
+			}
+			runtime.connMu.Unlock()
+			return err
+		}
+
+		return nil
+	}, nil
+}
+
+func (c *Card) QueueUpdate(send func() error) {
+	runtime := c.getRuntime()
+	runtime.queueMu.Lock()
+	runtime.pendingSend = send
+	if runtime.writerRunning {
+		runtime.queueMu.Unlock()
+		return
+	}
+	runtime.writerRunning = true
+	runtime.queueMu.Unlock()
+
+	go runtime.runWriter()
+}
+
+func (runtime *cardRuntime) runWriter() {
+	for {
+		runtime.queueMu.Lock()
+		send := runtime.pendingSend
+		runtime.pendingSend = nil
+		if send == nil {
+			runtime.writerRunning = false
+			runtime.queueMu.Unlock()
+			return
+		}
+		runtime.queueMu.Unlock()
+
+		_ = send()
+	}
 }
 
 // NewCard creates a new bingo card.
@@ -549,6 +660,9 @@ func NewCard(round *Round) Card {
 	main, err := round.GetCard(0)
 
 	card := Card{
+		ID:          uuid.NewString(),
+		RoundID:     round.ID,
+		runtime:     &cardRuntime{},
 		Autoplay:    true,
 		Card:        len(round.Cards) + 1,
 		Completions: NewDefaultCompletions(),

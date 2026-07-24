@@ -8,6 +8,9 @@
     import MediaQuery from "$lib/MediaQuery.svelte";
 
     const dispatch = createEventDispatcher();
+    let ballAnnouncement = "";
+    $: ballAnnouncement =
+        $card.LastNumber > 0 ? `Bola ${$card.LastNumber}` : "";
 
     const handleDispatchAutoplayEvent = () => {
         dispatch("autoplay");
@@ -63,6 +66,9 @@
 </script>
 
 <div class="container d-flex flex-column">
+    <p class="sr-only" aria-live="polite" aria-atomic="true">
+        {ballAnnouncement}
+    </p>
     {#if $card.Card == 1}
         <MediaQuery query="(min-width: 1150px)" let:matches>
             {#if matches}
@@ -113,7 +119,7 @@
                             </div>
                         {/if}
                     </div>
-                    <div aria-live="polite" class="container-status">
+                    <div class="container-status">
                         <p>Bolas Sorteadas: <strong>{$card.Checked}</strong></p>
                         <p>
                             Última sorteada: <strong>{$card.LastNumber}</strong>
@@ -167,7 +173,7 @@
                             </div>
                         {/if}
                     </div>
-                    <div aria-live="polite" class="container-status">
+                    <div class="container-status">
                         <p>Bolas Sorteadas: <strong>{$card.Checked}</strong></p>
                         <p>
                             Última sorteada: <strong>{$card.LastNumber}</strong>
@@ -219,7 +225,7 @@
                     </div>
                 {/if}
             </div>
-            <div aria-live="polite" class="container-status">
+            <div class="container-status">
                 <p>Bolas Sorteadas: <strong>{$card.Checked}</strong></p>
                 <p>
                     Última sorteada: <strong>{$card.LastNumber}</strong>
@@ -238,6 +244,17 @@
         min-height: 0vh;
         padding: 0;
         margin: 0;
+    }
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
     }
     .container-header,
     .container-header-client {
