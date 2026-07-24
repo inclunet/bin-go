@@ -40,6 +40,7 @@
     let connectionTimeout;
     let pollingInFlight = false;
     let leavingPage = false;
+    let navigationPending = false;
     let cardLoaded = false;
     let loadError = "";
     let actionError = "";
@@ -186,6 +187,26 @@
         }
     };
 
+    const navigateTo = (target) => {
+        if (leavingPage || navigationPending) {
+            return;
+        }
+        navigationPending = true;
+        try {
+            window.location.assign(target);
+        } catch {
+            navigationPending = false;
+            actionError =
+                "Não foi possível abrir a próxima página. Tente novamente.";
+            return;
+        }
+        setTimeout(() => {
+            // A successful navigation destroys this component. If the browser
+            // cancels it, keep the current card connected and retryable.
+            navigationPending = false;
+        }, 1000);
+    };
+
     const handleNewRoundEvent = async () => {
         const pendingLobbyURL = getPendingLobbyURL();
         const pendingSourceCardID = getPendingLobbySourceCardID();
@@ -193,7 +214,7 @@
             pendingLobbyURL &&
             pendingSourceCardID === String(data.Card)
         ) {
-            window.location.assign(pendingLobbyURL);
+            navigateTo(pendingLobbyURL);
             return;
         }
 
@@ -215,9 +236,7 @@
         actionError = "";
         const lobbyURL = `/bingo/${result.data.RoundID}/${result.data.ID}/lobby`;
         rememberPendingLobbyURL(lobbyURL, sourceCardID);
-        leavingPage = true;
-        socket?.close();
-        window.location.assign(lobbyURL);
+        navigateTo(lobbyURL);
     };
 
     const handlePlayCheckSoundEvent = async () => {
@@ -452,28 +471,22 @@
     };
 
     const redirectToNextRound = () => {
-        if (leavingPage) {
+        if (leavingPage || navigationPending) {
             return;
         }
 
         if ($card.Round == 0) {
-            leavingPage = true;
-            socket?.close();
-            window.location.assign("/");
+            navigateTo("/");
             return;
         }
 
         if ($card.Card == 0) {
-            leavingPage = true;
-            socket?.close();
-            window.location.assign(`/bingo/${$card.RoundID}/new`);
+            navigateTo(`/bingo/${$card.RoundID}/new`);
             return;
         }
 
         if ($card.NextRoundID && $card.Card > 1) {
-            leavingPage = true;
-            socket?.close();
-            window.location.assign(`/bingo/${$card.NextRoundID}/new`);
+            navigateTo(`/bingo/${$card.NextRoundID}/new`);
         }
     };
 
@@ -521,9 +534,7 @@
             pendingSourceCardID &&
             pendingSourceCardID === String(data.Card)
         ) {
-            leavingPage = true;
-            window.location.assign(pendingLobbyURL);
-            return;
+            navigateTo(pendingLobbyURL);
         }
         document.addEventListener("visibilitychange", handleVisibilityChange);
         requestScreenWakeLock();

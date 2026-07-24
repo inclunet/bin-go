@@ -202,23 +202,12 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		b.roundLocks[round.ID] = &sync.Mutex{}
 		b.mu.Unlock()
 	}
-	unpublishRound := func() {
-		b.mu.Lock()
-		delete(b.roundsByID, round.ID)
-		delete(b.roundLocks, round.ID)
-		for i := range b.Rounds {
-			if b.Rounds[i].ID == round.ID {
-				b.Rounds = append(b.Rounds[:i], b.Rounds[i+1:]...)
-				break
-			}
-		}
-		b.mu.Unlock()
-	}
 
 	if old != nil {
-		// Publish the unguessable new UUID before linking the old round so
-		// readers can never observe an unresolved NextRoundID.
-		publishRound()
+		// Keep the registry and parent round consistent while the transaction
+		// links both records. Round creation is rare, so correctness here is
+		// preferable to exposing an unpersisted round to concurrent handlers.
+		b.mu.Lock()
 		oldLock.Lock()
 		previousRoundID := old.NextRoundID
 		previousNextRounds := make([]int, len(old.Cards))
@@ -236,9 +225,13 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 				old.Cards[i].NextRoundID = previousNextRoundIDs[i]
 			}
 			oldLock.Unlock()
-			unpublishRound()
+			b.mu.Unlock()
 			return persistenceResponseError("rounds cannot be saved", err)
 		}
+		b.Rounds = append(b.Rounds, round)
+		b.roundsByID[round.ID] = round
+		b.roundLocks[round.ID] = &sync.Mutex{}
+		b.mu.Unlock()
 		old.Publish()
 		oldLock.Unlock()
 	} else if err := b.persistRound(r.Context(), round); err != nil {
