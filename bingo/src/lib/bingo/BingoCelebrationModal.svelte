@@ -141,7 +141,7 @@
         {/if}
 
         <div class="actions">
-            {#if soundStatus === "blocked"}
+            {#if soundStatus === "blocked" || soundStatus === "stopped"}
                 <button class="secondary-action" type="button" on:click={playSound}>
                     Ativar som
                 </button>
