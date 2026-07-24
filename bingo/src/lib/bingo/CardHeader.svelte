@@ -8,6 +8,7 @@
     import MediaQuery from "$lib/MediaQuery.svelte";
 
     const dispatch = createEventDispatcher();
+    let ballAnnouncement = "";
     $: ballAnnouncement =
         $card.LastNumber > 0 ? `Bola ${$card.LastNumber}` : "";
 
