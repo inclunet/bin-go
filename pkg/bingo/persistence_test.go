@@ -325,6 +325,22 @@ func TestAddRoundsHandlerRejectsUnknownParentRound(t *testing.T) {
 	}
 }
 
+func TestAddRoundsHandlerRejectsInvalidRoundType(t *testing.T) {
+	game := New(nil)
+	request := mux.SetURLVars(
+		httptest.NewRequest("GET", "/api/bingo/0/new/0", nil),
+		map[string]string{"round": "0", "type": "0"},
+	)
+	request.Header.Set("X-Bingo-Creation-ID", uuid.NewString())
+
+	if _, err := game.AddRoundsHandler(request); err == nil {
+		t.Fatal("invalid type created a round")
+	}
+	if len(game.Rounds) != 0 {
+		t.Fatalf("game has %d invalid rounds", len(game.Rounds))
+	}
+}
+
 func TestAddCardsHandlerReturnsExistingCardForPlayer(t *testing.T) {
 	game := New(nil)
 	roundRequest := mux.SetURLVars(

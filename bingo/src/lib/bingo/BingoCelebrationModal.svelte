@@ -21,6 +21,7 @@
     /** @type {HTMLElement | null} */
     let previouslyFocused = null;
     let previousBodyOverflow = "";
+    let completionLabel = "";
 
     const completionLabels = {
         Full: "Cartela cheia",

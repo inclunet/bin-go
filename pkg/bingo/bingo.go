@@ -177,8 +177,13 @@ func (b *Bingo) AddRoundsHandler(r *http.Request) (*server.Response, error) {
 		}
 	}
 
+	roundType := server.GetURLParamHasInt(r, "type")
+	if roundType <= 0 {
+		return server.NewResponseError(http.StatusBadRequest, errors.New("valid round type is required"))
+	}
+
 	b.mu.Lock()
-	newRound := NewRound(b, server.GetURLParamHasInt(r, "type"))
+	newRound := NewRound(b, roundType)
 	b.mu.Unlock()
 
 	round := &newRound
