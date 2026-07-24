@@ -277,7 +277,7 @@
         bingoDismissError = "";
         dismissingBingo = true;
         foregroundUpdates++;
-        updateGeneration++;
+        const requestUpdateGeneration = ++updateGeneration;
         const result = await callApiResult(
             $card,
             `/api/bingo/${$card.RoundID}/${$card.ID}/cancel`,
@@ -295,9 +295,19 @@
         actionError = "";
         bingoDismissError = "";
         dismissingBingo = false;
+        const hasNewerCardState =
+            requestUpdateGeneration !== updateGeneration;
         syncGeneration++;
         updateGeneration++;
-        $card = result.data;
+        if (hasNewerCardState) {
+            $card = {
+                ...$card,
+                Bingo: result.data.Bingo,
+                LastCompletion: result.data.LastCompletion,
+            };
+        } else {
+            $card = result.data;
+        }
         isBingo();
         const previousSocket = socket;
         socket = undefined;
