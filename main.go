@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/inclunet/bin-go/pkg/bingo"
@@ -28,7 +29,12 @@ func main() {
 
 	server.Logger.Info("Adding Bingo routes...")
 
-	pool, err := database.Open(context.Background())
+	databaseContext, cancelDatabaseStartup := context.WithTimeout(
+		context.Background(),
+		30*time.Second,
+	)
+	pool, err := database.Open(databaseContext)
+	cancelDatabaseStartup()
 	if err != nil {
 		if strings.EqualFold(strings.TrimSpace(os.Getenv("REQUIRE_DATABASE")), "true") {
 			server.Logger.Error("Database startup failed", "error", err)

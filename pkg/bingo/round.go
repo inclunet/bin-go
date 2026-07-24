@@ -265,6 +265,9 @@ func (m *RoundMutation) attachConnections(round *Round) {
 }
 
 func nextRoundNumber(bingo *Bingo) int {
+	bingo.mu.RLock()
+	defer bingo.mu.RUnlock()
+
 	next := 1
 	for _, round := range bingo.Rounds {
 		if round.Round >= next {

@@ -495,10 +495,13 @@ func (c *Card) SetConn(conn *websocket.Conn) bool {
 	}
 
 	runtime := c.getRuntime()
+	runtime.writeMu.Lock()
 	runtime.connMu.Lock()
 	previous := runtime.conn
 	runtime.conn = conn
+	runtime.updateSeq.Add(1)
 	runtime.connMu.Unlock()
+	runtime.writeMu.Unlock()
 	if previous != nil && previous != conn {
 		_ = previous.Close()
 	}
@@ -581,17 +584,17 @@ func (c *Card) PrepareUpdate() (func() error, error) {
 	runtime := c.getRuntime()
 	runtime.connMu.Lock()
 	conn := runtime.conn
-	runtime.connMu.Unlock()
 	if conn == nil {
+		runtime.connMu.Unlock()
 		return nil, nil
 	}
+	sequence := runtime.updateSeq.Add(1)
+	runtime.connMu.Unlock()
 
 	payload, err := json.Marshal(c)
 	if err != nil {
 		return nil, err
 	}
-	sequence := runtime.updateSeq.Add(1)
-
 	return func() error {
 		runtime.writeMu.Lock()
 		defer runtime.writeMu.Unlock()
