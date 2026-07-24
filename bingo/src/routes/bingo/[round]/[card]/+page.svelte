@@ -48,6 +48,7 @@
     let bingoDismissError = "";
     let dismissingBingo = false;
     let bingoSoundSilenced = false;
+    let syncGeneration = 0;
 
     const isValidCard = (value) =>
         value.ID &&
@@ -196,8 +197,14 @@
         actionError = "";
         bingoDismissError = "";
         dismissingBingo = false;
+        syncGeneration++;
         $card = result.data;
         isBingo();
+        const previousSocket = socket;
+        socket = undefined;
+        previousSocket?.close();
+        startPolling();
+        scheduleReconnect();
     };
 
     const handleSaveCompletions = async () => {
@@ -392,7 +399,11 @@
     };
 
     const updateCard = async (path = "", reportError = true) => {
+        const requestGeneration = syncGeneration;
         const result = await callApiResult($card, path, "GET");
+        if (requestGeneration !== syncGeneration) {
+            return true;
+        }
         if (!result.ok) {
             if (reportError) {
                 actionError =
