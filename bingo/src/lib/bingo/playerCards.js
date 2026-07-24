@@ -3,11 +3,65 @@ const playerIDKey = "inclubingo-player-id";
 const roundCreationIDKey = "inclubingo-pending-round-creation-id";
 const pendingLobbyURLKey = "inclubingo-pending-organizer-lobby-url";
 const pendingLobbySourceCardKey = "inclubingo-pending-lobby-source-card";
+const memoryStorage = new Map();
+
+/** @param {string} key */
+const readStorage = (key) => {
+    try {
+        return localStorage.getItem(key) ?? memoryStorage.get(key) ?? null;
+    } catch {
+        return memoryStorage.get(key) ?? null;
+    }
+};
+
+/** @param {string} key @param {string} value */
+const writeStorage = (key, value) => {
+    memoryStorage.set(key, value);
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        // Browser storage is a best-effort cache.
+    }
+};
+
+/** @param {string} key */
+const removeStorage = (key) => {
+    memoryStorage.delete(key);
+    try {
+        localStorage.removeItem(key);
+    } catch {
+        // Browser storage is a best-effort cache.
+    }
+};
+
+const createUUID = () => {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+
+    const bytes = new Uint8Array(16);
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+        crypto.getRandomValues(bytes);
+    } else {
+        for (let i = 0; i < bytes.length; i++) {
+            bytes[i] = Math.floor(Math.random() * 256);
+        }
+    }
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, (byte) =>
+        byte.toString(16).padStart(2, "0")
+    ).join("");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(
+        12,
+        16
+    )}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+};
 
 /** @returns {Record<string, string>} */
 const loadCards = () => {
     try {
-        const cards = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        const cards = JSON.parse(readStorage(storageKey) || "{}");
         return cards && typeof cards === "object" && !Array.isArray(cards)
             ? cards
             : {};
@@ -32,36 +86,36 @@ export const rememberPlayerCard = (roundID, cardID) => {
     }
     const cards = loadCards();
     cards[roundID] = cardID;
-    localStorage.setItem(storageKey, JSON.stringify(cards));
+    writeStorage(storageKey, JSON.stringify(cards));
 };
 
 /** @param {string} roundID */
 export const forgetPlayerCard = (roundID) => {
     const cards = loadCards();
     delete cards[roundID];
-    localStorage.setItem(storageKey, JSON.stringify(cards));
+    writeStorage(storageKey, JSON.stringify(cards));
 };
 
 export const getPlayerID = () => {
-    let playerID = localStorage.getItem(playerIDKey);
+    let playerID = readStorage(playerIDKey);
     if (!playerID) {
-        playerID = crypto.randomUUID();
-        localStorage.setItem(playerIDKey, playerID);
+        playerID = createUUID();
+        writeStorage(playerIDKey, playerID);
     }
     return playerID;
 };
 
 export const getRoundCreationID = () => {
-    let creationID = localStorage.getItem(roundCreationIDKey);
+    let creationID = readStorage(roundCreationIDKey);
     if (!creationID) {
-        creationID = crypto.randomUUID();
-        localStorage.setItem(roundCreationIDKey, creationID);
+        creationID = createUUID();
+        writeStorage(roundCreationIDKey, creationID);
     }
     return creationID;
 };
 
 export const clearRoundCreationID = () => {
-    localStorage.removeItem(roundCreationIDKey);
+    removeStorage(roundCreationIDKey);
     clearPendingLobbyURL();
 };
 
@@ -70,21 +124,21 @@ export const clearRoundCreationID = () => {
  * @param {string} sourceCardID
  */
 export const rememberPendingLobbyURL = (lobbyURL, sourceCardID = "") => {
-    localStorage.setItem(pendingLobbyURLKey, lobbyURL);
+    writeStorage(pendingLobbyURLKey, lobbyURL);
     if (sourceCardID) {
-        localStorage.setItem(pendingLobbySourceCardKey, sourceCardID);
+        writeStorage(pendingLobbySourceCardKey, sourceCardID);
     } else {
-        localStorage.removeItem(pendingLobbySourceCardKey);
+        removeStorage(pendingLobbySourceCardKey);
     }
 };
 
 export const getPendingLobbyURL = () =>
-    localStorage.getItem(pendingLobbyURLKey) || "";
+    readStorage(pendingLobbyURLKey) || "";
 
 export const getPendingLobbySourceCardID = () =>
-    localStorage.getItem(pendingLobbySourceCardKey) || "";
+    readStorage(pendingLobbySourceCardKey) || "";
 
 export const clearPendingLobbyURL = () => {
-    localStorage.removeItem(pendingLobbyURLKey);
-    localStorage.removeItem(pendingLobbySourceCardKey);
+    removeStorage(pendingLobbyURLKey);
+    removeStorage(pendingLobbySourceCardKey);
 };
