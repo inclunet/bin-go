@@ -14,7 +14,7 @@
     export let dismissing = false;
 
     const dispatch = createEventDispatcher();
-    /** @type {HTMLElement | null} */
+    /** @type {HTMLDialogElement | null} */
     let dialog = null;
     /** @type {HTMLButtonElement | null} */
     let dismissButton = null;
@@ -78,6 +78,9 @@
         );
         previousBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
+        if (dialog && !dialog.open) {
+            dialog.showModal();
+        }
         tick().then(() => dismissButton?.focus());
     });
 
@@ -92,6 +95,9 @@
     });
 
     onDestroy(() => {
+        if (dialog?.open) {
+            dialog.close();
+        }
         document.body.style.overflow = previousBodyOverflow;
         previouslyFocused?.focus?.();
     });
@@ -99,16 +105,16 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="celebration-backdrop" role="presentation">
-    <section
-        bind:this={dialog}
-        class="celebration-modal"
-        role="alertdialog"
-        tabindex="-1"
-        aria-modal="true"
-        aria-labelledby="bingo-title"
-        aria-describedby="bingo-message"
-    >
+<dialog
+    bind:this={dialog}
+    class="celebration-modal"
+    role="alertdialog"
+    tabindex="-1"
+    aria-modal="true"
+    aria-labelledby="bingo-title"
+    aria-describedby="bingo-message"
+    on:cancel|preventDefault={dismiss}
+>
         <header>
             <p class="eyebrow">Cartela #{cardNumber}</p>
             <h2 id="bingo-title">BINGO!</h2>
@@ -149,31 +155,23 @@
                 {dismissing ? "Fechando…" : "Parar aviso"}
             </button>
         </div>
-    </section>
-</div>
+</dialog>
 
 <style>
-    .celebration-backdrop {
+    .celebration-modal {
         position: fixed;
         inset: 0;
-        z-index: 2147483647;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        background: var(--white, #fff);
-        pointer-events: auto;
-    }
-
-    .celebration-modal {
-        display: flex;
-        width: 100%;
-        min-height: 100vh;
-        min-height: 100dvh;
+        width: 100vw;
+        max-width: none;
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
         align-items: center;
         justify-content: center;
         flex-direction: column;
         overflow-y: auto;
+        margin: 0;
         padding: 3.2rem 2rem;
         border: 0;
         border-radius: 0;
@@ -186,6 +184,14 @@
             var(--white, #fff);
         color: var(--senary-color, #1d1d1d);
         text-align: center;
+    }
+
+    .celebration-modal:not([open]) {
+        display: none;
+    }
+
+    .celebration-modal::backdrop {
+        background: var(--white, #fff);
     }
 
     header {
