@@ -9,9 +9,10 @@
 		strict: {
 			// Bloqueio total em áreas de jogo
 			selectors: [
-				'.tic-board', '.tic-cell', '.scoreboard-container', 
+				'.tic-board', '.tic-cell', '.battleship-board', '.battleship-cell',
+				'.scoreboard-container', '.status-container',
 				'.game-controls', '.help-modal', '.status-bar',
-				'[role="button"]', '[tabindex]', 'button'
+				'[role="button"]', 'button'
 			],
 			minDistance: 100, // pixels mínimos de distância
 			blockAutoAds: true
@@ -77,8 +78,14 @@
 				isolation: isolate;
 				contain: layout style;
 			}
+
+			.battleship-board {
+				/* Sem contain: evita bounding boxes erradas em leitores de tela móveis */
+				isolation: isolate;
+			}
 			
-			.tic-cell {
+			.tic-cell,
+			.battleship-cell {
 				isolation: isolate;
 				position: relative;
 				z-index: 101;

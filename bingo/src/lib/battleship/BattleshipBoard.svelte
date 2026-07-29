@@ -19,7 +19,7 @@
 
   const dispatch = createEventDispatcher();
 
-  // Eixos para exibição visual
+  // Eixos para exibição visual (fora do grid acessível, como no jogo da velha)
   const colLetters = ['A','B','C','D','E','F','G','H','I','J'];
   const rowNumbers = ['1','2','3','4','5','6','7','8','9','10'];
 
@@ -29,17 +29,8 @@
     return deriveState(board[r]?.[c]);
   }
 
-  function isCellEngaged(r,c){
-    const s = getCellState(r,c);
-    return s==='ship'||s==='hit'||s==='sunk';
-  }
-
 	function getCellLabel(r,c,names = shipNames){
 		return getCellLabelUtil({ row:r, col:c, cell: board[r]?.[c], shipNames: names });
-	}
-
-	function cellLabelId(r,c){
-		return `battleship-cell-label-${r}-${c}`;
 	}
 
   function getCellClass(r,c){
@@ -66,7 +57,20 @@
 
 <div class="battleship-board-wrapper">
 	<p id="board-instructions" class="sr-only">Tabuleiro interativo. Use NVDA+Espaço para foco. Setas movem; Enter confirma ação.</p>
-	<div class="board-inner battleship-board integrated"
+
+	<!-- Rótulos visuais fora do role=grid para o AT bater com o layout 10x10 -->
+	<div class="col-labels" aria-hidden="true">
+		{#each colLetters as letter}
+			<span>{letter}</span>
+		{/each}
+	</div>
+	<div class="row-labels" aria-hidden="true">
+		{#each rowNumbers as num}
+			<span>{num}</span>
+		{/each}
+	</div>
+
+	<div class="battleship-board"
 		class:setup-mode={mode === 'setup'}
 		class:playing-mode={mode === 'playing'}
 		class:my-turn={isMyTurn}
@@ -76,15 +80,7 @@
 		aria-label="Tabuleiro {mode === 'setup' ? 'posicionamento' : (mode === 'playing' ? (isMyTurn ? 'ataque, seu turno' : 'defesa, turno do oponente') : 'visualização')}"
 		aria-describedby="board-instructions"
 	>
-		<!-- Primeira linha: canto vazio + letras -->
-		<div class="cell header-corner" aria-hidden="true"></div>
-		{#each colLetters as letter}
-			<div class="cell header-col" aria-hidden="true">{letter}</div>
-		{/each}
-		<!-- Demais linhas -->
 		{#each board as boardRow, r}
-			<!-- Cabeçalho da linha -->
-			<div class="cell header-row" aria-hidden="true">{rowNumbers[r]}</div>
 			{#each boardRow as cell, c (r + '-' + c)}
 				<div
 					id={cellId(r,c)}
@@ -95,16 +91,16 @@
 					aria-roledescription="célula"
 					aria-rowindex={r+1}
 					aria-colindex={c+1}
-					class="battleship-cell {getCellClass(r,c)}"
+					aria-label="{getCellLabel(r,c, shipNames)}{isPending(r,c) ? ' aguardando confirmação' : ''}"
 					aria-busy={isPending(r,c) ? 'true' : 'false'}
+					class="battleship-cell {getCellClass(r,c)}"
 					on:click={() => handleCellClick(r,c)}
 					on:focus={() => handleCellFocus(r,c)}
 					on:keydown={handleKeydown}
-			>
-				<span class="sr-only">{getCellLabel(r,c, shipNames)}{isPending(r,c) ? ' aguardando confirmação' : ''}</span>
-				<span class="cell-content" aria-hidden="true">{#if getCellState(r,c) === 'ship'}🚢{:else if getCellState(r,c) === 'hit'}💥{:else if getCellState(r,c) === 'miss'}🌊{:else if getCellState(r,c) === 'sunk'}☠️{/if}</span>
-				{#if isPending(r,c)}<span class="pending-indicator" aria-hidden="true"></span>{/if}
-			</div>
+				>
+					<span class="cell-content" aria-hidden="true">{#if getCellState(r,c) === 'ship'}🚢{:else if getCellState(r,c) === 'hit'}💥{:else if getCellState(r,c) === 'miss'}🌊{:else if getCellState(r,c) === 'sunk'}☠️{/if}</span>
+					{#if isPending(r,c)}<span class="pending-indicator" aria-hidden="true"></span>{/if}
+				</div>
 			{/each}
 		{/each}
 	</div>
@@ -113,35 +109,60 @@
 <style>
 	.battleship-board-wrapper {
 		--gutter: clamp(0.4rem, 2vw, 1.25rem);
+		--label-size: 1.6rem;
 		box-sizing: border-box;
+		position: relative;
 		width: 100%;
 		max-width: 100%;
 		margin: 0 auto;
-		padding: var(--gutter);
-		display: block;
+		padding: var(--label-size) var(--gutter) var(--gutter) var(--label-size);
 	}
-	.board-inner {
-		box-sizing: border-box;
-		width: 100%;
-		max-width: 100%;
-		margin: 0 auto;
-	}
-	/* Layout integrado 11x11: remove necessidade de wrappers de labels */
-	.top-labels, .left-labels { display:none !important; }
 
-	.col-labels, .row-labels {
+	.col-labels {
+		position: absolute;
+		top: 0;
+		left: var(--label-size);
+		right: var(--gutter);
+		height: var(--label-size);
+		display: grid;
+		grid-template-columns: repeat(10, minmax(0, 1fr));
+		align-items: center;
 		font-size: 0.85rem;
 		font-weight: 600;
 		letter-spacing: 0.05em;
 		color: #c7d5e0;
-		font-family: system-ui, sans-serif;
+		pointer-events: none;
+	}
+	.col-labels span {
+		text-align: center;
 	}
 
-	/* Responsividade do tabuleiro: quadrado fluido na largura disponível */
-	.battleship-board.integrated {
+	.row-labels {
+		position: absolute;
+		top: var(--label-size);
+		left: 0;
+		bottom: var(--gutter);
+		width: var(--label-size);
 		display: grid;
-		grid-template-columns: repeat(11, minmax(0, 1fr));
-		grid-template-rows: repeat(11, minmax(0, 1fr));
+		grid-template-rows: repeat(10, minmax(0, 1fr));
+		justify-items: center;
+		font-size: 0.85rem;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		color: #c7d5e0;
+		pointer-events: none;
+	}
+	.row-labels span {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Grid acessível 10x10 — sem células de cabeçalho no mesmo role=grid */
+	.battleship-board {
+		display: grid;
+		grid-template-columns: repeat(10, minmax(0, 1fr));
+		grid-template-rows: repeat(10, minmax(0, 1fr));
 		--board-max: 640px;
 		box-sizing: border-box;
 		width: 100%;
@@ -154,12 +175,16 @@
 		position: relative;
 		box-shadow: 0 0 0 3px rgba(43, 127, 244, 0.35);
 		overflow: hidden;
-		margin: 0 auto;
+		margin: 0;
 	}
 
 	@media (max-width: 600px) {
-		.battleship-board-wrapper { --gutter: clamp(0.25rem, 1.5vw, 0.75rem); }
-		.battleship-board.integrated { max-width: 100%; }
+		.battleship-board-wrapper {
+			--gutter: clamp(0.25rem, 1.5vw, 0.75rem);
+			--label-size: 1.35rem;
+		}
+		.battleship-board { max-width: 100%; }
+		.col-labels, .row-labels { font-size: 0.75rem; }
 	}
 	
 	.battleship-cell {
@@ -177,7 +202,6 @@
 		padding: 0;
 		min-height: 0;
 		min-width: 0;
-		aspect-ratio: 1 / 1;
 	}
 	
 	.battleship-cell:hover:not(:disabled) {
@@ -248,23 +272,6 @@
 		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 		pointer-events: none;
 	}
-
-	/* Coordenada visual pequena para apoiar navegação em modo browse de leitores */
-	.cell-coord { display:none; }
-	.header-col, .header-row, .header-corner {
-		background:#132231;
-		font-size:0.65rem;
-		font-weight:600;
-		letter-spacing:.05em;
-		display:flex;
-		align-items:center;
-		justify-content:center;
-		color:#c7d5e0;
-		user-select:none;
-	}
-	.header-corner { border:1px solid #2c4d6b; }
-	.header-col { border:1px solid #2c4d6b; }
-	.header-row { border:1px solid #2c4d6b; }
 	
 	/* Modos do tabuleiro */
 	.battleship-board.setup-mode {
@@ -293,34 +300,36 @@
 		50% { opacity: 0.5; }
 	}
 	
-	/* Responsividade */
 	@media (max-width: 820px) {
 		.battleship-board-wrapper { --gutter: clamp(0.35rem, 1.5vw, 1rem); }
 		.col-labels, .row-labels { font-size: 0.78rem; }
 	}
 
 	@media (max-width: 560px) {
-		.battleship-board-wrapper { --gutter: clamp(0.25rem, 1.2vw, 0.75rem); }
+		.battleship-board-wrapper {
+			--gutter: clamp(0.25rem, 1.2vw, 0.75rem);
+			--label-size: 1.25rem;
+		}
 		.col-labels, .row-labels { font-size: 0.7rem; }
-		.cell-coord { font-size: 0.5rem; }
 	}
 
 	@media (max-width: 400px) {
-		.battleship-board-wrapper { --gutter: clamp(0.2rem, 1vw, 0.5rem); }
+		.battleship-board-wrapper {
+			--gutter: clamp(0.2rem, 1vw, 0.5rem);
+			--label-size: 1.1rem;
+		}
 	}
 
 	@media (max-width: 360px) {
 		.cell-content { font-size: clamp(0.7rem, 1.4vw + 0.35rem, 0.95rem); }
 	}
 
-	/* Paisagem: limitar pelo menor eixo para caber sem scroll horizontal */
 	@media (max-height: 620px) and (orientation: landscape) {
-		.battleship-board.integrated {
+		.battleship-board {
 			max-width: min(100%, 70vmin);
 		}
 	}
 
-	/* Reutiliza padrão de classe escondida para labels explícitos das células */
 	.sr-only {
 		position: absolute;
 		width: 1px;
@@ -332,4 +341,4 @@
 		white-space: nowrap;
 		border: 0;
 	}
-	</style>
+</style>

@@ -1002,7 +1002,7 @@
 <!-- Proteção contra anúncios intrusivos -->
 <AdProtection protection="strict" />
 
-<div class="battleship-container py-4 d-flex flex-column align-items-center">
+<div class="battleship-container py-4 d-flex flex-column">
 	<!-- Anúncio topo (desktop/mobile permitido conforme config) -->
 	<AdManager
 		placement="top"
@@ -1164,6 +1164,7 @@
 		margin-right: auto;
 		padding-left: 1rem;
 		padding-right: 1rem;
+		align-items: stretch;
 	}
 
 	.scoreboard-container,
@@ -1175,8 +1176,7 @@
 		box-sizing: border-box;
 		width: 100%;
 		max-width: 100%;
-		margin-left: auto;
-		margin-right: auto;
+		align-self: stretch;
 	}
 
 	.setup-info {
@@ -1226,6 +1226,8 @@
 
 	.actions {
 		text-align: center;
+		display: flex;
+		justify-content: center;
 	}
 
 	.sr-only {
