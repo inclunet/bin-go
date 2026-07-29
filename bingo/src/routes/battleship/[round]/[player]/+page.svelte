@@ -787,6 +787,7 @@
 			if (merged !== myBoard) {
 				myBoard = merged;
 			}
+			boardInitialized = true;
 		}
 		if (Array.isArray(data.enemyBoard)) {
 			const merged = mergeBoard(enemyBoard, data.enemyBoard);
@@ -895,25 +896,15 @@
 	async function loadGameData() {
 		const gen = ++syncGen;
 		try {
-			const [myBoardRes, enemyBoardRes, shipsRes, roundMetaRes] = await Promise.all([
-				fetch(`/api/battleship/${roundParam}/${playerParam}/board`),
+			// Tabuleiro próprio completo só via WebSocket (REST mascara células ship por anti-cheat).
+			// Inimigo já mascarado + meta da rodada podem vir via REST sem apagar a frota local.
+			const [enemyBoardRes, shipsRes, roundMetaRes] = await Promise.all([
 				fetch(`/api/battleship/${roundParam}/${playerParam}/board?enemy=true`),
 				fetch(`/api/battleship/${roundParam}/${playerParam}/ships`),
 				fetch(`/api/battleship/${roundParam}`)
 			]);
 
-			// Se WS já avançou o estado enquanto o HTTP estava em voo, descartar resposta stale
 			if (gen !== syncGen) return;
-
-			if (myBoardRes.ok) {
-				const boardData = await myBoardRes.json();
-				if (gen !== syncGen) return;
-				if (boardData.board) {
-					const incoming = normalizeBoard(boardData.board);
-					myBoard = boardInitialized ? mergeBoard(myBoard, incoming) : incoming;
-					boardInitialized = true;
-				}
-			}
 
 			if (enemyBoardRes.ok) {
 				const enemyData = await enemyBoardRes.json();
@@ -1055,7 +1046,7 @@
 	{/if}
 
 	{#if phase === 'playing'}
-		<div class="view-controls mb-3" role="tablist" aria-label="Tabuleiros" bind:this={tablistEl} on:keydown={handleTabListKeydown} tabindex="0">
+		<div class="view-controls mb-3" role="tablist" aria-label="Tabuleiros" bind:this={tablistEl} on:keydown={handleTabListKeydown}>
 			<button
 				id="tab-my"
 				bind:this={tabMyEl}
