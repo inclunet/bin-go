@@ -55,10 +55,12 @@
   }
 </script>
 
-<div class="battleship-board-wrapper">
+<div class="board-shell">
 	<p id="board-instructions" class="sr-only">Tabuleiro interativo. Use NVDA+Espaço para foco. Setas movem; Enter confirma ação.</p>
 
-	<!-- Rótulos visuais fora do role=grid para o AT bater com o layout 10x10 -->
+	<div class="battleship-board-wrapper">
+	<!-- Rótulos visuais fora do role=grid (layout em CSS grid, sem position absolute) -->
+	<div class="label-corner" aria-hidden="true"></div>
 	<div class="col-labels" aria-hidden="true">
 		{#each colLetters as letter}
 			<span>{letter}</span>
@@ -104,26 +106,40 @@
 			{/each}
 		{/each}
 	</div>
+	</div>
 </div>
 
 <style>
-	.battleship-board-wrapper {
-		--gutter: clamp(0.4rem, 2vw, 1.25rem);
-		--label-size: 1.6rem;
+	.board-shell {
 		box-sizing: border-box;
-		position: relative;
 		width: 100%;
 		max-width: 100%;
-		margin: 0 auto;
-		padding: var(--label-size) var(--gutter) var(--gutter) var(--label-size);
+		margin-inline: auto;
+		position: relative;
+	}
+
+	.battleship-board-wrapper {
+		--label-size: 1.6rem;
+		--board-max: 640px;
+		box-sizing: border-box;
+		display: grid;
+		grid-template-columns: var(--label-size) minmax(0, 1fr);
+		grid-template-rows: var(--label-size) auto;
+		align-items: stretch;
+		width: 100%;
+		max-width: min(100%, calc(var(--board-max) + var(--label-size)));
+		margin-inline: auto;
+		padding: 0;
+	}
+
+	.label-corner {
+		grid-column: 1;
+		grid-row: 1;
 	}
 
 	.col-labels {
-		position: absolute;
-		top: 0;
-		left: var(--label-size);
-		right: var(--gutter);
-		height: var(--label-size);
+		grid-column: 2;
+		grid-row: 1;
 		display: grid;
 		grid-template-columns: repeat(10, minmax(0, 1fr));
 		align-items: center;
@@ -138,14 +154,13 @@
 	}
 
 	.row-labels {
-		position: absolute;
-		top: var(--label-size);
-		left: 0;
-		bottom: var(--gutter);
-		width: var(--label-size);
+		grid-column: 1;
+		grid-row: 2;
 		display: grid;
 		grid-template-rows: repeat(10, minmax(0, 1fr));
 		justify-items: center;
+		align-self: stretch;
+		min-height: 0;
 		font-size: 0.85rem;
 		font-weight: 600;
 		letter-spacing: 0.05em;
@@ -158,15 +173,17 @@
 		justify-content: center;
 	}
 
-	/* Grid acessível 10x10 — sem células de cabeçalho no mesmo role=grid */
+	/* Grid acessível 10x10 — ocupa toda a largura útil da coluna */
 	.battleship-board {
+		grid-column: 2;
+		grid-row: 2;
 		display: grid;
 		grid-template-columns: repeat(10, minmax(0, 1fr));
 		grid-template-rows: repeat(10, minmax(0, 1fr));
-		--board-max: 640px;
 		box-sizing: border-box;
 		width: 100%;
-		max-width: min(100%, var(--board-max));
+		max-width: 100%;
+		height: auto;
 		aspect-ratio: 1 / 1;
 		min-width: 0;
 		border: 3px solid #3a5f91;
@@ -178,13 +195,32 @@
 		margin: 0;
 	}
 
-	@media (max-width: 600px) {
+	/* Portrait / telas estreitas: usar 100% da largura disponível */
+	@media (max-width: 768px) {
 		.battleship-board-wrapper {
-			--gutter: clamp(0.25rem, 1.5vw, 0.75rem);
-			--label-size: 1.35rem;
+			--label-size: 1.4rem;
+			width: 100%;
+			max-width: 100%;
 		}
-		.battleship-board { max-width: 100%; }
+		.battleship-board {
+			width: 100%;
+			max-width: none;
+		}
 		.col-labels, .row-labels { font-size: 0.75rem; }
+	}
+
+	@media (max-width: 480px) {
+		.battleship-board-wrapper {
+			--label-size: 1.2rem;
+		}
+		.col-labels, .row-labels { font-size: 0.7rem; }
+	}
+
+	@media (max-width: 360px) {
+		.battleship-board-wrapper {
+			--label-size: 1.05rem;
+		}
+		.cell-content { font-size: clamp(0.7rem, 1.4vw + 0.35rem, 0.95rem); }
 	}
 	
 	.battleship-cell {
@@ -220,7 +256,6 @@
 		z-index: 2;
 	}
 	
-	/* Estados das células */
 	.battleship-cell.cell-empty {
 		background: linear-gradient(145deg, #16283a, #1e344b);
 	}
@@ -247,7 +282,6 @@
 		animation: sink-pulse 1s ease-in-out;
 	}
 
-	/* Estado pendente */
 	.battleship-cell.pending {
 		position: relative;
 		outline: 1px dashed #ffc107;
@@ -273,7 +307,6 @@
 		pointer-events: none;
 	}
 	
-	/* Modos do tabuleiro */
 	.battleship-board.setup-mode {
 		border-color: #28a745;
 		box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.35);
@@ -289,7 +322,6 @@
 		box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.35);
 	}
 	
-	/* Animações */
 	@keyframes hit-flash {
 		0%, 100% { transform: scale(1); }
 		50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
@@ -299,34 +331,12 @@
 		0%, 100% { opacity: 1; }
 		50% { opacity: 0.5; }
 	}
-	
-	@media (max-width: 820px) {
-		.battleship-board-wrapper { --gutter: clamp(0.35rem, 1.5vw, 1rem); }
-		.col-labels, .row-labels { font-size: 0.78rem; }
-	}
 
-	@media (max-width: 560px) {
-		.battleship-board-wrapper {
-			--gutter: clamp(0.25rem, 1.2vw, 0.75rem);
-			--label-size: 1.25rem;
-		}
-		.col-labels, .row-labels { font-size: 0.7rem; }
-	}
-
-	@media (max-width: 400px) {
-		.battleship-board-wrapper {
-			--gutter: clamp(0.2rem, 1vw, 0.5rem);
-			--label-size: 1.1rem;
-		}
-	}
-
-	@media (max-width: 360px) {
-		.cell-content { font-size: clamp(0.7rem, 1.4vw + 0.35rem, 0.95rem); }
-	}
-
+	/* Paisagem: limita pelo menor eixo, mas mantém o bloco centralizado */
 	@media (max-height: 620px) and (orientation: landscape) {
-		.battleship-board {
-			max-width: min(100%, 70vmin);
+		.battleship-board-wrapper {
+			max-width: min(100%, calc(70vmin + var(--label-size)));
+			margin-inline: auto;
 		}
 	}
 

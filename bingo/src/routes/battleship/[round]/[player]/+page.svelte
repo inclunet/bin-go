@@ -1236,8 +1236,16 @@
 	@media (max-width: 768px) {
 		.battleship-container {
 			max-width: 100%;
-			padding-left: 0.75rem;
-			padding-right: 0.75rem;
+			width: 100%;
+			padding-left: 0.35rem;
+			padding-right: 0.35rem;
+		}
+
+		.board-container {
+			width: 100%;
+			max-width: 100%;
+			padding-left: 0;
+			padding-right: 0;
 		}
 
 		.setup-controls {
@@ -1274,8 +1282,8 @@
 
 	@media (max-width: 480px) {
 		.battleship-container {
-			padding-left: 0.5rem;
-			padding-right: 0.5rem;
+			padding-left: 0.25rem;
+			padding-right: 0.25rem;
 		}
 	}
 </style>
