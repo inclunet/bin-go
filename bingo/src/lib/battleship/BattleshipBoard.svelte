@@ -101,7 +101,7 @@
 					on:focus={() => handleCellFocus(r,c)}
 					on:keydown={handleKeydown}
 			>
-				<span class="sr-only-accessible">{getCellLabel(r,c, shipNames)}{isPending(r,c) ? ' aguardando confirmação' : ''}</span>
+				<span class="sr-only">{getCellLabel(r,c, shipNames)}{isPending(r,c) ? ' aguardando confirmação' : ''}</span>
 				<span class="cell-content" aria-hidden="true">{#if getCellState(r,c) === 'ship'}🚢{:else if getCellState(r,c) === 'hit'}💥{:else if getCellState(r,c) === 'miss'}🌊{:else if getCellState(r,c) === 'sunk'}☠️{/if}</span>
 				{#if isPending(r,c)}<span class="pending-indicator" aria-hidden="true"></span>{/if}
 			</div>
@@ -111,18 +111,21 @@
 </div>
 
 <style>
-		.battleship-board-wrapper {
-		--gutter: clamp(0.6rem, 2.2vw, 2rem);
-			padding: var(--gutter) var(--gutter) 0 var(--gutter);
-			max-width: 100%;
-			margin: 0 auto;
-			display: flex;
-			justify-content: center;
-			align-items: flex-start;
-			/* Evitar que o container ocupe largura maior que o tabuleiro e pareça "colado" à esquerda quando dentro de pais .container com padding */
-			width: 100%;
+	.battleship-board-wrapper {
+		--gutter: clamp(0.4rem, 2vw, 1.25rem);
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+		margin: 0 auto;
+		padding: var(--gutter);
+		display: block;
 	}
-		.board-inner { flex:0 1 auto; }
+	.board-inner {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+		margin: 0 auto;
+	}
 	/* Layout integrado 11x11: remove necessidade de wrappers de labels */
 	.top-labels, .left-labels { display:none !important; }
 
@@ -134,47 +137,28 @@
 		font-family: system-ui, sans-serif;
 	}
 
-	/* Antigo sistema de labels absolutas removido */
-
-	/* Responsividade do tabuleiro: tamanho quadrado fluido baseado na largura disponível */
+	/* Responsividade do tabuleiro: quadrado fluido na largura disponível */
 	.battleship-board.integrated {
 		display: grid;
-		grid-template-columns: repeat(11, 1fr);
-		grid-template-rows: repeat(11, 1fr);
-		/* Novo sizing: dependente do wrapper, não do viewport direto, para evitar assimetria de safe-area no iPhone */
+		grid-template-columns: repeat(11, minmax(0, 1fr));
+		grid-template-rows: repeat(11, minmax(0, 1fr));
 		--board-max: 640px;
-		--board-min: 260px;
+		box-sizing: border-box;
 		width: 100%;
-		max-width: var(--board-max);
+		max-width: min(100%, var(--board-max));
 		aspect-ratio: 1 / 1;
-		/* Altura automática respeita aspect-ratio; garante mínimo via min() usando clamp nas células */
-		min-width: var(--board-min);
-		min-height: var(--board-min);
+		min-width: 0;
 		border: 3px solid #3a5f91;
 		border-radius: 1rem;
 		background: #101922;
 		position: relative;
 		box-shadow: 0 0 0 3px rgba(43, 127, 244, 0.35);
 		overflow: hidden;
-		contain: layout paint size;
 		margin: 0 auto;
-	}
-	/* iOS Safari ajuste de cálculo (usa vmin para reduzir discrepância de safe-area horizontal) */
-	@supports (-webkit-touch-callout: none) {
-		@media (max-width: 480px) {
-			.battleship-board { --board-size: clamp(var(--board-min), calc(100vmin - 5rem), 480px); }
-			.board-grid { gap:0.3rem 0.5rem; }
-			.top-labels, .left-labels { font-size:0.7rem; }
-		}
 	}
 
 	@media (max-width: 600px) {
-		.battleship-board-wrapper { --gutter: clamp(0.5rem, 3vw, 1.2rem); }
-		.battleship-board.integrated { max-width: min(100%, 540px); }
-	}
-
-	/* iPhone / telas muito estreitas em portrait: remover labels laterais para aproveitar 100% da largura e evitar sensação de tabuleiro "pivotado" */
-	@media (max-width: 600px) and (orientation: portrait) {
+		.battleship-board-wrapper { --gutter: clamp(0.25rem, 1.5vw, 0.75rem); }
 		.battleship-board.integrated { max-width: 100%; }
 	}
 	
@@ -191,9 +175,9 @@
 		font-size: clamp(0.7rem, 1.2vw + 0.35rem, 1.2rem);
 		position: relative;
 		padding: 0;
-		min-height: 40px;
-		/* Evitar que user zoom gere quebra do grid */
+		min-height: 0;
 		min-width: 0;
+		aspect-ratio: 1 / 1;
 	}
 	
 	.battleship-cell:hover:not(:disabled) {
@@ -311,33 +295,29 @@
 	
 	/* Responsividade */
 	@media (max-width: 820px) {
-		/* Reduzir gutter e garantir board caiba sem scroll */
-		.battleship-board-wrapper { --gutter: clamp(0.5rem, 1.5vw, 1.25rem); }
+		.battleship-board-wrapper { --gutter: clamp(0.35rem, 1.5vw, 1rem); }
 		.col-labels, .row-labels { font-size: 0.78rem; }
-		.battleship-cell { min-height: 34px; }
 	}
 
 	@media (max-width: 560px) {
-		.battleship-board-wrapper { --gutter: clamp(0.4rem, 1.2vw, 1rem); }
+		.battleship-board-wrapper { --gutter: clamp(0.25rem, 1.2vw, 0.75rem); }
 		.col-labels, .row-labels { font-size: 0.7rem; }
 		.cell-coord { font-size: 0.5rem; }
-		.battleship-cell { min-height: 30px; }
 	}
 
 	@media (max-width: 400px) {
-		.battleship-board-wrapper { --gutter: clamp(0.35rem, 1vw, 0.8rem); }
-		.battleship-cell { min-height: 26px; }
+		.battleship-board-wrapper { --gutter: clamp(0.2rem, 1vw, 0.5rem); }
 	}
 
 	@media (max-width: 360px) {
-		.battleship-cell { min-height: 24px; }
 		.cell-content { font-size: clamp(0.7rem, 1.4vw + 0.35rem, 0.95rem); }
 	}
 
-	/* Paisagem (teclado virtual ou barra do navegador reduzindo altura): limitar pelo vh */
+	/* Paisagem: limitar pelo menor eixo para caber sem scroll horizontal */
 	@media (max-height: 620px) and (orientation: landscape) {
-		.battleship-board.integrated { max-width: min(100%, 520px); }
-		.battleship-cell { min-height: 20px; }
+		.battleship-board.integrated {
+			max-width: min(100%, 70vmin);
+		}
 	}
 
 	/* Reutiliza padrão de classe escondida para labels explícitos das células */

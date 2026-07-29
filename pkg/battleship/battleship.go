@@ -295,7 +295,9 @@ func (b *Battleship) shootHandler(r *http.Request) (*server.Response, error) {
 	})
 }
 
-// getBoardHandler retorna o tabuleiro de um jogador
+// getBoardHandler retorna o tabuleiro de um jogador.
+// Via REST nunca expõe células com navio oculto (ship): só hit/miss/sunk/empty.
+// O tabuleiro completo (com ships) só chega pelo WebSocket após claim do slot.
 func (b *Battleship) getBoardHandler(r *http.Request) (*server.Response, error) {
 	rd, err := b.getRound(server.GetURLParamHasInt(r, "round") - 1)
 	if err != nil {
@@ -316,7 +318,7 @@ func (b *Battleship) getBoardHandler(r *http.Request) (*server.Response, error) 
 	if enemy {
 		board = rd.GetEnemyBoard(player)
 	} else {
-		board = rd.GetBoard(player)
+		board = maskHiddenShips(rd.GetBoard(player))
 	}
 
 	return server.NewResponse(map[string]interface{}{
@@ -325,7 +327,7 @@ func (b *Battleship) getBoardHandler(r *http.Request) (*server.Response, error) 
 	})
 }
 
-// getShipsHandler retorna os navios de um jogador
+// getShipsHandler retorna metadados dos navios sem coordenadas (anti-cheat via REST).
 func (b *Battleship) getShipsHandler(r *http.Request) (*server.Response, error) {
 	rd, err := b.getRound(server.GetURLParamHasInt(r, "round") - 1)
 	if err != nil {
@@ -341,9 +343,20 @@ func (b *Battleship) getShipsHandler(r *http.Request) (*server.Response, error) 
 	}
 
 	ships := rd.GetShips(player)
+	public := make([]map[string]interface{}, 0, len(ships))
+	for _, s := range ships {
+		public = append(public, map[string]interface{}{
+			"id":     s.ID,
+			"name":   s.Name,
+			"size":   s.Size,
+			"placed": s.Placed,
+			"sunk":   s.Sunk,
+			"hits":   s.Hits,
+		})
+	}
 
 	return server.NewResponse(map[string]interface{}{
-		"ships": ships,
+		"ships": public,
 		"phase": rd.Phase,
 	})
 }
@@ -369,7 +382,7 @@ func (b *Battleship) liveHandler(w http.ResponseWriter, r *http.Request) {
 
 	bp := rd.AddConnection(conn, player)
 
-	// Se usuário pediu A/B mas slot ocupado -> rejeitar ao invés de rebaixar silenciosamente para spectator
+	// Pediu A/B mas não obteve o slot (caso residual) -> rejeitar
 	if (player == "a" || player == "b") && (bp.Player == "" && !bp.Spectator) {
 		msg := map[string]interface{}{"type": "error", "action": "connect", "message": "slot ocupado", "requested": player}
 		if data, _ := json.Marshal(msg); data != nil {
@@ -408,8 +421,12 @@ func (b *Battleship) liveHandler(w http.ResponseWriter, r *http.Request) {
 	go func(c *websocket.Conn, round *Round, bp *BattlePlayer) {
 		defer func() {
 			c.Close()
-			// marcar desconexão
-			bp.Conn = nil
+			// Só limpa o slot se esta goroutine ainda for dona da conexão (evita apagar reconnect)
+			round.lock.Lock()
+			if bp.Conn == c {
+				bp.Conn = nil
+			}
+			round.lock.Unlock()
 			round.BroadcastLocked()
 		}()
 

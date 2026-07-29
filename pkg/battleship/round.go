@@ -3,6 +3,7 @@ package battleship
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -117,6 +118,22 @@ func (r *Round) GetEnemyBoard(player Player) Board {
 	}
 
 	return visibleBoard
+}
+
+// maskHiddenShips remove células com navio não revelado de um tabuleiro (para respostas REST públicas).
+func maskHiddenShips(board Board) Board {
+	var out Board
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 10; j++ {
+			cell := board[i][j]
+			if cell.State == CellShip {
+				out[i][j] = Cell{State: CellEmpty}
+			} else {
+				out[i][j] = cell
+			}
+		}
+	}
+	return out
 }
 
 // GetShips retorna os navios de um jogador
@@ -338,7 +355,8 @@ func (r *Round) Shoot(attacker Player, row, col int) (*Shot, error) {
 	return &shot, nil
 }
 
-// AddConnection adiciona uma conexão WebSocket
+// AddConnection adiciona uma conexão WebSocket.
+// Se o slot A/B já estiver ocupado, substitui a conexão anterior (refresh / última conexão vence).
 func (r *Round) AddConnection(conn *websocket.Conn, requestedPlayer string) *BattlePlayer {
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -348,28 +366,48 @@ func (r *Round) AddConnection(conn *websocket.Conn, requestedPlayer string) *Bat
 
 	player := ""
 	spectator := false
+	req := strings.ToLower(requestedPlayer)
 
-	switch requestedPlayer {
-	case "a", "A":
+	takeOver := func(slot string) *BattlePlayer {
+		for _, p := range r.players {
+			if p != nil && p.Player == slot {
+				old := p.Conn
+				p.Conn = conn
+				if old != nil && old != conn {
+					go func(c *websocket.Conn) { _ = c.Close() }(old)
+				}
+				server.Logger.Info("Battleship Reconnect", "round", r.Round, "player", slot, "connId", p.ID)
+				return p
+			}
+		}
+		return nil
+	}
+
+	switch req {
+	case "a":
 		if r.PlayerA == "" { // slot livre
 			r.PlayerA = "A"
 			player = "a"
+		} else if existing := takeOver("a"); existing != nil {
+			return existing
 		} else {
-			// NÃO força spectator silencioso; mantém player vazio para sinalizar rejeição (decisão no handler)
+			// Marcado ocupado sem conexão viva — recupera o slot
+			r.PlayerA = "A"
+			player = "a"
 		}
-	case "b", "B":
+	case "b":
 		if r.PlayerB == "" {
 			r.PlayerB = "B"
 			player = "b"
+		} else if existing := takeOver("b"); existing != nil {
+			return existing
 		} else {
-			// idem acima: não rebaixa automaticamente para spectator
+			r.PlayerB = "B"
+			player = "b"
 		}
 	default:
 		spectator = true
 	}
-
-	// Se o usuário pediu explicitamente A ou B e o slot está ocupado, deixamos player vazio e spectator=false.
-	// O handler decidirá encerrar a conexão com erro para evitar experiência confusa de spectator oculto.
 
 	id := len(r.players) + 1 // id simples incremental (não reutilizado)
 	bp := &BattlePlayer{Conn: conn, Player: player, Spectator: spectator, ID: id}
@@ -563,8 +601,9 @@ func (r *Round) compactPlayersLocked() {
 	// Atualiza lista compactada
 	r.players = cleaned
 
-	// Verificar se ainda existem conexões ativas para cada slot de jogador.
-	// Caso não exista mais conexão para 'a' ou 'b', liberamos o slot para permitir reconexão.
+	// Libera slot somente na fase de setup e se o jogador ainda não ficou pronto.
+	// Em playing/finished (ou após ready), manter o slot evita sequestro da partida;
+	// reconexão do dono usa takeover em AddConnection.
 	hasA := false
 	hasB := false
 	for _, p := range r.players {
@@ -578,12 +617,12 @@ func (r *Round) compactPlayersLocked() {
 			hasB = true
 		}
 	}
-	if !hasA && r.PlayerA != "" {
-		r.PlayerA = "" // libera slot A
+	if !hasA && r.PlayerA != "" && r.Phase == PhaseSetup && !r.PlayerAReady {
+		r.PlayerA = ""
 		server.Logger.Info("Battleship SlotCleared", "round", r.Round, "player", "a")
 	}
-	if !hasB && r.PlayerB != "" {
-		r.PlayerB = "" // libera slot B
+	if !hasB && r.PlayerB != "" && r.Phase == PhaseSetup && !r.PlayerBReady {
+		r.PlayerB = ""
 		server.Logger.Info("Battleship SlotCleared", "round", r.Round, "player", "b")
 	}
 }

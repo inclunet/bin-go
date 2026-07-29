@@ -15,10 +15,13 @@
 	let copyMsg = '';
 	let isMobile = false;
 	let shareLabel = 'Compartilhar link da partida';
+	let loadGen = 0;
 
 	async function loadRound() {
+		const gen = ++loadGen;
 		try {
 			const res = await fetch(`/api/battleship/${roundParam}`);
+			if (gen !== loadGen) return;
 			if (res.status === 404) {
 				errorMsg = 'Partida não encontrada.';
 				loading = false;
@@ -29,14 +32,17 @@
 				loading = false;
 				return;
 			}
-			roundData = await res.json();
-			hasPlayerA = !!roundData.playerA;
-			hasPlayerB = !!roundData.playerB;
+			const data = await res.json();
+			if (gen !== loadGen) return;
+			roundData = data;
+			hasPlayerA = !!data.playerA;
+			hasPlayerB = !!data.playerB;
 		} catch (e) {
+			if (gen !== loadGen) return;
 			errorMsg = 'Erro de conexão.';
 			console.error('Erro ao carregar rodada:', e);
 		} finally {
-			loading = false;
+			if (gen === loadGen) loading = false;
 		}
 	}
 
@@ -87,12 +93,16 @@
 	onMount(() => {
 		loadRound();
 		isMobile = detectMobileShare();
+		const poll = setInterval(() => {
+			if (!errorMsg) loadRound();
+		}, 2500);
+		return () => clearInterval(poll);
 	});
 </script>
 
 <PageTitle title="Selecionar Jogador" game="Batalha Naval" />
 
-<div class="container py-4 d-flex flex-column align-items-center battleship-select-container">
+<div class="py-4 d-flex flex-column align-items-center battleship-select-container">
 	<h2 class="text-center mb-4">Partida {roundParam}</h2>
 
 	{#if loading}
@@ -186,11 +196,21 @@
 </div>
 
 <style>
-	.battleship-select-container { max-width:100%; width:100%; padding-left:0; padding-right:0; }
-	.battleship-select-container > * { width:100%; }
+	.battleship-select-container {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 720px;
+		margin-left: auto;
+		margin-right: auto;
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+	.battleship-select-container > * { width: 100%; max-width: 100%; }
 	.selection-container {
 		width: 100%;
 		max-width: 560px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	.players-grid {
@@ -267,6 +287,11 @@
 	.share-buttons button { min-width:180px; }
 
 	@media (max-width: 600px) {
+		.battleship-select-container {
+			max-width: 100%;
+			padding-left: 0.75rem;
+			padding-right: 0.75rem;
+		}
 		.qr-share-wrapper { flex-direction:column; align-items:flex-start; }
 		.qr-inline { width:190px; }
 	}
@@ -276,7 +301,11 @@
 			grid-template-columns: 1fr;
 			gap: 1.5rem;
 		}
-		.battleship-select-container { padding-left:0; padding-right:0; }
+
+		.battleship-select-container {
+			padding-left: 0.5rem;
+			padding-right: 0.5rem;
+		}
 		
 		.player-card {
 			padding: 1.5rem 1rem;

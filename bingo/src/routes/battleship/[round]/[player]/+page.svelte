@@ -43,6 +43,16 @@
 	// Atualiza tabuleiro existente mutando células para evitar recriação de nós DOM e perda de foco
 	// Abordagem mais idiomática Svelte: gerar um novo board mantendo objetos/células iguais quando não mudaram.
 	// Retorna o mesmo array original se nada mudou (evita render). Senão, retorna novo array com linhas e células novas só onde necessário.
+	// Nunca rebaixa células já reveladas (hit/miss/sunk) nem ship->empty — evita regressão com HTTP stale.
+	function cellStateRank(state) {
+		switch (state) {
+			case 'sunk': return 3;
+			case 'hit':
+			case 'miss': return 2;
+			case 'ship': return 1;
+			default: return 0;
+		}
+	}
 	function mergeBoard(oldBoard, incoming) {
 		if (!Array.isArray(incoming)) return oldBoard;
 		let anyChange = false;
@@ -54,29 +64,32 @@
 			const newRow = new Array(BOARD_SIZE);
 			for (let c = 0; c < BOARD_SIZE; c++) {
 				const inCell = inRow[c];
+				const prev = oldRow[c];
 				if (!inCell || typeof inCell !== 'object') {
-					const prev = oldRow[c];
-					if (prev.state !== 'empty' || prev.shipId || prev.name) {
+					if (cellStateRank(prev.state) > 0) {
+						newRow[c] = prev; // preserva revelado/ship se incoming veio vazio
+					} else if (prev.state !== 'empty' || prev.shipId || prev.name) {
 						rowChanged = true;
 						newRow[c] = { state: 'empty' };
 					} else {
-						newRow[c] = prev; // reusa objeto
+						newRow[c] = prev;
 					}
 					continue;
 				}
-				const prev = oldRow[c];
 				const ns = inCell.state || 'empty';
 				const sid = inCell.shipId;
 				const nname = inCell.name;
 				if (prev.state === ns && prev.shipId === sid && prev.name === nname) {
-					newRow[c] = prev; // sem mudança
+					newRow[c] = prev;
+				} else if (cellStateRank(prev.state) > cellStateRank(ns)) {
+					newRow[c] = prev; // não rebaixa
 				} else {
 					rowChanged = true;
 					newRow[c] = { state: ns, shipId: sid, name: nname };
 				}
 			}
 			if (!rowChanged) {
-				next[r] = oldRow; // preserva referência de linha inteira
+				next[r] = oldRow;
 			} else {
 				anyChange = true;
 				next[r] = newRow;
@@ -133,7 +146,9 @@
 	let wsHeartbeat; // interval id
 	let lastWsMessage = Date.now();
 	let wsConnecting = false; // trava reentrância
+	let wsFatal = false; // erro permanente (ex.: slot ocupado) — não reconectar
 	let wsSeq = 0; // sequence para comandos
+	let syncGen = 0; // invalida loadGameData HTTP atrasado após updates WS
 	const pendingCmds = new Map(); // id -> {resolve,reject,timer,type}
 	const wsOpenWaiters = []; // aguardando abertura do WS
 
@@ -168,6 +183,7 @@
 	}
 
 	function connectWebSocket(initial=false) {
+		if (wsFatal) return; // erro permanente (slot ocupado etc.)
 		if (wsConnecting) return; // reentrada
 		// Evita múltiplas conexões: se já existe em estado CONNECTING (0), OPEN (1) ou CLOSING (2), aguarda.
 		if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.CLOSING)) return;
@@ -225,7 +241,13 @@
 								pendingCmds.delete(id);
 								reject(new Error(data.message || 'erro'));
 							}
-							liveAnnounce = data.message || 'Erro de comando';
+							const msg = data.message || 'Erro de comando';
+							liveAnnounce = msg;
+							// Slot ocupado (ou outro erro de conexão) é permanente: não reconectar em loop
+							if (data.action === 'connect' || /slot ocupado/i.test(msg)) {
+								wsFatal = true;
+								wsAttempts = wsMaxAttempts + 1;
+							}
 							return;
 						} else if (type === 'state') {
 							applyRoundState(data);
@@ -247,6 +269,10 @@
 				wsConnecting = false;
 				clearInterval(wsHeartbeat);
 				setWsStatus('closed');
+				if (wsFatal) {
+					if (!liveAnnounce) liveAnnounce = 'Não foi possível entrar nesta partida.';
+					return;
+				}
 				if (wsAttempts <= wsMaxAttempts) {
 					setTimeout(() => connectWebSocket(false), backoff);
 				} else {
@@ -644,11 +670,16 @@
 		// Adiamos mensagem de espera; se resposta vier rápido, não há ruído.
 		scheduleWait();
 		pendingShots.add(pendingKey);
+		pendingShots = pendingShots; // reatribuição para reatividade Svelte 4 (Set)
 		try {
 			if (wsStatus !== 'open') {
-				cancelWait();
-				liveAnnounce = 'Conexão perdida. Tentando reconectar...';
-				return;
+				try {
+					await whenWsOpen();
+				} catch {
+					cancelWait();
+					liveAnnounce = 'Conexão perdida. Tentando reconectar...';
+					return;
+				}
 			}
 			const result = await sendShot(targetRow, targetCol);
 			if (!result || !result.ok) {
@@ -658,9 +689,12 @@
 			}
 			// applyRoundState já ocorre via onmessage (shootResult)
 		} catch (error) {
+			cancelWait();
+			liveAnnounce = error?.message ? `Falha ao atirar: ${error.message}` : 'Falha ao enviar tiro';
 			console.warn('Erro ao processar tiro (catch)', { error: error?.message, ...contextDebug });
 		} finally {
 			pendingShots.delete(pendingKey);
+			pendingShots = pendingShots;
 		}
 	}
 
@@ -719,6 +753,8 @@
 
 	function applyRoundState(data) {
 		if (!data || typeof data !== 'object') return;
+		// Qualquer update via WS invalida cargas HTTP em voo (evita regressão de tabuleiro)
+		syncGen += 1;
 
 		const priorCurrentPlayer = currentPlayer;
 		const priorPhase = phase;
@@ -857,6 +893,7 @@
 	}
 
 	async function loadGameData() {
+		const gen = ++syncGen;
 		try {
 			const [myBoardRes, enemyBoardRes, shipsRes, roundMetaRes] = await Promise.all([
 				fetch(`/api/battleship/${roundParam}/${playerParam}/board`),
@@ -865,30 +902,40 @@
 				fetch(`/api/battleship/${roundParam}`)
 			]);
 
+			// Se WS já avançou o estado enquanto o HTTP estava em voo, descartar resposta stale
+			if (gen !== syncGen) return;
+
 			if (myBoardRes.ok) {
 				const boardData = await myBoardRes.json();
+				if (gen !== syncGen) return;
 				if (boardData.board) {
-					myBoard = normalizeBoard(boardData.board);
+					const incoming = normalizeBoard(boardData.board);
+					myBoard = boardInitialized ? mergeBoard(myBoard, incoming) : incoming;
 					boardInitialized = true;
 				}
 			}
 
 			if (enemyBoardRes.ok) {
 				const enemyData = await enemyBoardRes.json();
+				if (gen !== syncGen) return;
 				if (enemyData.board) {
-					enemyBoard = normalizeBoard(enemyData.board);
+					const incoming = normalizeBoard(enemyData.board);
+					enemyBoard = boardInitialized ? mergeBoard(enemyBoard, incoming) : incoming;
 				}
 			}
 
 			if (shipsRes.ok) {
 				const shipsData = await shipsRes.json();
+				if (gen !== syncGen) return;
 				if (Array.isArray(shipsData.ships)) {
 					applyServerShipData(shipsData.ships);
 				}
 			}
 			if (roundMetaRes.ok) {
 				try {
+					if (gen !== syncGen) return;
 					const roundMeta = await roundMetaRes.json();
+					if (gen !== syncGen) return;
 					applyRoundState(roundMeta);
 				} catch(e) { console.warn('Falha meta round', e); }
 			}
@@ -955,7 +1002,7 @@
 <!-- Proteção contra anúncios intrusivos -->
 <AdProtection protection="strict" />
 
-<div class="container battleship-container py-4 d-flex flex-column align-items-center">
+<div class="battleship-container py-4 d-flex flex-column align-items-center">
 	<!-- Anúncio topo (desktop/mobile permitido conforme config) -->
 	<AdManager
 		placement="top"
@@ -985,6 +1032,7 @@
 			{playerAReady}
 			{playerBReady}
 			{lastAction}
+			{winner}
 		/>
 	</div>
 
@@ -1109,27 +1157,26 @@
 
 <style>
 	.battleship-container {
-		max-width: 100%;
+		box-sizing: border-box;
 		width: 100%;
-		padding-left: 0;
-		padding-right: 0;
-		margin: 0;
+		max-width: 720px;
+		margin-left: auto;
+		margin-right: auto;
+		padding-left: 1rem;
+		padding-right: 1rem;
 	}
-	/* Força seções internas a centralizar e usar largura total disponível do viewport até limite confortável */
+
 	.scoreboard-container,
 	.status-container,
 	.board-container,
 	.setup-info,
 	.view-controls,
-	.actions { margin-left:auto; margin-right:auto; }
-	.scoreboard-container, .status-container { max-width:680px; width:100%; }
-	.board-container { max-width: min(100%, 680px); width:100%; }
-	}
-
-	.scoreboard-container,
-	.status-container {
+	.actions {
+		box-sizing: border-box;
 		width: 100%;
-		max-width: 600px;
+		max-width: 100%;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	.setup-info {
@@ -1177,8 +1224,6 @@
 		margin-left: 1rem;
 	}
 
-	.board-container { width:100%; }
-
 	.actions {
 		text-align: center;
 	}
@@ -1196,8 +1241,11 @@
 	}
 
 	@media (max-width: 768px) {
-		.battleship-container { padding-left:0; padding-right:0; }
-		.board-container, .scoreboard-container, .status-container { max-width: 100%; }
+		.battleship-container {
+			max-width: 100%;
+			padding-left: 0.75rem;
+			padding-right: 0.75rem;
+		}
 
 		.setup-controls {
 			flex-direction: column;
@@ -1230,9 +1278,12 @@
 		pointer-events: none;
 	}
 	.bs-debug-overlay strong { display:block; margin-bottom:.3rem; color:#fff; }
-	@media (max-width: 600px){
-		.battleship-container { padding-left:0; padding-right:0; }
-		.board-container, .scoreboard-container, .status-container { max-width:100%; padding-left:0; padding-right:0; }
+
+	@media (max-width: 480px) {
+		.battleship-container {
+			padding-left: 0.5rem;
+			padding-right: 0.5rem;
+		}
 	}
 </style>
 

@@ -389,3 +389,24 @@ func TestEnemyBoardShowsEntireSunkShip(t *testing.T) {
 		}
 	}
 }
+
+func TestAddConnectionTakeoverOnRefresh(t *testing.T) {
+	r := NewRound(1)
+	first := r.AddConnection(nil, "a")
+	if first.Player != "a" || r.PlayerA == "" {
+		t.Fatalf("first connection should occupy slot a")
+	}
+	second := r.AddConnection(nil, "a")
+	if second.Player != "a" {
+		t.Fatalf("reconnect should keep player a, got %q", second.Player)
+	}
+	if second.ID != first.ID {
+		t.Fatalf("takeover should reuse BattlePlayer")
+	}
+	if len(r.players) != 1 {
+		t.Fatalf("takeover should not append another player, got %d", len(r.players))
+	}
+	if r.PlayerA == "" {
+		t.Fatalf("slot a should remain occupied")
+	}
+}

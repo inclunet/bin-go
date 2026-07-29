@@ -9,6 +9,7 @@
 	export let playerAReady = false;
 	export let playerBReady = false;
 	export let lastAction = '';
+	export let winner = '';
 
 	$: isSetupPhase = phase === 'setup';
 	$: isMySetup = isSetupPhase && currentPlayer === localPlayer;
