@@ -862,17 +862,12 @@
 			}
 		}
 
-		// Auto switch ao ganhar turno (desde que usuário não tenha feito override manual desde última troca)
+		// Ao ganhar o turno, sempre ir para Ataque — override manual não deve prender na Defesa
 		if (!phaseChanged && phase === 'playing' && gainedTurn) {
-			if (!manualViewOverride) {
-				setViewMode('enemy', false);
-				// Mensagem de turno só se não houve lastShot do oponente na mesma atualização
-				if (!data.lastShot || (data.lastShot && data.lastShot.result === 'miss')) {
-					liveAnnounce = 'Seu turno. Selecione uma célula para atirar.';
-				}
+			setViewMode('enemy', false);
+			if (!data.lastShot || data.lastShot.result === 'miss') {
+				liveAnnounce = 'Seu turno. Selecione uma célula para atirar.';
 			}
-			// Reset override para próxima janela de decisão
-			manualViewOverride = false;
 		}
 
 		// Foco preservado por referência estável; refoco explícito não mais necessário.
