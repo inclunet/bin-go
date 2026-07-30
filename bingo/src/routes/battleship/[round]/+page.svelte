@@ -44,6 +44,7 @@
 			roundData = data;
 			hasPlayerA = !!data.playerA;
 			hasPlayerB = !!data.playerB;
+			errorMsg = '';
 		} catch (e) {
 			if (gen !== loadGen) return;
 			errorMsg = 'Erro de conexão.';
@@ -101,7 +102,7 @@
 		reloadIfNeeded();
 		isMobile = detectMobileShare();
 		const poll = setInterval(() => {
-			if (!errorMsg) loadRound();
+			loadRound();
 		}, 2500);
 		return () => clearInterval(poll);
 	});

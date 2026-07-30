@@ -94,6 +94,7 @@
 		aria-describedby="board-instructions"
 	>
 		{#each board as boardRow, r}
+			<div role="row" aria-rowindex={r + 1}>
 			{#each boardRow as cell, c (r + '-' + c)}
 				<div
 					id={cellId(r,c)}
@@ -115,6 +116,7 @@
 					{#if isPending(r,c)}<span class="pending-indicator" aria-hidden="true"></span>{/if}
 				</div>
 			{/each}
+			</div>
 		{/each}
 	</div>
 	</div>
@@ -212,6 +214,10 @@
 		box-shadow: 0 0 0 3px rgba(43, 127, 244, 0.35);
 		overflow: hidden;
 		margin: 0;
+	}
+
+	.battleship-board [role="row"] {
+		display: contents;
 	}
 
 	/* Portrait mobile: largura do pai (evita overflow de 100vw no Safari/iOS) */
