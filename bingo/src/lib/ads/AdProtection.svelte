@@ -94,7 +94,6 @@
 			/* Proteção do placar */
 			.scoreboard-container {
 				isolation: isolate;
-				contain: layout;
 			}
 			
 			/* Evitar anúncios em overlays */

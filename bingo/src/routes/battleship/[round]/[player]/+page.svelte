@@ -1263,6 +1263,20 @@
 			margin-bottom: 0.4rem !important;
 		}
 
+		:global(body.battleship-in-game) {
+			width: 100%;
+			max-width: 100%;
+			overflow-x: clip;
+		}
+
+		:global(body.battleship-in-game header),
+		:global(body.battleship-in-game main.content),
+		:global(body.battleship-in-game footer) {
+			width: 100%;
+			max-width: 100%;
+			box-sizing: border-box;
+		}
+
 		:global(body.battleship-in-game footer) {
 			display: none;
 		}
@@ -1278,6 +1292,8 @@
 		.battleship-container {
 			max-width: 100%;
 			width: 100%;
+			margin-left: 0;
+			margin-right: 0;
 			padding-left: 0.35rem;
 			padding-right: 0.35rem;
 		}
@@ -1325,6 +1341,30 @@
 		.battleship-container {
 			padding-left: 0.25rem;
 			padding-right: 0.25rem;
+		}
+
+		.battleship-container.in-game {
+			max-width: none;
+			width: 100%;
+			padding-left: 0;
+			padding-right: 0;
+		}
+
+		.battleship-container.in-game .scoreboard-container,
+		.battleship-container.in-game .status-container,
+		.battleship-container.in-game .setup-info,
+		.battleship-container.in-game .view-controls {
+			padding-left: 0.35rem;
+			padding-right: 0.35rem;
+		}
+
+		:global(body.battleship-in-game footer) {
+			display: none;
+		}
+
+		:global(body.battleship-in-game main.content) {
+			padding-left: 0;
+			padding-right: 0;
 		}
 	}
 </style>

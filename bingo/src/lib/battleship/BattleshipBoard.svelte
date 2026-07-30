@@ -214,13 +214,12 @@
 		margin: 0;
 	}
 
-	/* Portrait: full-bleed na viewport (deve vir depois de regras genéricas de largura) */
+	/* Portrait mobile: largura do pai (evita overflow de 100vw no Safari/iOS) */
 	@media (max-width: 768px) and (orientation: portrait) {
 		.board-shell {
-			width: 100vw;
-			max-width: 100vw;
-			margin-left: calc(50% - 50vw);
-			margin-right: calc(50% - 50vw);
+			width: 100%;
+			max-width: 100%;
+			margin-inline: 0;
 			padding-left: max(0.15rem, env(safe-area-inset-left, 0px));
 			padding-right: max(0.15rem, env(safe-area-inset-right, 0px));
 		}
