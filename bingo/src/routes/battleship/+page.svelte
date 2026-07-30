@@ -19,13 +19,14 @@
 	async function fetchLatest(silent = false) {
 		if (!silent) loading = true;
 		try {
-			let r = 1;
-			for(; r <= 50; r++) {
+			let confirmedLast = 0;
+			for (let r = 1; r <= 50; r++) {
 				const res = await fetch(`/api/battleship/${r}`);
 				if (res.status === 404) break;
-				if (!res.ok) continue;
+				if (!res.ok) break;
+				confirmedLast = r;
 			}
-			lastRound = r-1;
+			lastRound = confirmedLast;
 			if(lastRound > 0){
 				try { 
 					const lastRes = await fetch(`/api/battleship/${lastRound}`); 

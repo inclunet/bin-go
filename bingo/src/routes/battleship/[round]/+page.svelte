@@ -197,8 +197,8 @@
 
 			{#if hasPlayerA && hasPlayerB}
 				<div class="alert alert-info mt-4">
-					<strong>Partida completa!</strong> Ambos os jogadores estão presentes. 
-					Entre como espectador ou aguarde uma nova partida.
+					<strong>Partida completa!</strong> Ambos os jogadores estão presentes.
+					Aguarde o início do jogo ou volte ao início para criar uma nova partida.
 				</div>
 			{/if}
 		</div>
