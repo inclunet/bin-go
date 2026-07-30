@@ -19,13 +19,21 @@
 
 	function sortOpen() { openRounds = [...openRounds].sort((a,b)=> a.round - b.round); }
 
+	async function fetchRoundMeta(n, retries = 2) {
+		for (let attempt = 0; attempt <= retries; attempt++) {
+			const res = await fetch(`/api/battleship/${n}`, { cache: 'no-store' });
+			if (res.ok || res.status === 404 || attempt === retries) return res;
+		}
+		return null;
+	}
+
 	async function findLastRound() {
 		let last = 0;
 		let high = 1;
 		while (high <= 10000) {
-			const res = await fetch(`/api/battleship/${high}`, { cache: 'no-store' });
-			if (res.status === 404) break;
-			if (!res.ok) return last;
+			const res = await fetchRoundMeta(high);
+			if (!res || res.status === 404) break;
+			if (!res.ok) break;
 			last = high;
 			high *= 2;
 		}
@@ -33,15 +41,17 @@
 		let hi = Math.min(high - 1, 10000);
 		while (lo <= hi) {
 			const mid = Math.floor((lo + hi) / 2);
-			const res = await fetch(`/api/battleship/${mid}`, { cache: 'no-store' });
-			if (res.ok) {
-				last = mid;
-				lo = mid + 1;
-			} else if (res.status === 404) {
-				hi = mid - 1;
-			} else {
-				return last;
+			const res = await fetchRoundMeta(mid);
+			if (!res || !res.ok) {
+				if (res?.status === 404) {
+					hi = mid - 1;
+				} else {
+					break;
+				}
+				continue;
 			}
+			last = mid;
+			lo = mid + 1;
 		}
 		return last;
 	}
@@ -59,12 +69,8 @@
 						scoreB = data.scoreB||0; 
 						scoreDraw = data.scoreDraw||0; 
 						lastWinner = data.winner || ''; 
-					} else {
-						lastWinner = '';
 					}
-				} catch {
-					lastWinner = '';
-				}
+				} catch {}
 			} else {
 				lastWinner = '';
 				scoreA = 0;
