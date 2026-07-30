@@ -72,6 +72,7 @@
 		{/each}
 	</div>
 
+	<div class="board-aspect">
 	<div class="battleship-board"
 		class:setup-mode={mode === 'setup'}
 		class:playing-mode={mode === 'playing'}
@@ -105,6 +106,7 @@
 				</div>
 			{/each}
 		{/each}
+	</div>
 	</div>
 	</div>
 </div>
@@ -173,52 +175,74 @@
 		justify-content: center;
 	}
 
-	/* Grid acessível 10x10 — ocupa toda a largura útil da coluna */
-	.battleship-board {
+	/* Quadrado proporcional à largura (Safari/iOS não encolhe com aspect-ratio em grid auto) */
+	.board-aspect {
 		grid-column: 2;
 		grid-row: 2;
+		width: 100%;
+		min-width: 0;
+		position: relative;
+		height: 0;
+		padding-top: 100%;
+	}
+
+	.battleship-board {
+		position: absolute;
+		inset: 0;
 		display: grid;
 		grid-template-columns: repeat(10, minmax(0, 1fr));
 		grid-template-rows: repeat(10, minmax(0, 1fr));
 		box-sizing: border-box;
 		width: 100%;
-		max-width: 100%;
-		height: auto;
-		aspect-ratio: 1 / 1;
+		height: 100%;
 		min-width: 0;
 		border: 3px solid #3a5f91;
 		border-radius: 1rem;
 		background: #101922;
-		position: relative;
 		box-shadow: 0 0 0 3px rgba(43, 127, 244, 0.35);
 		overflow: hidden;
 		margin: 0;
 	}
 
-	/* Portrait / telas estreitas: usar 100% da largura disponível */
-	@media (max-width: 768px) {
-		.battleship-board-wrapper {
-			--label-size: 1.4rem;
-			width: 100%;
-			max-width: 100%;
+	/* Portrait / telas estreitas: full-bleed na viewport */
+	@media (max-width: 768px) and (orientation: portrait) {
+		.board-shell {
+			width: 100vw;
+			max-width: 100vw;
+			margin-left: calc(50% - 50vw);
+			margin-right: calc(50% - 50vw);
+			padding-left: max(0.15rem, env(safe-area-inset-left, 0px));
+			padding-right: max(0.15rem, env(safe-area-inset-right, 0px));
 		}
-		.battleship-board {
+		.battleship-board-wrapper {
+			--label-size: 0.95rem;
+			--board-max: none;
 			width: 100%;
 			max-width: none;
+			margin-inline: 0;
+		}
+		.col-labels, .row-labels { font-size: 0.68rem; }
+	}
+
+	@media (max-width: 768px) {
+		.battleship-board-wrapper {
+			--label-size: 1.2rem;
+			width: 100%;
+			max-width: 100%;
 		}
 		.col-labels, .row-labels { font-size: 0.75rem; }
 	}
 
 	@media (max-width: 480px) {
 		.battleship-board-wrapper {
-			--label-size: 1.2rem;
+			--label-size: 1rem;
 		}
-		.col-labels, .row-labels { font-size: 0.7rem; }
+		.col-labels, .row-labels { font-size: 0.65rem; }
 	}
 
 	@media (max-width: 360px) {
 		.battleship-board-wrapper {
-			--label-size: 1.05rem;
+			--label-size: 0.9rem;
 		}
 		.cell-content { font-size: clamp(0.7rem, 1.4vw + 0.35rem, 0.95rem); }
 	}

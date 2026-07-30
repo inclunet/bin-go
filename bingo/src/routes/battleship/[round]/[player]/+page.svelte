@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
-	import { onMount, tick } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 	import PageTitle from '$lib/PageTitle.svelte';
 	import BattleshipBoard from '$lib/battleship/BattleshipBoard.svelte';
 	import BattleshipScoreboard from '$lib/battleship/BattleshipScoreboard.svelte';
@@ -312,6 +312,17 @@
 	$: currentBoard = viewMode === 'my' ? myBoard : enemyBoard;
 	$: isMyTurn = isMyTurnCheck();
 	$: updateTurnView();
+
+	$: inGame = phase === 'setup' || phase === 'playing';
+
+	function syncInGameBodyClass(active) {
+		if (typeof document === 'undefined') return;
+		document.body.classList.toggle('battleship-in-game', active);
+	}
+
+	$: syncInGameBodyClass(inGame);
+
+	onDestroy(() => syncInGameBodyClass(false));
 
 	onMount(() => {
 		// Detecta modo debug via query (?debug=1)
@@ -988,7 +999,7 @@
 <!-- Proteção contra anúncios intrusivos -->
 <AdProtection protection="strict" />
 
-<div class="battleship-container py-4 d-flex flex-column">
+<div class="battleship-container py-4 d-flex flex-column" class:in-game={inGame}>
 	<!-- Anúncio topo (desktop/mobile permitido conforme config) -->
 	<AdManager
 		placement="top"
@@ -1226,6 +1237,36 @@
 		clip: rect(0 0 0 0);
 		white-space: nowrap;
 		border: 0;
+	}
+
+	@media (max-width: 768px) and (orientation: portrait) {
+		.battleship-container.in-game {
+			max-width: none;
+			width: 100%;
+			padding-left: 0;
+			padding-right: 0;
+			padding-top: 0.35rem;
+			padding-bottom: 0.35rem;
+		}
+
+		.battleship-container.in-game .scoreboard-container,
+		.battleship-container.in-game .status-container,
+		.battleship-container.in-game .setup-info,
+		.battleship-container.in-game .view-controls {
+			padding-left: 0.35rem;
+			padding-right: 0.35rem;
+			margin-bottom: 0.4rem !important;
+		}
+
+		:global(body.battleship-in-game footer) {
+			display: none;
+		}
+
+		:global(body.battleship-in-game main.content) {
+			padding-left: 0;
+			padding-right: 0;
+			padding-bottom: 0.35rem;
+		}
 	}
 
 	@media (max-width: 768px) {
