@@ -16,8 +16,8 @@
 
 	function sortOpen() { openRounds = [...openRounds].sort((a,b)=> a.round - b.round); }
 
-	async function fetchLatest() {
-		loading = true;
+	async function fetchLatest(silent = false) {
+		if (!silent) loading = true;
 		try {
 			let r = 1;
 			for(; r <= 50; r++) {
@@ -40,8 +40,8 @@
 			}
 			const openRes = await fetch('/api/battleship/open');
 			if(openRes.ok){ openRounds = await openRes.json(); sortOpen(); }
-		} catch(e){ errorMsg = 'Falha ao detectar partidas.'; }
-		finally { loading = false; }
+		} catch(e){ if (!silent) errorMsg = 'Falha ao detectar partidas.'; }
+		finally { if (!silent) loading = false; }
 	}
 
 	function connectOpenWs(){
@@ -63,6 +63,7 @@
 	async function newRound() {
 		creating = true; errorMsg='';
 		try {
+			await fetchLatest(true);
 			let createUrl;
 			if (lastRound === 0) {
 				createUrl = '/api/battleship/1/new';
