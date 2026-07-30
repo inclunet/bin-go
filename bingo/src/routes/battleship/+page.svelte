@@ -32,12 +32,12 @@
 		let high = 1;
 		while (high <= 10000) {
 			const res = await fetchRoundMeta(high);
-			if (!res) return null;
+			if (!res) return last > 0 ? last : null;
 			if (res.status === 404) {
 				if (last === 0 && high === 1) return 0;
 				break;
 			}
-			if (!res.ok) return null;
+			if (!res.ok) return last > 0 ? last : null;
 			last = high;
 			high *= 2;
 		}
@@ -46,12 +46,12 @@
 		while (lo <= hi) {
 			const mid = Math.floor((lo + hi) / 2);
 			const res = await fetchRoundMeta(mid);
-			if (!res) return null;
+			if (!res) return last > 0 ? last : null;
 			if (res.status === 404) {
 				hi = mid - 1;
 				continue;
 			}
-			if (!res.ok) return null;
+			if (!res.ok) return last > 0 ? last : null;
 			last = mid;
 			lo = mid + 1;
 		}
