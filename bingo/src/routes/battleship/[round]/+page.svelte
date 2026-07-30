@@ -78,10 +78,10 @@
 		setTimeout(() => shareMsg = '', 2500);
 	}
 
-	function copyLink() {
+	async function copyLink() {
 		const url = `${location.origin}/battleship/${roundParam}`;
 		try {
-			navigator.clipboard.writeText(url);
+			await navigator.clipboard.writeText(url);
 			copyMsg = 'Link copiado!';
 		} catch {
 			copyMsg = 'Falha ao copiar';

@@ -45,7 +45,11 @@
 	$: shipsLine = phase === 'playing'
 		? `Navios restantes: Jogador A ${shipsRemaining.a}, Jogador B ${shipsRemaining.b}.`
 		: '';
-	$: liveStatusMessage = shipsLine ? `${getStatusMessage()} ${shipsLine}` : getStatusMessage();
+	$: liveStatusMessage = message
+		? message
+		: shipsLine
+			? `${getStatusMessage()} ${shipsLine}`
+			: getStatusMessage();
 </script>
 
 <div
