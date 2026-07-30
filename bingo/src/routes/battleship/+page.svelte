@@ -20,11 +20,13 @@
 		if (!silent) loading = true;
 		try {
 			let confirmedLast = 0;
-			for (let r = 1; r <= 50; r++) {
+			let r = 1;
+			while (r <= 10000) {
 				const res = await fetch(`/api/battleship/${r}`, { cache: 'no-store' });
 				if (res.status === 404) break;
 				if (!res.ok) break;
 				confirmedLast = r;
+				r++;
 			}
 			lastRound = confirmedLast;
 			if(lastRound > 0){
