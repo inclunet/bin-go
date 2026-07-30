@@ -23,7 +23,7 @@
 			for(; r <= 50; r++) {
 				const res = await fetch(`/api/battleship/${r}`);
 				if (res.status === 404) break;
-				if(!res.ok) break;
+				if (!res.ok) continue;
 			}
 			lastRound = r-1;
 			if(lastRound > 0){

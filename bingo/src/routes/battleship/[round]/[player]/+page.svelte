@@ -1,7 +1,6 @@
 <script>
 	// @ts-nocheck
 	import { page } from '$app/stores';
-	import { get } from 'svelte/store';
 	import { onMount, onDestroy, tick } from 'svelte';
 	import PageTitle from '$lib/PageTitle.svelte';
 	import BattleshipBoard from '$lib/battleship/BattleshipBoard.svelte';
@@ -12,10 +11,11 @@
 	import { adConfig } from '$lib/ads/adConfig.js';
 
 	const BOARD_SIZE = 10;
-	const p = get(page);
-	let roundParam = p.params.round;
-	const playerParam = (p.params.player || 'a').toLowerCase();
-	const localPlayer = playerParam === 'b' ? 'b' : 'a';
+	$: roundParam = $page.params.round;
+	$: playerParam = ($page.params.player || 'a').toLowerCase();
+	$: localPlayer = playerParam === 'b' ? 'b' : 'a';
+	$: sessionKey = `${roundParam}:${playerParam}`;
+	let lastSessionKey = '';
 
 	function createEmptyBoard() {
 		return Array.from({ length: BOARD_SIZE }, () =>
@@ -335,9 +335,7 @@
 
 	$: syncInGameBodyClass(inGame);
 
-	onDestroy(() => {
-		pageActive = false;
-		syncInGameBodyClass(false);
+	function teardownSession() {
 		if (wsReconnectTimer) {
 			clearTimeout(wsReconnectTimer);
 			wsReconnectTimer = null;
@@ -345,32 +343,46 @@
 		clearInterval(wsHeartbeat);
 		try { ws?.close(); } catch {}
 		ws = null;
+		wsAttempts = 0;
+		wsFatal = false;
+		wsConnecting = false;
+		syncGen++;
+	}
+
+	async function initSession() {
+		initError = '';
+		redirecting = false;
+		const ready = await ensureRound();
+		if (redirecting || !ready) return;
+		await loadGameData();
+		connectWebSocket(true);
+	}
+
+	onDestroy(() => {
+		pageActive = false;
+		syncInGameBodyClass(false);
+		teardownSession();
 	});
 
 	onMount(() => {
 		pageActive = true;
-		// Detecta modo debug via query (?debug=1)
 		try {
 			const sp = new URLSearchParams(window.location.search);
 			debugMode = sp.get('debug') === '1';
 		} catch {}
-		(async () => {
-			const ready = await ensureRound();
-			if (redirecting || !ready) return;
-			await loadGameData();
-			connectWebSocket(true);
-		})();
+		lastSessionKey = sessionKey;
+		initSession();
 		return () => {
 			pageActive = false;
-			if (wsReconnectTimer) {
-				clearTimeout(wsReconnectTimer);
-				wsReconnectTimer = null;
-			}
-			clearInterval(wsHeartbeat);
-			try { ws?.close(); } catch {}
-			ws = null;
+			teardownSession();
 		};
 	});
+
+	$: if (pageActive && sessionKey && lastSessionKey && sessionKey !== lastSessionKey) {
+		teardownSession();
+		lastSessionKey = sessionKey;
+		initSession();
+	}
 	// ======== FIM BLOCO CORRIGIDO ========
 
 	function updateCurrentShipIndex() {

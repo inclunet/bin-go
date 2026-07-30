@@ -1,2 +1,6 @@
 bin-go.odt
 .~lock.bin-go.odt#
+*.test.exe
+bingo/buildlog.txt
+bingo/board-report.json
+bingo/pr_body_tmp.md
