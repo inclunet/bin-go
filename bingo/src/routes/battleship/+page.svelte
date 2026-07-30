@@ -21,7 +21,7 @@
 		try {
 			let confirmedLast = 0;
 			for (let r = 1; r <= 50; r++) {
-				const res = await fetch(`/api/battleship/${r}`);
+				const res = await fetch(`/api/battleship/${r}`, { cache: 'no-store' });
 				if (res.status === 404) break;
 				if (!res.ok) break;
 				confirmedLast = r;
@@ -29,17 +29,26 @@
 			lastRound = confirmedLast;
 			if(lastRound > 0){
 				try { 
-					const lastRes = await fetch(`/api/battleship/${lastRound}`); 
+					const lastRes = await fetch(`/api/battleship/${lastRound}`, { cache: 'no-store' }); 
 					if(lastRes.ok){ 
 						const data = await lastRes.json(); 
 						scoreA = data.scoreA||0; 
 						scoreB = data.scoreB||0; 
 						scoreDraw = data.scoreDraw||0; 
 						lastWinner = data.winner || ''; 
-					} 
-				} catch {}
+					} else {
+						lastWinner = '';
+					}
+				} catch {
+					lastWinner = '';
+				}
+			} else {
+				lastWinner = '';
+				scoreA = 0;
+				scoreB = 0;
+				scoreDraw = 0;
 			}
-			const openRes = await fetch('/api/battleship/open');
+			const openRes = await fetch('/api/battleship/open', { cache: 'no-store' });
 			if(openRes.ok){ openRounds = await openRes.json(); sortOpen(); }
 		} catch(e){ if (!silent) errorMsg = 'Falha ao detectar partidas.'; }
 		finally { if (!silent) loading = false; }
@@ -73,9 +82,9 @@
 			} else {
 				createUrl = `/api/battleship/${lastRound + 1}/new`;
 			}
-			const res = await fetch(createUrl);
+			const res = await fetch(createUrl, { cache: 'no-store' });
 			if (res.status === 409 && lastWinner) {
-				const lastRes = await fetch(`/api/battleship/${lastRound}`);
+				const lastRes = await fetch(`/api/battleship/${lastRound}`, { cache: 'no-store' });
 				if (lastRes.ok) {
 					const lastData = await lastRes.json();
 					if (lastData?.next) {

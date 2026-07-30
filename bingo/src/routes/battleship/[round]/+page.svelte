@@ -27,7 +27,7 @@
 	async function loadRound() {
 		const gen = ++loadGen;
 		try {
-			const res = await fetch(`/api/battleship/${roundParam}`);
+			const res = await fetch(`/api/battleship/${roundParam}`, { cache: 'no-store' });
 			if (gen !== loadGen) return;
 			if (res.status === 404) {
 				errorMsg = 'Partida não encontrada.';
