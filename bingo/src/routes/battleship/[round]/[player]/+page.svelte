@@ -989,9 +989,32 @@
 
 	async function ensureRound() {
 		try {
-			const response = await fetch(`/api/battleship/${roundParam}`);
+			const response = await fetch(`/api/battleship/${roundParam}`, { cache: 'no-store' });
 			if (response.status === 404) {
-				const createResponse = await fetch(`/api/battleship/${roundParam}/new`);
+				const prev = Number(roundParam) - 1;
+				if (prev >= 1) {
+					const prevRes = await fetch(`/api/battleship/${prev}`, { cache: 'no-store' });
+					if (prevRes.ok) {
+						const prevData = await prevRes.json();
+						if (prevData.winner) {
+							const contRes = await fetch(`/api/battleship/${prev}/new`, { cache: 'no-store' });
+							if (contRes.status === 409 && prevData.next) {
+								redirecting = true;
+								window.location.href = `/battleship/${prevData.next}/${playerParam}`;
+								return false;
+							}
+							if (contRes.ok) {
+								const data = await contRes.json();
+								if (data?.round && Number(data.round) !== Number(roundParam)) {
+									redirecting = true;
+									window.location.href = `/battleship/${data.round}/${playerParam}`;
+									return false;
+								}
+							}
+						}
+					}
+				}
+				const createResponse = await fetch(`/api/battleship/${roundParam}/new`, { cache: 'no-store' });
 				if (!createResponse.ok) {
 					initError = 'Partida não encontrada.';
 					return false;
@@ -1032,10 +1055,11 @@
 
 	async function newRound() {
 		if (redirecting || !winner) return;
+		statusMessage = '';
 		try {
 			const res = await fetch(`/api/battleship/${roundParam}/new`, { method: 'GET', cache: 'no-store' });
 			if (res.status === 409) {
-				const roundRes = await fetch(`/api/battleship/${roundParam}`);
+				const roundRes = await fetch(`/api/battleship/${roundParam}`, { cache: 'no-store' });
 				if (roundRes.ok) {
 					const roundData = await roundRes.json();
 					if (roundData?.next) {
@@ -1044,16 +1068,21 @@
 						return;
 					}
 				}
+				statusMessage = 'Esta partida já foi continuada. Recarregue a página.';
+				return;
 			}
 			if (res.ok) {
 				const data = await res.json();
 				if (data?.round && Number(data.round) !== Number(roundParam)) {
 					redirecting = true;
 					window.location.href = `/battleship/${data.round}/${playerParam}`;
+					return;
 				}
 			}
+			statusMessage = 'Não foi possível criar a nova rodada. Tente novamente.';
 		} catch(e) {
 			console.error('Erro nova rodada', e);
+			statusMessage = 'Falha de rede ao criar nova rodada.';
 		}
 	}
 

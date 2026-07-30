@@ -124,6 +124,19 @@
 				creating = false;
 				return;
 			}
+			if (lastRound > 0) {
+				const lastRes = await fetch(`/api/battleship/${lastRound}`, { cache: 'no-store' });
+				if (!lastRes.ok) {
+					errorMsg = 'Não foi possível verificar a última partida.';
+					creating = false;
+					return;
+				}
+				const data = await lastRes.json();
+				lastWinner = data.winner || '';
+				scoreA = data.scoreA || 0;
+				scoreB = data.scoreB || 0;
+				scoreDraw = data.scoreDraw || 0;
+			}
 			let createUrl;
 			if (lastRound === 0) {
 				createUrl = '/api/battleship/1/new';
