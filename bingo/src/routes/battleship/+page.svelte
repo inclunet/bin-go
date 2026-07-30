@@ -32,9 +32,12 @@
 		let high = 1;
 		while (high <= 10000) {
 			const res = await fetchRoundMeta(high);
-			if (!res) return last || null;
-			if (res.status === 404) break;
-			if (!res.ok) return last || null;
+			if (!res) return null;
+			if (res.status === 404) {
+				if (last === 0 && high === 1) return 0;
+				break;
+			}
+			if (!res.ok) return null;
 			last = high;
 			high *= 2;
 		}
@@ -43,14 +46,12 @@
 		while (lo <= hi) {
 			const mid = Math.floor((lo + hi) / 2);
 			const res = await fetchRoundMeta(mid);
-			if (!res || !res.ok) {
-				if (res?.status === 404) {
-					hi = mid - 1;
-				} else {
-					return last || null;
-				}
+			if (!res) return null;
+			if (res.status === 404) {
+				hi = mid - 1;
 				continue;
 			}
+			if (!res.ok) return null;
 			last = mid;
 			lo = mid + 1;
 		}
@@ -63,7 +64,7 @@
 			const detected = await findLastRound();
 			if (detected === null) {
 				if (!silent) errorMsg = 'Falha ao detectar partidas.';
-				return;
+				return false;
 			}
 			lastRound = detected;
 			if(lastRound > 0){
@@ -85,7 +86,8 @@
 			}
 			const openRes = await fetch('/api/battleship/open', { cache: 'no-store' });
 			if(openRes.ok){ openRounds = await openRes.json(); sortOpen(); }
-		} catch(e){ if (!silent) errorMsg = 'Falha ao detectar partidas.'; }
+			return true;
+		} catch(e){ if (!silent) errorMsg = 'Falha ao detectar partidas.'; return false; }
 		finally { if (!silent) loading = false; }
 	}
 
@@ -116,7 +118,12 @@
 	async function newRound() {
 		creating = true; errorMsg='';
 		try {
-			await fetchLatest(true);
+			const synced = await fetchLatest(true);
+			if (!synced) {
+				errorMsg = 'Não foi possível sincronizar o placar. Tente novamente.';
+				creating = false;
+				return;
+			}
 			let createUrl;
 			if (lastRound === 0) {
 				createUrl = '/api/battleship/1/new';
