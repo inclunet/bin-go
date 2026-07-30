@@ -48,12 +48,18 @@
 	$: liveStatusMessage = shipsLine ? `${getStatusMessage()} ${shipsLine}` : getStatusMessage();
 </script>
 
-<div class="battleship-status">
+<div
+	class="battleship-status"
+	role="status"
+	aria-live="polite"
+	aria-atomic="true"
+	aria-label={liveStatusMessage}
+>
 	<!-- Região silenciosa visual -->
-	<div class="status-main">
-		<span class="status-text" aria-hidden="true">{getStatusMessage()}</span>
+	<div class="status-main" aria-hidden="true">
+		<span class="status-text">{getStatusMessage()}</span>
 		{#if lastAction}
-			<span class="last-action" aria-hidden="true">• {lastAction}</span>
+			<span class="last-action">• {lastAction}</span>
 		{/if}
 	</div>
     
@@ -70,8 +76,6 @@
 		</div>
 	{/if}
 
-	<!-- Região aria-live dedicada apenas a mudanças de fase/turno (sem repetir resultado de tiro) -->
-	<div class="sr-only" aria-live="polite">{liveStatusMessage}</div>
 </div>
 
 <style>
@@ -197,15 +201,4 @@
 			justify-content: center;
 		}
 	}
-    .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        white-space: nowrap;
-        border: 0;
-    }
 </style>

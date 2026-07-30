@@ -1132,16 +1132,28 @@
 	</div>
 
 	{#if phase === 'setup' && !allShipsPlaced()}
-		<div class="setup-info mb-3">
-			<div class="current-ship">
+		<div
+			class="setup-info mb-3"
+			role="group"
+			aria-label={`Posicionando ${getCurrentShip()?.name}, tamanho ${getCurrentShip()?.size}. Orientação ${shipOrientation === 'horizontal' ? 'horizontal' : 'vertical'}. ${shipsToPlace.filter((ship) => ship.placed).length} de ${shipsToPlace.length} navios posicionados.`}
+		>
+			<div class="current-ship" aria-hidden="true">
 				<strong>Posicionando:</strong> {getCurrentShip()?.name}
 				<span>(tamanho: {getCurrentShip()?.size})</span>
 			</div>
 			<div class="setup-controls">
-				<span>Orientação: <strong>{shipOrientation === 'horizontal' ? 'Horizontal' : 'Vertical'}</strong></span>
-				<span class="text-muted">• R: rotacionar • S: status • H: ajuda</span>
+				<span aria-hidden="true">Orientação: <strong>{shipOrientation === 'horizontal' ? 'Horizontal' : 'Vertical'}</strong></span>
+				<button
+					type="button"
+					class="btn btn-outline-light rotate-btn"
+					on:click={rotateShip}
+					aria-label={`Rotacionar navio. Orientação atual: ${shipOrientation === 'horizontal' ? 'horizontal' : 'vertical'}`}
+				>
+					↻ Rotacionar
+				</button>
+				<span class="text-muted setup-hint-keyboard" aria-hidden="true">• R: rotacionar • S: status • H: ajuda</span>
 			</div>
-			<div class="ships-progress">
+			<div class="ships-progress" aria-hidden="true">
 				<small class="text-muted">
 					Navios posicionados: {shipsToPlace.filter((ship) => ship.placed).length} de {shipsToPlace.length}
 				</small>
@@ -1305,6 +1317,31 @@
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
+	}
+
+	.rotate-btn {
+		min-height: 2.75rem;
+		min-width: 8.5rem;
+		font-size: 1rem;
+		font-weight: 600;
+		padding: 0.45rem 1rem;
+		margin-top: 0;
+	}
+
+	.setup-hint-keyboard {
+		display: inline;
+	}
+
+	@media (max-width: 768px) {
+		.setup-hint-keyboard {
+			display: none;
+		}
+
+		.rotate-btn {
+			min-height: 3rem;
+			min-width: 10rem;
+			font-size: 1.05rem;
+		}
 	}
 
 	.ships-progress {

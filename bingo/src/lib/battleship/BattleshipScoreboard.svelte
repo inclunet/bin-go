@@ -9,10 +9,24 @@
 
 	$: scoreboardLine = `Placar: Jogador A ${scoreA}, Jogador B ${scoreB}${scoreDraw > 0 ? `, empates ${scoreDraw}` : ''}`;
 	$: currentPlayerName = currentPlayer === 'a' ? 'Jogador A' : 'Jogador B';
+	$: phaseLine = phase === 'setup'
+		? 'Posicionando navios.'
+		: phase === 'playing'
+			? `Vez de ${currentPlayerName}.`
+			: winner
+				? (winner === 'draw' ? 'Empate.' : `${winner === 'a' ? 'Jogador A' : 'Jogador B'} venceu.`)
+				: 'Partida finalizada.';
+	$: scoreboardSummary = `${scoreboardLine}. ${phaseLine}`;
 </script>
 
-<div class="battleship-scoreboard" role="region" aria-label="Placar da partida">
-	<div class="score-display">
+<div
+	class="battleship-scoreboard"
+	role="status"
+	aria-live="polite"
+	aria-atomic="true"
+	aria-label={scoreboardSummary}
+>
+	<div class="score-display" aria-hidden="true">
 		<span class="score-label">Placar:</span>
 		<div class="scores">
 			<span class="score-player score-a" class:active={currentPlayer === 'a'}>
@@ -37,7 +51,7 @@
 	</div>
 	
 	{#if phase !== 'finished'}
-		<div class="phase-indicator">
+		<div class="phase-indicator" aria-hidden="true">
 			{#if phase === 'setup'}
 				<span class="phase-text setup">📋 Posicionando navios</span>
 			{:else if phase === 'playing'}
@@ -47,14 +61,13 @@
 			{/if}
 		</div>
 	{:else if winner}
-		<div class="winner-announcement">
+		<div class="winner-announcement" aria-hidden="true">
 			<span class="winner-text">
 				🏆 {winner === 'draw' ? 'Empate!' : `${winner === 'a' ? 'Jogador A' : 'Jogador B'} venceu!`}
 			</span>
 		</div>
 	{/if}
 
-	<div class="sr-only" aria-live="polite" aria-atomic="true">{scoreboardLine}</div>
 </div>
 
 <style>
@@ -267,15 +280,4 @@
 		}
 	}
 
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0 0 0 0);
-		white-space: nowrap;
-		border: 0;
-	}
 </style>

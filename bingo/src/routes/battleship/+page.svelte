@@ -245,7 +245,7 @@
 				<ul class="small mb-3">
 					<li><strong>Navegação:</strong> Use as setas do teclado para mover entre as células do tabuleiro.</li>
 					<li><strong>Atirar:</strong> Pressione Enter ou Espaço na célula desejada para disparar.</li>
-					<li><strong>Posicionar navios:</strong> Durante a preparação, use Enter/Espaço para posicionar e R para rotacionar.</li>
+					<li><strong>Posicionar navios:</strong> Durante a preparação, toque no tabuleiro para posicionar e use o botão <strong>Rotacionar</strong> (ou a tecla R no teclado) para mudar a orientação.</li>
 					<li><strong>Atalhos:</strong> Pressione ? para abrir ajuda; Esc para fechar diálogos.</li>
 					<li><strong>Leitores de tela:</strong> Recebem anúncios automáticos sobre tiros, acertos e status do jogo.</li>
 				</ul>
