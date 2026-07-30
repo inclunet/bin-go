@@ -202,7 +202,6 @@
 		position: absolute;
 		inset: 0;
 		display: grid;
-		grid-template-columns: repeat(10, minmax(0, 1fr));
 		grid-template-rows: repeat(10, minmax(0, 1fr));
 		box-sizing: border-box;
 		width: 100%;
@@ -217,7 +216,9 @@
 	}
 
 	.battleship-board [role="row"] {
-		display: contents;
+		display: grid;
+		grid-template-columns: repeat(10, minmax(0, 1fr));
+		min-height: 0;
 	}
 
 	/* Portrait mobile: largura do pai (evita overflow de 100vw no Safari/iOS) */
