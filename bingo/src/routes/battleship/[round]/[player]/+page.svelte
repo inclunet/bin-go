@@ -1087,7 +1087,11 @@
 		</div>
 	{/if}
 
-	<div class="board-container" role="tabpanel" id="panel-board" aria-labelledby={viewMode === 'my' ? 'tab-my' : 'tab-enemy'}>
+	<div class="board-container"
+		id="panel-board"
+		role={phase === 'playing' ? 'tabpanel' : null}
+		aria-labelledby={phase === 'playing' ? (viewMode === 'my' ? 'tab-my' : 'tab-enemy') : null}
+	>
 		<BattleshipBoard
 			board={currentBoard}
 			mode={boardMode}

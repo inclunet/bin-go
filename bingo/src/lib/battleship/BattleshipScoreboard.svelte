@@ -53,6 +53,8 @@
 			</span>
 		</div>
 	{/if}
+
+	<div class="sr-only" aria-live="polite" aria-atomic="true">{scoreboardLine}</div>
 </div>
 
 <style>
@@ -263,5 +265,17 @@
 		.phase-text, .winner-text {
 			font-size: 0.9rem;
 		}
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
 	}
 </style>
