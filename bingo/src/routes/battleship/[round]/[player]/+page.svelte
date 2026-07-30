@@ -1091,6 +1091,7 @@
 		<BattleshipBoard
 			board={currentBoard}
 			mode={boardMode}
+			viewMode={viewMode}
 			{isMyTurn}
 			{row}
 			{col}

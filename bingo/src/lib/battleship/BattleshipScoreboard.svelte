@@ -11,7 +11,7 @@
 	$: currentPlayerName = currentPlayer === 'a' ? 'Jogador A' : 'Jogador B';
 </script>
 
-<div class="battleship-scoreboard" role="status" aria-live="polite" aria-atomic="true">
+<div class="battleship-scoreboard" role="region" aria-label="Placar da partida">
 	<div class="score-display">
 		<span class="score-label">Placar:</span>
 		<div class="scores">

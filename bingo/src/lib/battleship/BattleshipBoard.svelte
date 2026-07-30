@@ -6,6 +6,7 @@
   // Props
   export let board = []; // 10x10
   export let mode = 'playing'; // 'setup' | 'playing' | 'viewing'
+  export let viewMode = 'my'; // 'my' (defesa) | 'enemy' (ataque)
   export let isMyTurn = false;
   export let row = 0;
   export let col = 0;
@@ -50,6 +51,15 @@
   function handleCellFocus(r,c){
     dispatch('cellFocus',{row:r,col:c});
   }
+	function getBoardAriaLabel() {
+		if (mode === 'setup') return 'Tabuleiro posicionamento';
+		if (mode !== 'playing') return 'Tabuleiro visualização';
+		if (viewMode === 'my') {
+			return isMyTurn ? 'Tabuleiro defesa, seu turno' : 'Tabuleiro defesa, turno do oponente';
+		}
+		return isMyTurn ? 'Tabuleiro ataque, seu turno' : 'Tabuleiro ataque, turno do oponente';
+	}
+
   function handleKeydown(e){
     dispatch('keydown',{event:e});
   }
@@ -80,7 +90,7 @@
 		role="grid"
 		aria-rowcount="10"
 		aria-colcount="10"
-		aria-label="Tabuleiro {mode === 'setup' ? 'posicionamento' : (mode === 'playing' ? (isMyTurn ? 'ataque, seu turno' : 'defesa, turno do oponente') : 'visualização')}"
+		aria-label={getBoardAriaLabel()}
 		aria-describedby="board-instructions"
 	>
 		{#each board as boardRow, r}
@@ -204,7 +214,7 @@
 		margin: 0;
 	}
 
-	/* Portrait / telas estreitas: full-bleed na viewport */
+	/* Portrait: full-bleed na viewport (deve vir depois de regras genéricas de largura) */
 	@media (max-width: 768px) and (orientation: portrait) {
 		.board-shell {
 			width: 100vw;
@@ -224,7 +234,7 @@
 		.col-labels, .row-labels { font-size: 0.68rem; }
 	}
 
-	@media (max-width: 768px) {
+	@media (max-width: 768px) and (orientation: landscape) {
 		.battleship-board-wrapper {
 			--label-size: 1.2rem;
 			width: 100%;
@@ -233,16 +243,16 @@
 		.col-labels, .row-labels { font-size: 0.75rem; }
 	}
 
-	@media (max-width: 480px) {
+	@media (max-width: 480px) and (orientation: portrait) {
 		.battleship-board-wrapper {
-			--label-size: 1rem;
+			--label-size: 0.85rem;
 		}
-		.col-labels, .row-labels { font-size: 0.65rem; }
+		.col-labels, .row-labels { font-size: 0.62rem; }
 	}
 
-	@media (max-width: 360px) {
+	@media (max-width: 360px) and (orientation: portrait) {
 		.battleship-board-wrapper {
-			--label-size: 0.9rem;
+			--label-size: 0.78rem;
 		}
 		.cell-content { font-size: clamp(0.7rem, 1.4vw + 0.35rem, 0.95rem); }
 	}
