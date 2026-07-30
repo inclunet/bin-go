@@ -12,23 +12,44 @@
 	let lastWinner = '';
 	/** @type {WebSocket | null} */
 	let openWs = null;
+	/** @type {ReturnType<typeof setTimeout> | null} */
+	let openWsTimer = null;
+	let pageActive = false;
 	$: scoreSummary = lastRound>0 ? `Placar acumulado até a rodada ${lastRound}: ${scoreA} vitória${scoreA===1?'':'s'} do Jogador A, ${scoreB} vitória${scoreB===1?'':'s'} do Jogador B${scoreDraw>0?`, ${scoreDraw} empate${scoreDraw===1?'':'s'}`:''}.` : '';
 
 	function sortOpen() { openRounds = [...openRounds].sort((a,b)=> a.round - b.round); }
 
+	async function findLastRound() {
+		let last = 0;
+		let high = 1;
+		while (high <= 10000) {
+			const res = await fetch(`/api/battleship/${high}`, { cache: 'no-store' });
+			if (res.status === 404) break;
+			if (!res.ok) return last;
+			last = high;
+			high *= 2;
+		}
+		let lo = last + 1;
+		let hi = Math.min(high - 1, 10000);
+		while (lo <= hi) {
+			const mid = Math.floor((lo + hi) / 2);
+			const res = await fetch(`/api/battleship/${mid}`, { cache: 'no-store' });
+			if (res.ok) {
+				last = mid;
+				lo = mid + 1;
+			} else if (res.status === 404) {
+				hi = mid - 1;
+			} else {
+				return last;
+			}
+		}
+		return last;
+	}
+
 	async function fetchLatest(silent = false) {
 		if (!silent) loading = true;
 		try {
-			let confirmedLast = 0;
-			let r = 1;
-			while (r <= 10000) {
-				const res = await fetch(`/api/battleship/${r}`, { cache: 'no-store' });
-				if (res.status === 404) break;
-				if (!res.ok) break;
-				confirmedLast = r;
-				r++;
-			}
-			lastRound = confirmedLast;
+			lastRound = await findLastRound();
 			if(lastRound > 0){
 				try { 
 					const lastRes = await fetch(`/api/battleship/${lastRound}`, { cache: 'no-store' }); 
@@ -57,6 +78,7 @@
 	}
 
 	function connectOpenWs(){
+		if (!pageActive) return;
 		try {
 			openWs = new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws/battleship/open`);
 			openWs.onmessage = (ev)=>{
@@ -68,7 +90,14 @@
 					} 
 				} catch {}
 			};
-			openWs.onclose = ()=> { openWs = null; setTimeout(connectOpenWs, 3000); };
+			openWs.onclose = ()=> {
+				openWs = null;
+				if (!pageActive) return;
+				openWsTimer = setTimeout(() => {
+					openWsTimer = null;
+					connectOpenWs();
+				}, 3000);
+			};
 		} catch {}
 	}
 
@@ -102,8 +131,15 @@
 		} catch(e){ errorMsg='Falha de rede'; creating=false; }
 	}
 
-	onMount(()=>{ fetchLatest(); connectOpenWs(); });
-	onDestroy(()=> { if(openWs){ openWs.close(); openWs=null; } });
+	onMount(()=>{ pageActive = true; fetchLatest(); connectOpenWs(); });
+	onDestroy(()=> {
+		pageActive = false;
+		if (openWsTimer) {
+			clearTimeout(openWsTimer);
+			openWsTimer = null;
+		}
+		if (openWs) { openWs.close(); openWs = null; }
+	});
 </script>
 
 <PageTitle title="Início" game="Batalha Naval" />
