@@ -69,8 +69,7 @@
 			} else if (lastWinner) {
 				createUrl = `/api/battleship/${lastRound}/new`;
 			} else {
-				window.location.href = `/battleship/${lastRound}`;
-				return;
+				createUrl = `/api/battleship/${lastRound + 1}/new`;
 			}
 			const res = await fetch(createUrl);
 			if (res.status === 409 && lastWinner) {

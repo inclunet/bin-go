@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { get } from 'svelte/store';
 	import { onMount } from 'svelte';
 	import PageTitle from '$lib/PageTitle.svelte';
 
-	const p = get(page);
-	let roundParam = p.params.round;
+	$: roundParam = $page.params.round;
 	let loading = true;
 	let errorMsg = '';
 	let roundData = null;
@@ -16,6 +14,15 @@
 	let isMobile = false;
 	let shareLabel = 'Compartilhar link da partida';
 	let loadGen = 0;
+	let lastLoadedKey = '';
+
+	async function reloadIfNeeded() {
+		if (typeof window === 'undefined' || !roundParam || roundParam === lastLoadedKey) return;
+		lastLoadedKey = roundParam;
+		loading = true;
+		errorMsg = '';
+		await loadRound();
+	}
 
 	async function loadRound() {
 		const gen = ++loadGen;
@@ -91,13 +98,15 @@
 	}
 
 	onMount(() => {
-		loadRound();
+		reloadIfNeeded();
 		isMobile = detectMobileShare();
 		const poll = setInterval(() => {
 			if (!errorMsg) loadRound();
 		}, 2500);
 		return () => clearInterval(poll);
 	});
+
+	$: reloadIfNeeded();
 </script>
 
 <PageTitle title="Selecionar Jogador" game="Batalha Naval" />
