@@ -148,6 +148,8 @@
 	let lastWsMessage = Date.now();
 	let wsConnecting = false; // trava reentrância
 	let wsFatal = false; // erro permanente (ex.: slot ocupado) — não reconectar
+	let wsReconnectTimer = null;
+	let pageActive = false;
 	let wsSeq = 0; // sequence para comandos
 	let syncGen = 0; // invalida loadGameData HTTP atrasado após updates WS
 	const pendingCmds = new Map(); // id -> {resolve,reject,timer,type}
@@ -183,8 +185,17 @@
 		}, 25000);
 	}
 
+	function scheduleWsReconnect(backoff) {
+		if (!pageActive || wsFatal) return;
+		if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
+		wsReconnectTimer = setTimeout(() => {
+			wsReconnectTimer = null;
+			if (pageActive) connectWebSocket(false);
+		}, backoff);
+	}
+
 	function connectWebSocket(initial=false) {
-		if (wsFatal) return; // erro permanente (slot ocupado etc.)
+		if (!pageActive || wsFatal) return; // erro permanente (slot ocupado etc.)
 		if (wsConnecting) return; // reentrada
 		// Evita múltiplas conexões: se já existe em estado CONNECTING (0), OPEN (1) ou CLOSING (2), aguarda.
 		if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.CLOSING)) return;
@@ -270,12 +281,13 @@
 				wsConnecting = false;
 				clearInterval(wsHeartbeat);
 				setWsStatus('closed');
+				if (!pageActive) return;
 				if (wsFatal) {
 					if (!liveAnnounce) liveAnnounce = 'Não foi possível entrar nesta partida.';
 					return;
 				}
 				if (wsAttempts <= wsMaxAttempts) {
-					setTimeout(() => connectWebSocket(false), backoff);
+					scheduleWsReconnect(backoff);
 				} else {
 					console.error('WS reconnection stopped after max attempts');
 				}
@@ -283,7 +295,7 @@
 		} catch (e) {
 			wsConnecting = false;
 			console.error('Erro iniciando WS', e);
-			setTimeout(() => connectWebSocket(false), backoff);
+			if (pageActive) scheduleWsReconnect(backoff);
 		}
 	}
 
@@ -323,9 +335,20 @@
 
 	$: syncInGameBodyClass(inGame);
 
-	onDestroy(() => syncInGameBodyClass(false));
+	onDestroy(() => {
+		pageActive = false;
+		syncInGameBodyClass(false);
+		if (wsReconnectTimer) {
+			clearTimeout(wsReconnectTimer);
+			wsReconnectTimer = null;
+		}
+		clearInterval(wsHeartbeat);
+		try { ws?.close(); } catch {}
+		ws = null;
+	});
 
 	onMount(() => {
+		pageActive = true;
 		// Detecta modo debug via query (?debug=1)
 		try {
 			const sp = new URLSearchParams(window.location.search);
@@ -337,7 +360,16 @@
 			await loadGameData();
 			connectWebSocket(true);
 		})();
-		return () => { try { ws?.close(); } catch {}; clearInterval(wsHeartbeat); };
+		return () => {
+			pageActive = false;
+			if (wsReconnectTimer) {
+				clearTimeout(wsReconnectTimer);
+				wsReconnectTimer = null;
+			}
+			clearInterval(wsHeartbeat);
+			try { ws?.close(); } catch {}
+			ws = null;
+		};
 	});
 	// ======== FIM BLOCO CORRIGIDO ========
 
@@ -990,6 +1022,17 @@
 		if (redirecting || !winner) return;
 		try {
 			const res = await fetch(`/api/battleship/${roundParam}/new`, { method: 'GET', cache: 'no-store' });
+			if (res.status === 409) {
+				const roundRes = await fetch(`/api/battleship/${roundParam}`);
+				if (roundRes.ok) {
+					const roundData = await roundRes.json();
+					if (roundData?.next) {
+						redirecting = true;
+						window.location.href = `/battleship/${roundData.next}/${playerParam}`;
+						return;
+					}
+				}
+			}
 			if (res.ok) {
 				const data = await res.json();
 				if (data?.round && Number(data.round) !== Number(roundParam)) {
