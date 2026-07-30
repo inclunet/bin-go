@@ -41,6 +41,11 @@
 
 		return '';
 	}
+
+	$: shipsLine = phase === 'playing'
+		? `Navios restantes: Jogador A ${shipsRemaining.a}, Jogador B ${shipsRemaining.b}.`
+		: '';
+	$: liveStatusMessage = shipsLine ? `${getStatusMessage()} ${shipsLine}` : getStatusMessage();
 </script>
 
 <div class="battleship-status">
@@ -66,7 +71,7 @@
 	{/if}
 
 	<!-- Região aria-live dedicada apenas a mudanças de fase/turno (sem repetir resultado de tiro) -->
-	<div class="sr-only" aria-live="polite">{getStatusMessage()}</div>
+	<div class="sr-only" aria-live="polite">{liveStatusMessage}</div>
 </div>
 
 <style>

@@ -32,8 +32,9 @@
 		let high = 1;
 		while (high <= 10000) {
 			const res = await fetchRoundMeta(high);
-			if (!res || res.status === 404) break;
-			if (!res.ok) break;
+			if (!res) return last || null;
+			if (res.status === 404) break;
+			if (!res.ok) return last || null;
 			last = high;
 			high *= 2;
 		}
@@ -46,7 +47,7 @@
 				if (res?.status === 404) {
 					hi = mid - 1;
 				} else {
-					break;
+					return last || null;
 				}
 				continue;
 			}
@@ -59,7 +60,12 @@
 	async function fetchLatest(silent = false) {
 		if (!silent) loading = true;
 		try {
-			lastRound = await findLastRound();
+			const detected = await findLastRound();
+			if (detected === null) {
+				if (!silent) errorMsg = 'Falha ao detectar partidas.';
+				return;
+			}
+			lastRound = detected;
 			if(lastRound > 0){
 				try { 
 					const lastRes = await fetch(`/api/battleship/${lastRound}`, { cache: 'no-store' }); 
