@@ -121,6 +121,7 @@
 	let hasPlayerA = false;
 	let hasPlayerB = false;
 	let redirecting = false;
+	let initError = '';
 
 	let shipOrientation = 'horizontal';
 	let currentShipIndex = 0;
@@ -331,7 +332,8 @@
 			debugMode = sp.get('debug') === '1';
 		} catch {}
 		(async () => {
-			await ensureRound();
+			const ready = await ensureRound();
+			if (redirecting || !ready) return;
 			await loadGameData();
 			connectWebSocket(true);
 		})();
@@ -946,20 +948,29 @@
 			const response = await fetch(`/api/battleship/${roundParam}`);
 			if (response.status === 404) {
 				const createResponse = await fetch(`/api/battleship/${roundParam}/new`);
-				if (createResponse.ok) {
-					const data = await createResponse.json();
-					if (data?.round && Number(data.round) !== Number(roundParam)) {
-						redirecting = true;
-						window.location.href = `/battleship/${data.round}/${playerParam}`;
-						return;
-					}
-					await loadRound();
+				if (!createResponse.ok) {
+					initError = 'Partida não encontrada.';
+					return false;
 				}
-			} else if (response.ok) {
+				const data = await createResponse.json();
+				if (data?.round && Number(data.round) !== Number(roundParam)) {
+					redirecting = true;
+					window.location.href = `/battleship/${data.round}/${playerParam}`;
+					return false;
+				}
 				await loadRound();
+				return true;
 			}
+			if (response.ok) {
+				await loadRound();
+				return true;
+			}
+			initError = 'Partida não encontrada.';
+			return false;
 		} catch (error) {
 			console.error('Erro garantindo partida', error);
+			initError = 'Falha ao carregar a partida.';
+			return false;
 		}
 	}
 
@@ -1000,6 +1011,9 @@
 <AdProtection protection="strict" />
 
 <div class="battleship-container py-4 d-flex flex-column" class:in-game={inGame}>
+	{#if initError}
+		<p class="alert alert-danger" role="alert">{initError}</p>
+	{:else}
 	<!-- Anúncio topo (desktop/mobile permitido conforme config) -->
 	<AdManager
 		placement="top"
@@ -1139,6 +1153,7 @@
 	/>
 
 	<div class="sr-only" aria-live="polite">{liveAnnounce}</div>
+	{/if}
 </div>
 
 {#if debugMode}

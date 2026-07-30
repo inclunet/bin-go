@@ -63,10 +63,30 @@
 	async function newRound() {
 		creating = true; errorMsg='';
 		try {
-			const next = lastRound + 1 || 1;
-			const res = await fetch(`/api/battleship/${next}/new`);
-			if(!res.ok){ errorMsg='Erro criando partida'; creating=false; return; }
-			window.location.href = `/battleship/${next}`;
+			let createUrl;
+			if (lastRound === 0) {
+				createUrl = '/api/battleship/1/new';
+			} else if (lastWinner) {
+				createUrl = `/api/battleship/${lastRound}/new`;
+			} else {
+				window.location.href = `/battleship/${lastRound}`;
+				return;
+			}
+			const res = await fetch(createUrl);
+			if (res.status === 409 && lastWinner) {
+				const lastRes = await fetch(`/api/battleship/${lastRound}`);
+				if (lastRes.ok) {
+					const lastData = await lastRes.json();
+					if (lastData?.next) {
+						window.location.href = `/battleship/${lastData.next}`;
+						return;
+					}
+				}
+			}
+			if (!res.ok) { errorMsg = 'Erro criando partida'; creating = false; return; }
+			const data = await res.json();
+			const targetRound = data?.round ?? (lastRound + 1 || 1);
+			window.location.href = `/battleship/${targetRound}`;
 		} catch(e){ errorMsg='Falha de rede'; creating=false; }
 	}
 
